@@ -1,0 +1,741 @@
+/**
+ * common display for module configuration
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please refer to http://doc.prestashop.com/display/PS15/Overriding+default+behaviors
+ * #Overridingdefaultbehaviors-Overridingamodule%27sbehavior for more information.
+ *
+ * @category Prestashop
+ * @category Module
+ * @author Samdha <contact@samdha.net>
+ * @copyright Samdha
+ * @license commercial license see license.txt
+**/
+
+#samdha_warper.ps14 *, #samdha_warper.ps15 * {font-family: Arial,Verdana,Helvetica,sans-serif}
+
+#samdha_warper {
+  display:table;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#samdha_warper.ps16 {
+  display:block;
+  margin-left: -5px;
+  margin-right: -5px;
+  width: auto;
+}
+
+#samdha_about {
+  display:table-cell;
+  vertical-align: top;
+}
+.bootstrap #samdha_aboutform {
+  margin-top: .7em;
+}
+
+#samdha_aboutform {
+  margin-bottom: .7em;
+}
+
+#samdha_about.ps14,
+#samdha_about.ps15 {
+  width: 283px;
+}
+
+#samdha_content {
+  display:table-cell;
+  vertical-align: top;
+}
+
+#samdha_content.ps14,
+#samdha_content.ps15 {
+  padding: 11px 10px 0 0;
+}
+
+#samdha_content.ps16 {
+  display: block;
+}
+
+#samdha_contact {
+  padding-left: 20px;
+  background: url(../../../../img/admin/email.gif) center left no-repeat;
+}
+
+#samdha_about ul,
+#samdha_about ol,
+#samdha_tab ul,
+#samdha_tab ol {
+  list-style:none; margin: 0; padding: 0;
+}
+
+#samdha_tab .disqus_install li {
+  list-style-type: decimal;
+  margin-left : 2em;
+  margin-bottom : 0.5em;
+}
+
+#samdha_content label {
+  width: 150px;
+}
+
+#samdha_content .radio label {
+  width: auto;
+}
+
+#samdha_content label.t {
+  font-weight: normal;
+}
+
+#samdha_content .margin-form {
+  padding-left: 160px;
+}
+
+#samdha_content .margin-form p {
+  clear: left;
+}
+
+#samdha_content .clear {
+  clear: both;
+}
+
+#samdha_content:not(.ps16) .ui-buttonset .ui-button {
+    margin-left: 0;
+    margin-right: -0.3em;
+}
+
+
+body:not(.page-sidebar) .arrow:after {
+  background: #FFF;
+  border: 2px solid #AAA;
+}
+body:not(.page-sidebar) .arrow {
+  width: 70px;
+  height: 16px;
+  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  margin-left: -35px;
+  bottom: -16px;
+}
+body:not(.page-sidebar) .arrow.top {
+  top: -16px;
+  bottom: auto;
+}
+body:not(.page-sidebar) .arrow.left {
+  left: 20%;
+}
+body:not(.page-sidebar) .arrow:after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: -20px;
+  width: 25px;
+  height: 25px;
+  box-shadow: 0px 0px 5px #AAA;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  tranform: rotate(45deg);
+}
+body:not(.page-sidebar) .arrow.top:after {
+  bottom: -20px;
+  top: auto;
+}
+
+.module_help {
+    display: inline-block;
+    vertical-align: top;
+    padding: 2px 6px;
+    background: #32A5E2;
+    -moz-border-radius: 60px;
+    border-radius: 60px;
+    font-weight: bold;
+    color: #FFF !important;
+    line-height: 14px;
+    text-decoration: none !important;
+}
+
+span.radio + .module_help {
+    margin-left: 0.5em;
+}
+
+#content .error {
+  width : auto;
+}
+
+.alert, .warn, .solid_hint, .conf {
+  position: relative;
+}
+
+.alert_close {
+  position: absolute;
+  top: 4px;
+  right: 3px;
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: url('../img/chosen-sprite.png') -42px 1px no-repeat;
+  font-size: 1px;
+  cursor: pointer;
+}
+
+#samdha_content .hidden {
+  display: none !important;
+}
+
+.solid_hint {
+  display: block; overflow-y: hidden;
+  margin-bottom: 1em;
+  z-index: 0;
+  width: auto;
+  border: 1px solid #00529B;
+  color: #00529B;
+  background-color: #BDE5F8;
+  float: none;
+}
+
+#samdha_content.ps14 .solid_hint {
+  max-width: 551px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.solid_hint ol {counter-reset: lignes; margin-top: 1em; list-style: decimal;padding-left: 1.5em}
+.solid_hint li {list-style: decimal; padding-left: 0; margin-bottom: .5em}
+
+.solid_hint pre {
+  font-family: "Consolas", "Lucida Console", "Monaco", monospace;
+  background: #D4EEFA;
+  border: 1px solid #32A5E2;
+  color: #000000;
+  display: block;
+  display: inline-block;
+  line-height: 1.25;
+  margin: 0.3em 0px;
+  padding: 0.5em 1em;
+}
+
+#samdha_content.ps14 .accordion {
+  margin-left: -20px;
+  margin-right: -20px;
+  width: 633px;
+}
+
+#samdha_content:not(.ps16) table {
+  border-collapse: collapse;
+  line-height: 22px;
+}
+
+#samdha_content table td,
+#samdha_content table th {
+  padding: 0.25em;
+}
+
+#samdha_content:not(.ps16) table td {
+  border: 1px solid #AAA;
+}
+
+#samdha_content:not(.ps16) table tbody tr:nth-child(even) {
+  background-color: #EFEFEF;
+}
+
+#samdha_content table.mceLayout {
+  border: 0;
+  border-left: 1px solid #CCC;
+  border-right: 1px solid #CCC
+}
+
+#samdha_content table.mceLayout tr.mceLast td {
+  border: 0;
+  border-bottom: 1px solid #CCC;
+}
+
+#samdha_content table.mceToolbar, #samdha_content table tr.mceFirst .mceToolbar tr td, #samdha_content table tr.mceLast .mceToolbar tr td {
+  border: 0;
+  padding: 0;
+}
+
+.chosen-single {
+  text-align: left;
+}
+/* formalize */
+#samdha_warper .input_tiny {
+  width: 50px;
+}
+
+#samdha_warper .input_small {
+  width: 100px;
+}
+
+#samdha_warper .input_medium {
+  width: 150px;
+}
+
+#samdha_warper .input_large {
+  width: 200px;
+}
+
+#samdha_warper .input_xlarge {
+  width: 250px;
+}
+
+#samdha_warper .input_xxlarge {
+  width: 300px;
+}
+
+#samdha_warper .input_full {
+  width: 100%;
+}
+
+#samdha_warper .input_full_wrap {
+  display: block;
+  padding-right: 8px;
+}
+
+#samdha_warper input[type="search"]::-webkit-search-decoration {
+  display: none;
+}
+
+#samdha_warper input:invalid,
+#samdha_warper select:invalid,
+#samdha_warper textarea:invalid {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+#samdha_warper:not(.ps16) input[type="date"]:focus,
+#samdha_warper:not(.ps16) input[type="datetime"]:focus,
+#samdha_warper:not(.ps16) input[type="datetime-local"]:focus,
+#samdha_warper:not(.ps16) input[type="email"]:focus,
+#samdha_warper:not(.ps16) input[type="month"]:focus,
+#samdha_warper:not(.ps16) input[type="number"]:focus,
+#samdha_warper:not(.ps16) input[type="password"]:focus,
+#samdha_warper:not(.ps16) input[type="search"]:focus,
+#samdha_warper:not(.ps16) input[type="tel"]:focus,
+#samdha_warper:not(.ps16) input[type="text"]:focus,
+#samdha_warper:not(.ps16) input[type="time"]:focus,
+#samdha_warper:not(.ps16) input[type="url"]:focus,
+#samdha_warper:not(.ps16) input[type="week"]:focus
+/*#samdha_warper button:focus,
+#samdha_warper a.button:focus,*/
+#samdha_warper:not(.ps16) select:focus,
+#samdha_warper:not(.ps16) textarea:focus {
+  -webkit-box-shadow: #0066ff 0 0 5px 0;
+  -moz-box-shadow: #0066ff 0 0 5px 0;
+  box-shadow: #0066ff 0 0 5px 0;
+  z-index: 1;
+}
+
+#samdha_warper:not(.ps16) input[type="file"]:focus,
+#samdha_warper:not(.ps16) input[type="file"]:active,
+#samdha_warper:not(.ps16) input[type="radio"]:focus,
+#samdha_warper:not(.ps16) input[type="radio"]:active,
+#samdha_warper:not(.ps16) input[type="checkbox"]:focus,
+#samdha_warper:not(.ps16) input[type="checkbox"]:active {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+
+#samdha_warper:not(.ps16) textarea,
+#samdha_warper:not(.ps16) select,
+#samdha_warper:not(.ps16) input[type="date"],
+#samdha_warper:not(.ps16) input[type="datetime"],
+#samdha_warper:not(.ps16) input[type="datetime-local"],
+#samdha_warper:not(.ps16) input[type="email"],
+#samdha_warper:not(.ps16) input[type="month"],
+#samdha_warper:not(.ps16) input[type="number"],
+#samdha_warper:not(.ps16) input[type="password"],
+#samdha_warper:not(.ps16) input[type="search"],
+#samdha_warper:not(.ps16) input[type="tel"],
+#samdha_warper:not(.ps16) input[type="text"],
+#samdha_warper:not(.ps16) input[type="time"],
+#samdha_warper:not(.ps16) input[type="url"],
+#samdha_warper:not(.ps16) input[type="week"] {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-background-clip: padding;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  -webkit-appearance: none;
+  background-color: white;
+  border: 1px solid;
+  border-color: #848484 #c1c1c1 #e1e1e1;
+  color: black;
+  outline: 0;
+  margin: 0;
+  padding: 2px 3px;
+  text-align: left;
+  font-size: 13px;
+  font-family: Arial, "Liberation Sans", FreeSans, sans-serif;
+  height: 1.8em;
+  vertical-align: top;
+  *padding-top: 2px;
+  *padding-bottom: 1px;
+  *height: auto;
+}
+
+/*.bootstrap #samdha_warper textarea,
+.bootstrap #samdha_warper select,
+.bootstrap #samdha_warper input[type="date"],
+.bootstrap #samdha_warper input[type="datetime"],
+.bootstrap #samdha_warper input[type="datetime-local"],
+.bootstrap #samdha_warper input[type="email"],
+.bootstrap #samdha_warper input[type="month"],
+.bootstrap #samdha_warper input[type="number"],
+.bootstrap #samdha_warper input[type="password"],
+.bootstrap #samdha_warper input[type="search"],
+.bootstrap #samdha_warper input[type="tel"],
+.bootstrap #samdha_warper input[type="text"],
+.bootstrap #samdha_warper input[type="time"],
+.bootstrap #samdha_warper input[type="url"],
+.bootstrap #samdha_warper input[type="week"] {
+  height: 27px;
+}*/
+
+#samdha_warper textarea[disabled],
+#samdha_warper select[disabled],
+#samdha_warper input[type="date"][disabled],
+#samdha_warper input[type="datetime"][disabled],
+#samdha_warper input[type="datetime-local"][disabled],
+#samdha_warper input[type="email"][disabled],
+#samdha_warper input[type="month"][disabled],
+#samdha_warper input[type="number"][disabled],
+#samdha_warper input[type="password"][disabled],
+#samdha_warper input[type="search"][disabled],
+#samdha_warper input[type="tel"][disabled],
+#samdha_warper input[type="text"][disabled],
+#samdha_warper input[type="time"][disabled],
+#samdha_warper input[type="url"][disabled],
+#samdha_warper input[type="week"][disabled] {
+  background-color: #eeeeee;
+}
+
+/*#samdha_warper button[disabled],*/
+#samdha_warper input[disabled],
+#samdha_warper select[disabled],
+#samdha_warper select[disabled] option,
+#samdha_warper select[disabled] optgroup,
+#samdha_warper textarea[disabled]/*,
+#samdha_warper a.button_disabled*/ {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+  color: #888888;
+  cursor: default;
+}
+
+#samdha_warper input::-webkit-input-placeholder,
+#samdha_warper textarea::-webkit-input-placeholder {
+  color: #888888;
+}
+
+#samdha_warper input:-moz-placeholder,
+#samdha_warper textarea:-moz-placeholder {
+  color: #888888;
+}
+
+#samdha_warper input.placeholder_text,
+#samdha_warper textarea.placeholder_text {
+  color: #888888;
+}
+
+#samdha_warper textarea,
+#samdha_warper select[size],
+#samdha_warper select[multiple] {
+  height: auto;
+}
+
+#samdha_warper select[size="0"],
+#samdha_warper select[size="1"] {
+  height: 1.8em;
+  *height: auto;
+}
+
+@media (-webkit-min-device-pixel-ratio: 0) {
+  #samdha_warper select[size],
+  #samdha_warper select[multiple],
+  #samdha_warper select[multiple][size] {
+    background-image: none;
+    padding-right: 3px;
+  }
+
+  #samdha_warper select,
+  #samdha_warper select[size="0"],
+  #samdha_warper select[size="1"] {
+    background-image: url(data:image/png;base64,R0lGODlhDQAEAIAAAAAAAP8A/yH5BAEHAAEALAAAAAANAAQAAAILhA+hG5jMDpxvhgIAOw==);
+    background-repeat: no-repeat;
+    background-position: right center;
+    padding-right: 20px;
+  }
+
+  ::-webkit-validation-bubble-message {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #666666), color-stop(1, black));
+    border: 0;
+    color: white;
+    font: 13px/17px "Lucida Grande", Arial, "Liberation Sans", FreeSans, sans-serif;
+    overflow: hidden;
+    padding: 15px 15px 17px;
+    text-shadow: black 0 0 1px;
+    min-height: 16px;
+  }
+
+  ::-webkit-validation-bubble-arrow,
+  ::-webkit-validation-bubble-top-outer-arrow,
+  ::-webkit-validation-bubble-top-inner-arrow {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #666666;
+    border-color: #666666;
+  }
+}
+#samdha_warper textarea {
+  min-height: 40px;
+  overflow: auto;
+  resize: vertical;
+  width: 100%;
+}
+
+#samdha_warper optgroup {
+  color: black;
+  font-style: normal;
+  font-weight: normal;
+  font-family: Arial, "Liberation Sans", FreeSans, sans-serif;
+}
+#samdha_warper optgroup::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+#samdha_warper .ie6_input,
+* html #samdha_warper textarea,
+* html #samdha_warper select {
+  background: white;
+  border: 1px solid;
+  border-color: #848484 #c1c1c1 #e1e1e1;
+  color: black;
+  padding: 2px 3px 1px;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  vertical-align: top;
+}
+
+* html #samdha_warper select {
+  margin-top: 1px;
+}
+
+#samdha_warper .placeholder_text,
+#samdha_warper .ie6_input_disabled,
+#samdha_warper .ie6_button_disabled {
+  color: #888888;
+}
+
+#samdha_warper .ie6_input_disabled {
+  background: #eeeeee;
+}
+
+#samdha_warper .ui-button-text>.ui-button-text {
+    padding: 0;
+}
+
+.bootstrap #samdha_warper .radio,
+.bootstrap #samdha_warper .checkbox {
+  display: inline-block;
+  margin: 0;
+  padding-left: 0;
+}
+
+.bootstrap #samdha_content label,
+.bootstrap #samdha_content .radio label.t {
+  float: left;
+}
+
+.bootstrap #samdha_content .radio label {
+  padding-left: 10px;
+}
+
+.bootstrap #samdha_content label.t {
+  float: none;
+  width: auto;
+}
+
+.bootstrap #samdha_content select {
+  display: inline;
+}
+
+#samdha_wait {
+  text-align: center;
+  padding: 1em;
+}
+
+/*#samdha_content .chosen-container-single .chosen-single div b:before,
+chosen-container-single .chosen-single div b:before {
+  content:none;
+}*/
+
+.bootstrap #samdha_content input[type="text"],
+.bootstrap #samdha_content input[type="search"],
+.bootstrap #samdha_content input[type="password"],
+.bootstrap #samdha_content input[type="file"],
+.bootstrap #samdha_content select {
+  display: inline-block;
+  width: auto;
+}
+
+#content.bootstrap #samdha_content h3:not(.modal-title):not(.tab) {
+  margin: 17px 0 8.5px;
+}
+
+.chosen-container-single .chosen-search input[type="text"] {
+  width: 100% !important;
+}
+
+.page-sidebar .chosen-container-single .chosen-single {
+  height: 31px;
+  border: 1px solid #ccc;
+}
+
+.bootstrap .mColorPickerTrigger {display: inline-block; width: auto}
+
+#samdha_content.ps16 .displayed_flag {
+  margin: 4px 0 0 4px;
+  display: inline-block;
+}
+
+#samdha_content.ps16 .language_flags {
+  display: none;
+  float: left;
+  background: #FFF;
+  margin: 4px;
+  padding: 8px;
+  width: 80px;
+  border: 1px solid #555;
+}
+
+#samdha_content .ui-tabs-vertical { width: 100%; background: none;}
+#samdha_content .ui-tabs-vertical>ul li { clear: left; width: 100%; border: none !important; margin: 0; }
+#samdha_content .ui-tabs-vertical>ul li a { display:block; }
+#samdha_content .ui-tabs-vertical>ul li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; }
+#samdha_content .ui-tabs-vertical .ui-tabs-panel {margin: 0; padding: 0 0 0 5px}
+
+#samdha_content .ui-tabs-vertical>ul {padding: 0 5px 0 0; border: none;}
+#samdha_content .ui-tabs-vertical>ul li a {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: -1px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  color: #555;
+}
+
+#samdha_content .ui-tabs-vertical>ul li:first-child a {
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
+
+#samdha_content .ui-tabs-vertical .ui-tabs-nav li:last-child a {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+#samdha_content .ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active a {
+  z-index: 2;
+  color: #fff;
+  background-color: #00aff0;
+  border-color: #00aff0;
+}
+
+.toolbarBox .process-icon-register {
+    background-image: url(../img/Gnome-Dialog-Password-32.png);
+}
+.toolbarBox .process-icon-update {
+    background-image: url(../img/Gnome-System-Software-Update-32.png);
+}
+
+.samdha_adv {
+  clear: left;
+  padding-top: 1em;
+}
+
+.samdha_rating,
+.samdha_products {
+  display: block;
+  text-align: left;
+  clear: left;
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 1em;
+  height: 50px;
+  line-height: 50px;
+}
+
+.samdha_rating:hover {
+  text-decoration: none !important;
+  color: #fff !important;
+  background-color: #251b5b;
+}
+
+
+.samdha_rating::before {
+  content: "★";
+  display: block;
+  color: #fff;
+  font-size: 2em;
+  float: left;
+  width: 40px;
+  text-align: center;
+  background-color: #251b5b;
+  margin-right: 10px;
+  height: 48px;
+}
+
+.samdha_rating:hover::before {
+  background: #20174f;
+}
+
+.samdha_products:hover {
+  text-decoration: none !important;
+  background-color: #df0067;
+  color: #fff !important;
+}
+
+.samdha_products::before {
+  font-family: FontAwesome;
+  content: " ";
+  display: block;
+  color: #fff;
+  font-size: 2em;
+  float: left;
+  width: 40px;
+  text-align: center;
+  background-color: #df0067;
+  margin-right: 10px;
+  height: 48px;
+}
+
+.samdha_products:hover::before {
+  background: #d00060;
+}
+
