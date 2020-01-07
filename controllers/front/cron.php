@@ -92,7 +92,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $curl_error = curl_error($ch);
                 curl_close($ch);
-                if ($http_code === 200) {
+                if ($http_code === 200 && $data) {
                     $catalog = json_decode($data);
                     $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE (sync_status = 'queued' OR sync_status = 'imported');";
                     $prds = Db::getInstance()->ExecuteS($sql);
@@ -564,7 +564,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                             $name = $this->getCategory($langCode);
                             $cat->name[$lang['id_lang']] = $name;
                             $cat->description[$lang['id_lang']] = $name;
-                            $cat->link_rewrite[$lang['id_lang']] = str_replace(' ', '_', $name);
+                            $cat->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
                         }
                         $cat->save();
                         $cat->id_category = $cat->id;
@@ -581,7 +581,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                             $name = $this->getSubCategory($langCode);
                             $subCat->name[$lang['id_lang']] = $name;
                             $subCat->description[$lang['id_lang']] = $name;
-                            $subCat->link_rewrite[$lang['id_lang']] = str_replace(' ', '_', $name);
+                            $subCat->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
                         }
                         $subCat->save();
                         $subCat->id_category = $subCat->id;
@@ -603,7 +603,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                                 $name = $this->getGender($langCode);
                                 $gender->name[$lang['id_lang']] = $name;
                                 $gender->description[$lang['id_lang']] = $name;
-                                $gender->link_rewrite[$lang['id_lang']] = str_replace(' ', '_', $name);
+                                $gender->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
                             }
                             $gender->save();
                             $gender->id_category = $gender->id;
@@ -624,7 +624,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                             $name = $this->getCategory($langCode);
                             $cat->name[$lang['id_lang']] = $name;
                             $cat->description[$lang['id_lang']] = $name;
-                            $cat->link_rewrite[$lang['id_lang']] = str_replace(' ', '_', $name);
+                            $cat->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
                         }
                         $cat->save();
                         $cat->id_category = $cat->id;
@@ -634,20 +634,23 @@ class cronCronModuleFrontController extends ModuleFrontController
                     if($r) {
                         $subCat = (object) $r[0];
                     } else {
-                        $subCat = new Category();
-                        $subCat->id_parent = $cat->id_category;
-                        foreach ($languages as $lang){
-                            $langCode = str_replace('-', '_', $lang['locale']);
-                            $name = $this->getSubCategory($langCode);
-                            $subCat->name[$lang['id_lang']] = $name;
-                            $subCat->description[$lang['id_lang']] = $name;
-                            $subCat->link_rewrite[$lang['id_lang']] = str_replace(' ', '_', $name);
+                        try{
+                            $subCat = new Category();
+                            $subCat->id_parent = (int)$cat->id_category;
+                            foreach ($languages as $lang){
+                                $langCode = str_replace('-', '_', $lang['locale']);
+                                $name = $this->getSubCategory($langCode);
+                                $subCat->name[$lang['id_lang']] = $name;
+                                $subCat->description[$lang['id_lang']] = $name;
+                                $subCat->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
+                            }
+                            $subCat->save();
+                            $subCat->id_category = $subCat->id;
+                        } catch (PrestaShopException $e) {
+                            file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Error On Saving Subcategory\n", FILE_APPEND);
                         }
-                            $s = $subCat->save();
-                        $subCat->id_category = $subCat->id;
                     }
                 }
-                //var_dump($subCat->id_category, $this->api_category_structure, $this->color, $this->brand, $this->gender, $this->category, $this->subcategory, $this->season, $this->product);die;
 
                 $id_manufacturer = 0;
                 $manufacturer = Db::getInstance()->executeS("SELECT * FROM `"._DB_PREFIX_."manufacturer` WHERE name='".$this->brand."'");
@@ -670,7 +673,6 @@ class cronCronModuleFrontController extends ModuleFrontController
                 var_dump($r);die;*/
 
 
-                //var_dump($this->product->availability);die;
 
                 $product = new Product();
                 foreach ($languages as $lang) {
@@ -678,7 +680,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                     $product->name[$lang['id_lang']] =  $this->getName($langCode);
                     $product->description[$lang['id_lang']] = $this->getDescriptions($langCode);
                     $product->description_short[$lang['id_lang']] = $this->getDescriptions($langCode);
-                    $product->link_rewrite[$lang['id_lang']] = $this->product->code;
+                    $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($this->getName($langCode));
                 }
 
                 $product->weight = $this->product->weight;
@@ -695,8 +697,6 @@ class cronCronModuleFrontController extends ModuleFrontController
                 $product->save();
                 $product->addToCategories(array($subCat->id_category));
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Product Saved(".$product->id.")\n", FILE_APPEND);
-
-
 
                 echo "Product ID : $product_id From $catalog_id Imported \n";
                 /*foreach ($languages as $lang) {
