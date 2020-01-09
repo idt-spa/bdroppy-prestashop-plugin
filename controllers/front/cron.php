@@ -92,7 +92,8 @@ class cronCronModuleFrontController extends ModuleFrontController
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $curl_error = curl_error($ch);
                 curl_close($ch);
-                if ($http_code === 200 && $data) {
+                //echo "<pre>";var_dump($url, $http_code, $data);die;
+                if ($http_code === 200 && $data != "null") {
                     $catalog = json_decode($data);
                     $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE (sync_status = 'queued' OR sync_status = 'imported');";
                     $prds = Db::getInstance()->ExecuteS($sql);
@@ -226,7 +227,7 @@ class cronCronModuleFrontController extends ModuleFrontController
         try {
             $featureValueId = $this->_addFeatureValue($featureId, $values);
         } catch (PrestaShopException $e) {
-            var_dump('Error while saving feature value for ' . $featureCode . ' : ' . $e->getMessage());die;
+            var_dump('Error while saving feature value for ' . $featureCode . ' : ' . $e->getMessage());
             return false;
         }
         if (!$featureValueId) {
@@ -640,6 +641,7 @@ class cronCronModuleFrontController extends ModuleFrontController
                             foreach ($languages as $lang){
                                 $langCode = str_replace('-', '_', $lang['locale']);
                                 $name = $this->getSubCategory($langCode);
+                                $name = trim($name);
                                 $subCat->name[$lang['id_lang']] = $name;
                                 $subCat->description[$lang['id_lang']] = $name;
                                 $subCat->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($name);
@@ -663,16 +665,6 @@ class cronCronModuleFrontController extends ModuleFrontController
                     $manufacturer->save();
                     $id_manufacturer = $manufacturer->id;
                 }
-                /*echo "<pre>";$attributes = Attribute::getAttributes(2);
-                $attrs = array();
-                foreach ($attributes as $attribute) {
-                    array_push($attrs, $attribute['id_attribute']);
-                }
-                $r = $product->getProductAttributes(457);
-
-                var_dump($r);die;*/
-
-
 
                 $product = new Product();
                 foreach ($languages as $lang) {
@@ -688,22 +680,19 @@ class cronCronModuleFrontController extends ModuleFrontController
                 $product->id_category[] = $subCat->id_category;
                 $product->ean13 = "0";
                 $product->upc = "";
+                $product->id_tax_rules_group = 0;
                 $product->id_category_default = $subCat->id_category;
                 $product->is_virtual = "0";
-                $product->price = floatval($this->product->suggestedPrice);
-                $product->wholesale_price = floatval($this->product->bestTaxable);
+                $product->price = $this->product->sellPrice;
                 $product->quantity = $this->product->availability;
                 $product->id_manufacturer = $id_manufacturer;
                 $product->save();
                 $product->addToCategories(array($subCat->id_category));
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Product Saved(".$product->id.")\n", FILE_APPEND);
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
+                $r = Db::getInstance()->ExecuteS($sql);
 
                 echo "Product ID : $product_id From $catalog_id Imported \n";
-                /*foreach ($languages as $lang) {
-                    $langCode = str_replace('-', '_', $lang['locale']);
-                    $id_feature_value = (int)FeatureValue::addFeatureValueImport($this->api_size,$this->product->models[0]->size,$product->id,$langCode,1);
-                    $r = Product::addFeatureProductImport($product->id, $this->api_size, $id_feature_value);
-                }*/
 
                 $photo_base = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
                 $imgCoverFlag = true;
@@ -726,6 +715,8 @@ class cronCronModuleFrontController extends ModuleFrontController
                         file_put_contents($this->debugImportFile, "Error in Attaching Image : " . var_export($e, true) . "\n", FILE_APPEND);
                     }
                 }
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=2 WHERE id=".$item['id'].";";
+                $r = Db::getInstance()->ExecuteS($sql);
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Images Attached to Product " . var_export($images, true) . "\n", FILE_APPEND);
                 echo "Images Attached \n";
 
@@ -778,7 +769,7 @@ class cronCronModuleFrontController extends ModuleFrontController
 
                     $quantity = $model->availability;
                     $impact_on_price_per_unit = 0;
-                    $impact_on_price = $model->bestTaxable;
+                    $impact_on_price = 0;
                     $impact_on_weight = $this->product->weight;
                     $isbn_code = $model->barcode;
                     $reference = $model->code;
@@ -789,13 +780,13 @@ class cronCronModuleFrontController extends ModuleFrontController
                     $location = null;
                     $upc = null;
                     $minimal_quantity = 1;
-                    $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, "string", (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
+                    $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
                     $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
                     file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Product ID : " . $product->id . " - model : " . var_export($model, true) . " - idProductAttribute : $idProductAttribute - Combinations Save ($r)\n", FILE_APPEND);
                     $first = false;
                 }
                 echo "Combinations Saved \n*********************************\n";
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=9 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
             }
         } catch (PrestaShopException $e) {
