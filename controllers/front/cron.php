@@ -694,7 +694,11 @@ class cronCronModuleFrontController extends ModuleFrontController
 
                 echo "Product ID : $product_id From $catalog_id Imported \n";
 
-                $photo_base = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
+                if(strpos($this->base_url,'dev') !== false){
+                    $photo_base = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+                }else{
+                    $photo_base = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+                }
                 $imgCoverFlag = true;
                 $images = array();
                 foreach($this->product->pictures as $pic) {
