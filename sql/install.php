@@ -62,6 +62,40 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dropshipping_remoteorde
             UNIQUE (`ps_order_id`)
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dropshipping_remoteproduct` (
+            `id` INT(10) UNSIGNED AUTO_INCREMENT,
+            `rewix_product_id` INT(10) UNSIGNED NOT NULL UNIQUE,
+            `rewix_catalog_id` VARCHAR(128) NULL,
+            `ps_product_id` INT(10) UNSIGNED NOT NULL,
+            `sync_status` VARCHAR(128) NOT NULL,
+            `reason` TEXT,
+            `simple` INT(10) UNSIGNED NOT NULL,
+            `last_sync_date` TIMESTAMP NOT NULL,
+            `priority` INT(10) NOT NULL DEFAULT \'0\',
+            `imported` BOOLEAN NOT NULL DEFAULT FALSE,
+            PRIMARY KEY (`id`),
+            UNIQUE (`rewix_product_id`, `ps_product_id`)
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dropshipping_remotecategory` (
+            `id` INT(10) UNSIGNED AUTO_INCREMENT,
+            `rewix_category_id` VARCHAR(128) NOT NULL UNIQUE,
+            `ps_category_id` INT(10) UNSIGNED NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE (`rewix_category_id`, `ps_category_id`)
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dropshipping_remotecombination` (
+            `id` INT(10) UNSIGNED AUTO_INCREMENT,
+            `rewix_product_id` INT(10) UNSIGNED NOT NULL,
+            `rewix_model_id` INT(10) UNSIGNED NOT NULL UNIQUE,
+            `ps_model_id` INT(10) UNSIGNED NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE (`rewix_model_id`, `ps_model_id`),
+            FOREIGN KEY(`rewix_product_id`) REFERENCES `' . _DB_PREFIX_ . 'dropshipping_remoteproduct`(`rewix_product_id`)
+                ON DELETE CASCADE
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         echo "false";

@@ -7,6 +7,7 @@ $currentDirectory = str_replace('modules/reproxy/webservice/', '',
 $sep = DIRECTORY_SEPARATOR;
 require_once $currentDirectory . 'config' . $sep . 'config.inc.php';
 require_once $currentDirectory . 'init.php';
+include_once dirname(__FILE__).'/../../classes/ImportTools.php';
 
 class dropshippingDropshippingModuleFrontController extends ModuleFrontController
 {
@@ -42,8 +43,12 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
             $this->default_lang = str_replace('-', '_', $this->context->language->locale);
 
 
-            /*$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status='queued', imported=0 ;";
-            //$sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_products`;";
+            ini_set('display_errors', 1);
+            ini_set('display_startup_errors', 1);
+            error_reporting(E_ALL);
+
+            /*$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status='queued', imported=0 ;";
+            //$sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct`;";
             Db::getInstance()->ExecuteS($sql);
             echo $sql; die;*/
 
@@ -75,76 +80,72 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
 
             if(!$this->api_limit_count)
                 $this->api_limit_count = 5;
-            $minute = date('i') % 5;
-            $dev_mode = false;
-            if (isset($_GET['dev']))
-                if ($_GET['dev'] == 'isaac')
-                    $dev_mode = true;
-            if ($minute == 0 || $minute == 5 || $dev_mode) {
-                $url = $this->base_url . '/restful/export/api/products.json?user_catalog='.$this->api_catalog.'&acceptedlocales=en_US&onlyid=true';
+            $url = $this->base_url . '/restful/export/api/products.json?user_catalog='.$this->api_catalog.'&acceptedlocales=en_US&onlyid=true';
 
-                $header = "authorization: Basic " . base64_encode($this->api_key . ':' . $this->api_password);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-                $data  = curl_exec($ch);
-                $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-                $curl_error = curl_error( $ch );
-                curl_close( $ch );
+            $header = "authorization: Basic " . base64_encode($this->api_key . ':' . $this->api_password);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+            $data  = curl_exec($ch);
+            $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+            $curl_error = curl_error( $ch );
+            curl_close( $ch );
 
-                //echo "<pre>";var_dump($url, $http_code, $data);die;
-                if ($http_code === 200 && $data != "null") {
-                    $ids = [];
-                    $catalog = json_decode($data);
-                    $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE (sync_status = 'queued' OR sync_status = 'imported');";
-                    $prds = Db::getInstance()->ExecuteS($sql);
-                    foreach ($catalog->items as $item) {
-                        $ids[] = $item->refId;
+            //echo "<pre>";var_dump($url, $http_code, $data);die;
+            if ($http_code === 200 && $data != "null") {
+                $ids = [];
+                $catalog = json_decode($data);
+                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated');";
+                $prds = Db::getInstance()->ExecuteS($sql);
+                foreach ($catalog->items as $item) {
+                    $ids[] = $item->refId;
+                }
+                $products = array_map(function ($item) {
+                    return (integer)$item['rewix_product_id'];
+                }, $prds);
+                $add_products = array_diff($ids, $products);
+
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
+                $delete_products = Db::getInstance()->ExecuteS($sql);
+                //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
+
+                foreach ($delete_products as $item) {
+                    switch ($item['sync_status']) {
+                        case 'queued':
+                        case 'delete':
+                            $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
+                            $re = Db::getInstance()->ExecuteS($sql);
+                            break;
+                        case 'updated':
+                            $product = new Product($item['ps_product_id']);
+                            $product->delete();
+                            //$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status='deleted' WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
+                            $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
+                            Db::getInstance()->ExecuteS($sql);
+                            break;
                     }
-                    $products = array_map(function ($item) {
-                        return (integer)$item['rewix_product_id'];
-                    }, $prds);
-                    $add_products = array_diff($ids, $products);
-
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
-                    $delete_products = Db::getInstance()->ExecuteS($sql);
-                    //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
-
-                    foreach ($delete_products as $item) {
-                        switch ($item['sync_status']) {
-                            case 'queued':
-                            case 'delete':
-                                $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                                $re = Db::getInstance()->ExecuteS($sql);
-                                break;
-                            case 'imported':
-                                $product = new Product($item['ps_product_id']);
-                                $product->delete();
-                                //$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status='deleted' WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                                $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                                Db::getInstance()->ExecuteS($sql);
-                                break;
-                        }
-                    }
-                    foreach ($add_products as $item) {
-                        $sql = "INSERT INTO `" . _DB_PREFIX_ . "dropshipping_products` (rewix_product_id, rewix_catalog_id, sync_status) VALUES('" . $item . "','" . $this->api_catalog . "','queued');";
-                        $res = Db::getInstance()->ExecuteS($sql);
-                    }
+                }
+                foreach ($add_products as $item) {
+                    $sql = "INSERT INTO `" . _DB_PREFIX_ . "dropshipping_remoteproduct` (rewix_product_id, rewix_catalog_id, sync_status) VALUES('" . $item . "','" . $this->api_catalog . "','queued');";
+                    $res = Db::getInstance()->ExecuteS($sql);
                 }
             }
 
             // select 10 products to import
-            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
+            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
             $items = Db::getInstance()->ExecuteS($sql);
             foreach ($items as $item) {
                 if ($item['sync_status'] == 'queued') {
-                    $this->importToPS($item);
+                    if($this->default_lang == 'en_GB')
+                        $this->default_lang = 'en_US';;
+                    $this->xmlPath = DropshippingImportTools::importProduct($item, $this->default_lang);
+                    //$this->importToPS($item);
                 }
                 if ($item['sync_status'] == 'delete') {
-                    $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'deleted', imported=0 WHERE id=" . $item['id'] . ";";
+                    $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'deleted', imported=0 WHERE id=" . $item['id'] . ";";
                     $r = Db::getInstance()->ExecuteS($sql);
                     $this->removeFromPS($item);
                 }
@@ -699,7 +700,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                 $product->save();
                 $product->addToCategories(array($subCat->id_category));
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Product Saved(".$product->id.")\n", FILE_APPEND);
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
 
                 echo "Product ID : $product_id From $catalog_id Imported \n";
@@ -730,7 +731,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                         file_put_contents($this->debugImportFile, "Error in Attaching Image : " . var_export($e, true) . "\n", FILE_APPEND);
                     }
                 }
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=2 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=2 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Images Attached to Product " . var_export($images, true) . "\n", FILE_APPEND);
                 echo "Images Attached \n";
@@ -801,7 +802,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                     $first = false;
                 }
                 echo "Combinations Saved \n*********************************\n";
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_products` SET sync_status = 'imported', ps_product_id='".$product->id."', imported=9 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=9 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
             }
         } catch (PrestaShopException $e) {

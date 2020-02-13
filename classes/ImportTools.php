@@ -549,39 +549,61 @@ class DropshippingImportTools
         Configuration::updateValue(DropshippingConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
     }
 
-    private static function importProduct($xmlProduct)
+    public static function importProduct($item, $default_lang)
     {
         @set_time_limit(3600);
         @ini_set('memory_limit', '1024M');
 
-        $refId = (int) $xmlProduct->id;
-        $sku = (string) $xmlProduct->code;
-        $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
+        $xmlProduct = false;
+        $product_id = $item['rewix_product_id'];
+        $catalog_id = $item['rewix_catalog_id'];
 
-        $product = new Product($remoteProduct->ps_product_id);
-
-        //self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
-
-        // populate general common fields
-        $product = self::populateProductAttributes($xmlProduct, $product);
-        if (self::checkSimpleImport($xmlProduct)) {
-            //self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
-            $product = self::importSimpleProduct($xmlProduct, $product);
-            $remoteProduct->simple = 1;
-            $remoteProduct->save();
-        } else {
-            $product = self::importModels($xmlProduct, $product);
+        $url = Configuration::get('DROPSHIPPING_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+        curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('DROPSHIPPING_API_KEY') . ':' . Configuration::get('DROPSHIPPING_API_PASSWORD'));
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+        //var_dump($product_id, $catalog_id, $http_code, $data);die;
+        if ($http_code === 200) {
+            $xmlProduct = json_decode($data);
         }
-        $product->save();
-       
-        if (Configuration::get(DropshippingConfigKeys::IMPORT_IMAGES)) {
-            //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
-            self::importProductImages($xmlProduct, $product);
+        if($xmlProduct) {
+            $refId = (int)$xmlProduct->id;
+            $sku = (string)$xmlProduct->code;
+            $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
+
+            $product = new Product($remoteProduct->ps_product_id);
+            //echo "<pre>";var_dump($refId, $sku, $remoteProduct, $product);die;
+
+            //self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
+
+            // populate general common fields
+            $product = self::populateProductAttributes($xmlProduct, $product, $default_lang);
+            if (self::checkSimpleImport($xmlProduct)) {
+                //self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
+                $product = self::importSimpleProduct($xmlProduct, $product);
+                $remoteProduct->simple = 1;
+                $remoteProduct->save();
+            } else {
+                $product = self::importModels($xmlProduct, $product);
+            }
+            $product->save();
+
+            if (Configuration::get('DROPSHIPPING_IMPORT_IMAGE')) {
+                //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
+                self::importProductImages($xmlProduct, $product, Configuration::get('DROPSHIPPING_IMPORT_IMAGE'));
+            }
+
+            self::updateImportedProduct($refId, $product->id);
+
+            return 1;
         }
-
-        self::updateImportedProduct($refId, $product->id);
-
-        return 1;
     }
 
     private static function incrementPriority($products)
@@ -614,10 +636,12 @@ class DropshippingImportTools
         }
     }
 
-    private static function getTagValues($tag)
+    private static function getTagValues($tag, $default_lang)
     {
         $value = self::stripTagValues((string)$tag->value);
-        $translation = self::stripTagValues((string)$tag->translations->translation->description);
+        $translation = "";
+        if(isset($tag->translations->{$default_lang}))
+            $translation = self::stripTagValues((string)$tag->translations->{$default_lang});
 
         return array(
             'value'       => $value,
@@ -625,14 +649,20 @@ class DropshippingImportTools
         );
     }
 
-    private static function importProductImages($xmlProduct, $product)
+    private static function importProductImages($xmlProduct, $product, $count)
     {
         $imageCount = 1;
-        $websiteUrl = Configuration::get(DropshippingConfigKeys::WEBSITE_URL);
+        $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
+        if(strpos(Configuration::get('DROPSHIPPING_API_URL'),'dev') !== false){
+            $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+        }else{
+            $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+        }
         $product->deleteImages();
 
-        foreach ($xmlProduct->pictures->image as $image) {
-            $imageUrl = "{$websiteUrl}{$image->url}?x=1300&y=1300&pad=1&fill=white";
+        $i = 0;
+        foreach ($xmlProduct->pictures as $image) {
+            $imageUrl = "{$websiteUrl}{$image->url}";
 
             $ch = curl_init($imageUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -653,9 +683,9 @@ class DropshippingImportTools
                 $image->cover = (int)$imageCount === 1;
 
                 if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
-                    false,
-                    true
-                )) === true && $image->add()
+                        false,
+                        true
+                    )) === true && $image->add()
                 ) {
                     if (!DropshippingImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
                         $image->delete();
@@ -664,6 +694,11 @@ class DropshippingImportTools
                     }
                 }
                 @unlink($tmpfile);
+            }
+            $i++;
+            if($count != 'all') {
+                if($i >= $count)
+                    break;
             }
         }
     }
@@ -775,13 +810,70 @@ class DropshippingImportTools
         return true;
     }
 
+    private static function getTagValue($product, $name, $lang)
+    {
+        foreach ($product->tags as $tag)
+        {
+            if($tag->name === $name)
+            {
+                if (isset($tag->value->translations->{$lang})){
+                    return $tag->value->translations->{$lang};
+                }else{
+                    return $tag->value->value;
+                }
+            }
+        }
+    }
+
+    private static function getCategory($product, $lang){
+        return self::getTagValue($product, 'category','$lang');
+    }
+
+    private static function getSubCategory($product, $lang){
+        return self::getTagValue($product, 'subcategory',$lang);
+    }
+
+    private static function getDescriptions($product, $lang)
+    {
+        if (isset($product->descriptions->{$lang}))
+        {
+            return @$product->descriptions->{$lang};
+        }else{
+            return "";
+        }
+
+    }
+
+    private static function getBrand($product, $lang){
+        return self::getTagValue($product, 'brand',$lang);
+    }
+    private static function getGender($product, $lang){
+        return self::getTagValue($product, 'gender',$lang);
+    }
+    private static function getSeason($product, $lang){
+        return self::getTagValue($product, 'season',$lang);
+    }
+
+    private static function getColor($product, $lang){
+        return self::getTagValue($product, 'color',$lang);
+    }
+
+    private static function getName($product, $lang){
+        if(!empty(self::getTagValue($product, 'productname',$lang)))
+        {
+            return self::getTagValue($product, 'productname',$lang);
+        }else{
+            return $product->name;
+        }
+    }
+
     /**
      * @param $xml SimpleXMLElement node element
      * @param bool $checkImported , default true
      *
      * @return array
      */
-    private static function populateProduct($xml, $checkImported = true)
+    private static function populateProduct($xml, $default_lang, $checkImported = true)
     {
         $sku = (string)$xml->code;
         $refId = (int)$xml->id;
@@ -815,21 +907,20 @@ class DropshippingImportTools
         );
 
         //check for tag-ID:
-        foreach ($xml->tags->tag as $tag) {
+        foreach ($xml->tags as $tag) {
             if (in_array((int)$tag->id, array_keys($tags))) {
-                $tags[(int)$tag->id] = self::getTagValues($tag->value);
+                $tags[(int)$tag->id] = self::getTagValues($tag->value, $default_lang);
             }
         }
 
-        $name = $tags[DropshippingRemoteCategory::REWIX_BRAND_ID]['translation'] . ' - ' . (string)$xml->name;
-        $price = self::calculatePrice((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
-        $priceTax = self::calculatePriceTax((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
-        $bestTaxable = ((float)$xml->bestTaxable) * Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
-        $taxable = ((float)$xml->taxable) * Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
-        $suggested = ((float)$xml->suggestedPrice) * Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
-        $streetPrice = ((float)$xml->streetPrice) * Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
+        $name = (string)$xml->name;
+        $price = (float)$xml->sellPrice;
+        $priceTax = (float)$xml->taxable;
+        $bestTaxable = (float)$xml->bestTaxable;
+        $taxable = (float)$xml->taxable;
+        $suggested = (float)$xml->suggestedPrice;
+        $streetPrice = (float)$xml->streetPrice;
         $availability = (int)$xml->availability;
-        $imageURL = Configuration::get(DropshippingConfigKeys::WEBSITE_URL) . $xml->pictures->image->url;
 
         if ($checkImported) {
             $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
@@ -838,19 +929,19 @@ class DropshippingImportTools
             $imported = false;
         }
 
-        $description = (string)$xml->descriptions->description->description;
+        $description = $xml->descriptions;
 
         $product = array(
             'remote_id'             => $refId,
             'name'                  => $name,
-            'image'                 => $imageURL,
+            'pictures'              => $xml->pictures,
             'imported'              => $imported,
-            'brand'                 => $tags[DropshippingRemoteCategory::REWIX_BRAND_ID]['translation'],
-            'category'              => $tags[DropshippingRemoteCategory::REWIX_CATEGORY_ID]['translation'],
-            'subcategory'           => $tags[DropshippingRemoteCategory::REWIX_SUBCATEGORY_ID]['translation'],
-            'gender'                => $tags[DropshippingRemoteCategory::REWIX_GENDER_ID]['translation'],
-            'color'                 => $tags[DropshippingRemoteCategory::REWIX_COLOR_ID]['translation'],
-            'season'                => $tags[DropshippingRemoteCategory::REWIX_SEASON_ID]['translation'],
+            'brand'                 => self::getBrand($xml, $default_lang),
+            'category'              => self::getCategory($xml, $default_lang),
+            'subcategory'           => self::getSubcategory($xml, $default_lang),
+            'gender'                => self::getGender($xml, $default_lang),
+            'color'                 => self::getColor($xml, $default_lang),
+            'season'                => self::getSeason($xml, $default_lang),
             'code'                  => $sku,
             'availability'          => $availability,
             'best_taxable'          => $bestTaxable,
@@ -861,6 +952,7 @@ class DropshippingImportTools
             'proposed_price_tax'    => $priceTax,
             'description'           => $description,
             'tags'                  => $tags,
+            'weight'                => $xml->weight,
         );
 
         if (!empty($product)) {
@@ -947,25 +1039,26 @@ class DropshippingImportTools
         return html_entity_decode(str_replace('\n', '', trim($value)));
     }
 
-    private static function populateProductAttributes($xmlProduct, Product $product)
+    private static function populateProductAttributes($xmlProduct, Product $product, $default_lang)
     {
-        $productData = self::populateProduct($xmlProduct);
+        $productData = self::populateProduct($xmlProduct, $default_lang);
         $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
         $product->active = (int)true;
         $product->weight = (float)$xmlProduct->weight;
 
-        $product->wholesale_price = $productData['taxable'];
+        $product->wholesale_price = $productData['best_taxable'];
         $product->price = round($productData['proposed_price'], 3);
-        $product->id_tax_rules_group = Configuration::get(DropshippingConfigKeys::TAX_RULE);
+        //$product->id_tax_rules_group = Configuration::get(DropshippingConfigKeys::TAX_RULE);
 
         $languages = Language::getLanguages();
         foreach ($languages as $lang) {
+            $langCode = str_replace('-', '_', $lang['locale']);
+            if($langCode == 'en_GB')
+                $langCode = 'en_US';
             $product->name[$lang['id_lang']] = $productData['name'];
-            $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
-                "{$productData['brand']}-{$productData['code']}"
-            );
-            $product->description[$lang['id_lang']] = $productData['description'];
-            $product->description_short[$lang['id_lang']] = $productData['description'];
+            $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
+            $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
+            $product->description_short[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
         }
 
         if (!isset($product->date_add) || empty($product->date_add)) {
@@ -981,10 +1074,10 @@ class DropshippingImportTools
         // updateCategories requires the product to have an id already set
         $product->updateCategories($categories);
 
-        $colorFeatureId = Configuration::get(DropshippingConfigKeys::COLOR_ATTRIBUTE);
-        $genderFeatureId = Configuration::get(DropshippingConfigKeys::GENDER_ATTRIBUTE);
-        $seasonFeatureId = Configuration::get(DropshippingConfigKeys::SEASON_ATTRIBUTE);
-        
+        /*$colorFeatureId = Configuration::get('DROPSHIPPING_COLOR');
+        $genderFeatureId = Configuration::get('DROPSHIPPING_GENDER');
+        $seasonFeatureId = Configuration::get('DROPSHIPPING_SEASON');
+
         if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
             $featureValueId = FeatureValue::addFeatureValueImport(
                 $colorFeatureId,
@@ -1011,7 +1104,7 @@ class DropshippingImportTools
                 Configuration::get('PS_LANG_DEFAULT')
             );
             Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
-        }
+        }*/
 
         return $product;
     }
@@ -1043,53 +1136,76 @@ class DropshippingImportTools
         $xmlModels = $xmlProduct->models;
         $modelCount = 0;
 
-        foreach ($xmlModels->model as $xmlModel) {
-            $sizeAttribute = self::getSizeAttributeFromValue((string)$xmlModel->size);
-            $quantity = (int)$xmlModel->availability;
+        $languages = Language::getLanguages(false);
+        $first = true;
+        foreach ($xmlModels as $model) {
+            $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
+            $quantity = (int)$model->availability;
+            $reference = self::fitModelReference((string)$model->code, (string)$model->size);
+            $ean13 = trim((string)$model->barcode);
 
-            if ($sizeAttribute == false) {
-                return $product;
+            $combinationAttributes = array();
+            if($model->color) {
+                $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('DROPSHIPPING_COLOR')." AND al.name = '" . $model->color . "';";
+                $r = Db::getInstance()->executeS($sql);
+                if ($r) {
+                    $attribute = (object)$r[0];
+                } else {
+                    $attribute = new Attribute();
+                    foreach ($languages as $lang) {
+                        $langCode = str_replace('-', '_', $lang['locale']);
+                        if($langCode == 'en_GB')
+                            $langCode = 'en_US';
+                        $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
+                    }
+                    $attribute->id_attribute_group = Configuration::get('DROPSHIPPING_COLOR');
+                    $attribute->save();
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('DROPSHIPPING_COLOR')." AND al.name = '" . $model->color . "';";
+                    $r = Db::getInstance()->executeS($sql);
+                    if ($r) {
+                        $attribute = (object)$r[0];
+                    }
+                }
+                $combinationAttributes[] = $attribute->id_attribute;
             }
-            $remoteCombination = DropshippingRemoteCombination::fromRewixId((int)$xmlModel->id);
-            $remoteCombination->rewix_product_id = (int) $xmlProduct->id;
+            if($model->size) {
+                $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('DROPSHIPPING_SIZE') . " AND al.name = '" . $model->size . "';";
+                $r = Db::getInstance()->executeS($sql);
 
-            $reference = self::fitModelReference((string)$xmlModel->code, (string)$xmlModel->size);
-            $ean13 = trim((string)$xmlModel->barcode);
+                if ($r) {
+                    $attribute = (object)$r[0];
+                } else {
+                    $attribute = new Attribute();
+                    foreach ($languages as $lang) {
+                        $attribute->name[$lang['id_lang']] = $model->size;
+                    }
+                    $attribute->id_attribute_group = Configuration::get('DROPSHIPPING_SIZE');
+                    $attribute->save();
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('DROPSHIPPING_SIZE') . " AND al.name = '" . $model->size . "';";
+                    $r = Db::getInstance()->executeS($sql);
 
-            if ($remoteCombination->ps_model_id == 0) {
-                $combinationId = $product->addAttribute(
-                    0,
-                    0,
-                    '',
-                    0,
-                    '',
-                    $reference,
-                    Tools::strlen($ean13) == 13 ? $ean13 : '',
-                    $modelCount == 0
-                );
-                $remoteCombination->ps_model_id = $combinationId;
-                $remoteCombination->save();
-            } else {
-                $combinationId = $product->updateAttribute(
-                    $remoteCombination->ps_model_id,
-                    null,
-                    0,
-                    0,
-                    '',
-                    0,
-                    '',
-                    $reference,
-                    Tools::strlen($ean13) == 13 ? $ean13 : '',
-                    $modelCount == 0
-                );
+                    if ($r) {
+                        $attribute = (object)$r[0];
+                    }
+                }
+                $combinationAttributes[] = $attribute->id_attribute;
             }
 
-            $combination = new Combination($combinationId);
-            $combination->setAttributes(array($sizeAttribute->id));
-            //Set the correct quantity for current model
-            StockAvailable::setQuantity($product->id, $combinationId, $quantity);
-
-            ++$modelCount;
+            $impact_on_price_per_unit = 0;
+            $impact_on_price = 0;
+            $impact_on_weight = $xmlProduct->weight;
+            $isbn_code = $model->id;
+            $id_supplier = null;
+            $default = $first;
+            $location = null;
+            $id_images = null;
+            $upc = null;
+            $minimal_quantity = 1;
+            $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
+            $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
+            $sql = "UPDATE `" . _DB_PREFIX_ . "product_attribute` SET wholesale_price = ". (float) $xmlProduct->bestTaxable . " WHERE id_product_attribute=".$idProductAttribute.";";
+            $r = Db::getInstance()->ExecuteS($sql);
+            $first = false;
         }
 
         return $product;
@@ -1105,21 +1221,21 @@ class DropshippingImportTools
     /** In case of simple product, nosize combination is stored in remote_combination table for sending right variation with orders */
     private static function insertNosizeModel($xmlProduct)
     {
-        $xmlModel = $xmlProduct->models->model[0];
+        $xmlModel = $xmlProduct->models[0];
 
         $remoteCombination = DropshippingRemoteCombination::fromRewixId((int)$xmlModel->id);
         $remoteCombination->rewix_product_id = (int) $xmlProduct->id;
 
         //$reference = self::fitModelReference((string)$xmlModel->code, (string)$xmlModel->size);
         //$ean13 = trim((string)$xmlModel->barcode);
-        
+
         $remoteCombination->ps_model_id = 0;
         $remoteCombination->save();
     }
 
     private static function importSimpleProduct($xmlProduct, Product $product)
     {
-        $xmlModel = $xmlProduct->models->model[0];
+        $xmlModel = $xmlProduct->models[0];
         $product->minimal_quantity = 1;
         $product->ean13 = (string)$xmlModel->barcode;
         $product->reference = self::fitReference((string)$xmlModel->code, $xmlProduct->id);
@@ -1132,7 +1248,7 @@ class DropshippingImportTools
 
     private static function getSizeAttributeFromValue($value)
     {
-        $sizeAttrGroupId = Configuration::get(DropshippingConfigKeys::SIZE_ATTRIBUTE);
+        $sizeAttrGroupId = Configuration::get('DROPSHIPPING_SIZE');
         if (Tools::strlen($sizeAttrGroupId) == 0 || $sizeAttrGroupId == 0) {
             return false;
         }
@@ -1158,8 +1274,8 @@ class DropshippingImportTools
 
     private static function checkSimpleImport($xmlProduct)
     {
-        if (count($xmlProduct->models->model) == 1) {
-            $xmlModel = $xmlProduct->models->model[0];
+        if (count($xmlProduct->models) == 1) {
+            $xmlModel = $xmlProduct->models[0];
             $size = (string)$xmlModel->size;
             if ($size == 'NOSIZE') {
                 return true;
@@ -1176,7 +1292,7 @@ class DropshippingImportTools
         if (self::$categoryStructure != null) {
             return self::$categoryStructure;
         }
-        if (Configuration::get(DropshippingConfigKeys::CATEGORY_STRUCTURE) == 'withgender') {
+        if (Configuration::get('DROPSHIPPING_CATEGORY_STRUCTURE') == '2') {
             self::$categoryStructure = array(
                 array(
                     DropshippingRemoteCategory::REWIX_GENDER_ID,

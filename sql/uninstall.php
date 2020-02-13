@@ -34,6 +34,9 @@ $sql = array();
 $sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_products`;';
 $sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_catalogs`;';
 $sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remoteorder`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remotecombination`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remotecategory`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remoteproduct`;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
