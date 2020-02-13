@@ -46,7 +46,7 @@ class Dropshipping extends Module
     {
         $this->name = 'dropshipping';
         $this->tab = 'administration';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 

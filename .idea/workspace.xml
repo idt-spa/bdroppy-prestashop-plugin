@@ -3,10 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/ImportTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/front/dropshipping.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/dropshipping.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/install.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/install.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/uninstall.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/uninstall.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +72,7 @@
       <updated>1581585145103</updated>
       <workItem from="1581585147057" duration="2908000" />
       <workItem from="1581590805547" duration="65000" />
-      <workItem from="1581637321499" duration="167000" />
+      <workItem from="1581637321499" duration="863000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -85,7 +81,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581585791118</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="change import product structure and category bug fix">
+      <created>1581637582189</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1581637582189</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -93,13 +96,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="change project structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="change project structure" />
+    <MESSAGE value="change import product structure and category bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="change import product structure and category bug fix" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1581585790748">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1581637581704">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1581585790748" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1581637581704" />
     <state x="466" y="142" width="424" height="494" key="FileChooserDialogImpl" timestamp="1581590270453">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
