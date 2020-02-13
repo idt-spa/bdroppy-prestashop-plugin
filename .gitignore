@@ -1,0 +1,14 @@
+node_modules
+logserver.txt
+tmp/*
+!tmp/README.TXT
+.DS_Store
+debug.log
+remote_db.sql
+.~lock*
+dist
+backoffice/.~lock*
+size_map.csv
+todo.txt
+query.json
+.idea

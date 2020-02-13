@@ -23,20 +23,21 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 /**
- * In some cases you should not drop the tables.
- * Maybe the merchant will just try to reset the module
- * but does not want to loose all of the data associated to the module.
+ * This function updates your module from previous versions to the version 1.1,
+ * usefull when you modify your database, or register a new hook ...
+ * Don't forget to create one file per version.
  */
-$sql = array();
+function upgrade_module_1_1_0($module)
+{
+    /*
+     * Do everything you want right there,
+     * You could add a column in one of your module's tables
+     */
 
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_products`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_catalogs`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remoteorder`;';
-
-foreach ($sql as $query) {
-    if (Db::getInstance()->execute($query) == false) {
-        return false;
-    }
+    return true;
 }

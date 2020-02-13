@@ -1,0 +1,7 @@
+.sidebar{ width:20% !important;}
+.content-wrap { width:80% !important;}
+.stripe-module-wrapper fieldset{display:none}
+.stripe-module-wrapper fieldset.show{display:block}
+.stripe-module-wrapper { width: 99%;
+    display: block;
+    position: relative; }

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/ps-dropshipping-module.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/ConfigKeys.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/ImportHelper.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/RemoteCategory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/RemoteCombination.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/RemoteOrder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/RemoteProduct.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/RewixApi.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/Translator.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config_gb.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/admin/AdminSettingsDropshippingController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/admin/index.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dropshipping.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upgrade/index.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/upgrade/upgrade-1.1.0.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/css/dropshipping.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/css/front.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/js/back.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/js/front.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/templates/admin/configure.tpl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoloader.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/AdminController.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/css/back.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/Context.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/Display.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/backward.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/backward.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backward_compatibility/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Commons/Configuration.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Commons/Licence.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Commons/Module.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Commons/Tools.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Commons/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Cron/Cron.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Cron/Main.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Cron/Parser.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/Cron/Tools.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Samdha/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/front/cron.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/dropshipping.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/front/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron_crontab.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron_traffic.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron_webcron.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/en.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/fr.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fr.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/JSON.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/install.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/install.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/install.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/uninstall.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/uninstall.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/uninstall.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/translations/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/samdha_fr.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/admin.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/css/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/jquery-ui-1.10.3.custom.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/jquery-ui-1.10.3.smoothness.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/jquery.chosen.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/jquery.ui.1.10.3.ie.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/multi-select.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/samdha_admin.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/Gnome-Dialog-Password-32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/Gnome-System-Software-Update-32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/chosen-sprite.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/img/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_flat_0_999999_40x100.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_flat_0_aaaaaa_40x100.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_glass_55_fbf9ee_1x400.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_glass_65_ffffff_1x400.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_glass_75_dadada_1x400.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_glass_75_e6e6e6_1x400.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_glass_75_ffffff_1x400.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_highlight-soft_75_cccccc_1x100.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-bg_inset-soft_95_fef1ec_1x100.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_222222_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_2e83ff_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_428bca_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_454545_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_555555_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_888888_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_999999_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_cd0a0a_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_f0ad4e_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_f6cf3b_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/img/ui-icons_ffffff_256x240.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/admin.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/js/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/jquery-1.9.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/jquery-ui-1.10.4.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/jquery.chosen.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/jquery.multi-select.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/js/samdha_admin.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/admin/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_aboutform.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_admin.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_confirmation.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_error.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_licenceform.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/samdha_warning.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/hook/admin.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/hook/admin_footer.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/hook/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/index.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1XkLSVEaoVYhxqOUxXlyBI7Fxwd" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="" />
+      <created>1581585145103</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1581585145103</updated>
+      <workItem from="1581585147057" duration="535000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1581585625675">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1581585625675" />
+    <state x="187" y="19" width="992" height="740" key="SettingsEditor" timestamp="1581585259355">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="187" y="19" width="992" height="740" key="SettingsEditor/0.0.1366.768@0.0.1366.768" timestamp="1581585259355" />
+    <state x="369" y="119" width="766" height="592" key="find.popup" timestamp="1581585557760">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="369" y="119" width="766" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1581585557760" />
+    <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="346" y="89" width="672" height="678" key="search.everywhere.popup/0.0.1366.768@0.0.1366.768" timestamp="1581585481682" />
+  </component>
+</project>
