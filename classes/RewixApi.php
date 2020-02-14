@@ -55,8 +55,10 @@ class DropshippingRewixApi
         if ($http_code === 200)
         {
             $catalogs = json_decode($data);
+            return $catalogs;
+        } else {
+            return $http_code;
         }
-        return $catalogs;
     }
 
     public function getCatalogById2($catalog = null)

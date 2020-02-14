@@ -1058,7 +1058,7 @@ class DropshippingImportTools
             $product->name[$lang['id_lang']] = $productData['name'];
             $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
             $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
-            $product->description_short[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
+            $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($xmlProduct, $langCode), 0, 2000);
         }
 
         if (!isset($product->date_add) || empty($product->date_add)) {

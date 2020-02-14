@@ -246,11 +246,15 @@ class Dropshipping extends Module
         $catalogs[0] = 'No Catalog';
         $rewixApi = new DropshippingRewixApi();
         $res = $rewixApi->getUserCatalogs();
-        foreach ($res as $r){
-            $r = $rewixApi->getCatalogById2($r->_id);
-            $catalogs[$r->_id]  = isset($r->name)? $r->name ." ( $r->currency ) ( ".count($r->ids)." products )" : null;
+        if(is_array($res)) {
+            foreach ($res as $r) {
+                $r = $rewixApi->getCatalogById2($r->_id);
+                $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )" : null;
+            }
+            return $catalogs;
+        } else {
+            return $res;
         }
-        return $catalogs;
     }
 
     public function getContent()
@@ -327,11 +331,13 @@ class Dropshipping extends Module
         $base_url = Configuration::get('DROPSHIPPING_API_URL');
         $api_key = Configuration::get('DROPSHIPPING_API_KEY');
 
-        $httpCode = 500;
-        $cron_url = "";
-        $txtStatus = '<span style="color: red;">Error Code : ' . $httpCode . '</span>';
-        if($catalogs) {
-            $txtStatus = '<span style="color: green;">Ok</span>';
+        $txtStatus = '<span style="color: red;">Error</span>';
+        if(is_array($catalogs)) {
+            if(count($catalogs) > 1) {
+                $txtStatus = '<span style="color: green;">Ok</span>';
+            }
+        } else {
+            $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs . '</span>';
         }
         $urls = array(
             'https://dev.bdroppy.com' => $this->l('Sandbox mode', 'main'),
