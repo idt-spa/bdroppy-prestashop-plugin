@@ -136,6 +136,9 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
             $items = Db::getInstance()->ExecuteS($sql);
             foreach ($items as $item) {
+                $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'importing'), 'id = '.$item['id']);
+            }
+            foreach ($items as $item) {
                 if ($item['sync_status'] == 'queued') {
                     if($this->default_lang == 'en_GB')
                         $this->default_lang = 'en_US';;

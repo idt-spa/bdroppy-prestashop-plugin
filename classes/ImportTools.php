@@ -595,6 +595,7 @@ class BdroppyImportTools
                     $product = self::importModels($xmlProduct, $product);
                 }
                 $product->save();
+                $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE')) {
                     //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
