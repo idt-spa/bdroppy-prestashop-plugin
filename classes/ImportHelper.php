@@ -14,9 +14,9 @@
  */
 
 /**
- * @class DropshippingImportHelper
+ * @class BdroppyImportHelper
  */
-class DropshippingImportHelper extends AdminImportControllerCore
+class BdroppyImportHelper extends AdminImportControllerCore
 {
     public static function copyImg($id_entity, $id_image = null, $url = '', $entity = 'products', $regenerate = true)
     {

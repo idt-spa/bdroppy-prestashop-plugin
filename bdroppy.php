@@ -34,7 +34,7 @@ include_once dirname(__FILE__) . '/classes/RemoteProduct.php';
 include_once dirname(__FILE__) . '/classes/RemoteCategory.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
-class Dropshipping extends Module
+class Bdroppy extends Module
 {
     protected $config_form = false;
     private $errors = null;
@@ -44,7 +44,7 @@ class Dropshipping extends Module
 
     public function __construct()
     {
-        $this->name = 'dropshipping';
+        $this->name = 'bdroppy';
         $this->tab = 'administration';
         $this->version = '1.0.1';
         $this->author = 'Hamid Isaac';
@@ -57,10 +57,10 @@ class Dropshipping extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Dropshipping');
-        $this->description = $this->l('Dropshipping of Brandsdistributions');
+        $this->displayName = $this->l('Bdroppy');
+        $this->description = $this->l('Bdroppy of Brandsdistributions');
 
-        $this->confirmUninstall = $this->l('Are you sure you want to delete the Dropshipping module?');
+        $this->confirmUninstall = $this->l('Are you sure you want to delete the Bdroppy module?');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->errors = array();
@@ -76,9 +76,9 @@ class Dropshipping extends Module
         // parent tab
         $parentTab = new Tab();
         foreach ($languages as $lang) {
-            $parentTab->name[$lang['id_lang']] = $this->l('Dropshipping');
+            $parentTab->name[$lang['id_lang']] = $this->l('Bdroppy');
         }
-        $parentTab->class_name = 'AdminDropshipping';
+        $parentTab->class_name = 'AdminBdroppy';
         $parentTab->id_parent = 0; // Home tab
         $parentTab->module = $this->name;
         $parentTab->add();
@@ -88,7 +88,7 @@ class Dropshipping extends Module
         foreach ($languages as $lang) {
             $importTab->name[$lang['id_lang']] = $this->l('Settings');
         }
-        $importTab->class_name = 'AdminSettingsDropshipping';
+        $importTab->class_name = 'AdminSettingsBdroppy';
         $importTab->id_parent = $parentTab->id;
         $importTab->module = $this->name;
         $importTab->add();
@@ -168,17 +168,17 @@ class Dropshipping extends Module
         $this->installTabs();
 
         //Init default value:
-        Configuration::updateValue('DROPSHIPPING_API_URL', '');
-        Configuration::updateValue('DROPSHIPPING_API_KEY', '');
-        Configuration::updateValue('DROPSHIPPING_API_PASSWORD', '');
-        Configuration::updateValue('DROPSHIPPING_CATALOG', '');
-        Configuration::updateValue('DROPSHIPPING_SIZE', '');
-        Configuration::updateValue('DROPSHIPPING_GENDER', '');
-        Configuration::updateValue('DROPSHIPPING_COLOR', '');
-        Configuration::updateValue('DROPSHIPPING_SEASON', '');
-        Configuration::updateValue('DROPSHIPPING_CATEGORY_STRUCTURE', '');
-        Configuration::updateValue('DROPSHIPPING_IMPORT_IMAGE', '');
-        Configuration::updateValue('DROPSHIPPING_LIMIT_COUNT', '');
+        Configuration::updateValue('BDROPPY_API_URL', '');
+        Configuration::updateValue('BDROPPY_API_KEY', '');
+        Configuration::updateValue('BDROPPY_API_PASSWORD', '');
+        Configuration::updateValue('BDROPPY_CATALOG', '');
+        Configuration::updateValue('BDROPPY_SIZE', '');
+        Configuration::updateValue('BDROPPY_GENDER', '');
+        Configuration::updateValue('BDROPPY_COLOR', '');
+        Configuration::updateValue('BDROPPY_SEASON', '');
+        Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', '');
+        Configuration::updateValue('BDROPPY_IMPORT_IMAGE', '');
+        Configuration::updateValue('BDROPPY_LIMIT_COUNT', '');
 
         include(dirname(__FILE__).'/sql/install.php');
 
@@ -198,17 +198,17 @@ class Dropshipping extends Module
 
     public function uninstall()
     {
-        Configuration::deleteByName('DROPSHIPPING_API_URL');
-        Configuration::deleteByName('DROPSHIPPING_API_KEY');
-        Configuration::deleteByName('DROPSHIPPING_API_PASSWORD');
-        Configuration::deleteByName('DROPSHIPPING_CATALOG');
-        Configuration::deleteByName('DROPSHIPPING_SIZE');
-        Configuration::deleteByName('DROPSHIPPING_GENDER');
-        Configuration::deleteByName('DROPSHIPPING_COLOR');
-        Configuration::deleteByName('DROPSHIPPING_SEASON');
-        Configuration::deleteByName('DROPSHIPPING_CATEGORY_STRUCTURE');
-        Configuration::deleteByName('DROPSHIPPING_IMPORT_IMAGE');
-        Configuration::deleteByName('DROPSHIPPING_LIMIT_COUNT');
+        Configuration::deleteByName('BDROPPY_API_URL');
+        Configuration::deleteByName('BDROPPY_API_KEY');
+        Configuration::deleteByName('BDROPPY_API_PASSWORD');
+        Configuration::deleteByName('BDROPPY_CATALOG');
+        Configuration::deleteByName('BDROPPY_SIZE');
+        Configuration::deleteByName('BDROPPY_GENDER');
+        Configuration::deleteByName('BDROPPY_COLOR');
+        Configuration::deleteByName('BDROPPY_SEASON');
+        Configuration::deleteByName('BDROPPY_CATEGORY_STRUCTURE');
+        Configuration::deleteByName('BDROPPY_IMPORT_IMAGE');
+        Configuration::deleteByName('BDROPPY_LIMIT_COUNT');
 
         // Uninstall Tabs
         $moduleTabs = Tab::getCollectionFromModule($this->name);
@@ -232,8 +232,7 @@ class Dropshipping extends Module
         if (version_compare(_PS_VERSION_, '1.5.0.0', '>=')) {
             $result = $this->context->link->getModuleLink(
                 $this->name,
-                'dropshipping',
-                array('token' => $this->config->_token)
+                'bdroppy'
             );
         } else {
             $result = $this->samdha_tools->getHttpHost(true).$this->_path.'cron.php?token='.$this->config->_token;
@@ -244,17 +243,13 @@ class Dropshipping extends Module
     private function getCatalogs() {
         $catalogs = [];
         $catalogs[0] = 'No Catalog';
-        $rewixApi = new DropshippingRewixApi();
+        $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getUserCatalogs();
-        if(is_array($res)) {
-            foreach ($res as $r) {
-                $r = $rewixApi->getCatalogById2($r->_id);
-                $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )" : null;
-            }
-            return $catalogs;
-        } else {
-            return $res;
+        foreach ($res as $r){
+            $r = $rewixApi->getCatalogById2($r->_id);
+            $catalogs[$r->_id]  = isset($r->name)? $r->name ." ( $r->currency ) ( ".count($r->ids)." products )" : null;
         }
+        return $catalogs;
     }
 
     public function getContent()
@@ -264,41 +259,41 @@ class Dropshipping extends Module
 
         // check if a FORM was submitted using the 'Save Config' button
         if (Tools::isSubmit('submitApiConfig')) {
-            $apiUrl = (string)Tools::getValue('dropshipping_api_url');
-            $apiKey = (string)Tools::getValue('dropshipping_api_key');
-            $apiPassword = (string)Tools::getValue('dropshipping_api_password');
+            $apiUrl = (string)Tools::getValue('bdroppy_api_url');
+            $apiKey = (string)Tools::getValue('bdroppy_api_key');
+            $apiPassword = (string)Tools::getValue('bdroppy_api_password');
 
-            Configuration::updateValue('DROPSHIPPING_API_URL', $apiUrl);
-            Configuration::updateValue('DROPSHIPPING_API_KEY', $apiKey);
+            Configuration::updateValue('BDROPPY_API_URL', $apiUrl);
+            Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
             if ($apiPassword) {
-                Configuration::updateValue('DROPSHIPPING_API_PASSWORD', $apiPassword);
+                Configuration::updateValue('BDROPPY_API_PASSWORD', $apiPassword);
             }
 
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
-            $dropshipping_catalog = (string)Tools::getValue('dropshipping_catalog');
-            Configuration::updateValue('DROPSHIPPING_CATALOG', $dropshipping_catalog);
+            $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
+            Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
 
-            $dropshipping_size = (string)Tools::getValue('dropshipping_size');
-            Configuration::updateValue('DROPSHIPPING_SIZE', $dropshipping_size);
+            $bdroppy_size = (string)Tools::getValue('bdroppy_size');
+            Configuration::updateValue('BDROPPY_SIZE', $bdroppy_size);
 
-            $dropshipping_gender = (string)Tools::getValue('dropshipping_gender');
-            Configuration::updateValue('DROPSHIPPING_GENDER', $dropshipping_gender);
+            $bdroppy_gender = (string)Tools::getValue('bdroppy_gender');
+            Configuration::updateValue('BDROPPY_GENDER', $bdroppy_gender);
 
-            $dropshipping_color = (string)Tools::getValue('dropshipping_color');
-            Configuration::updateValue('DROPSHIPPING_COLOR', $dropshipping_color);
+            $bdroppy_color = (string)Tools::getValue('bdroppy_color');
+            Configuration::updateValue('BDROPPY_COLOR', $bdroppy_color);
 
-            $dropshipping_season = (string)Tools::getValue('dropshipping_season');
-            Configuration::updateValue('DROPSHIPPING_SEASON', $dropshipping_season);
+            $bdroppy_season = (string)Tools::getValue('bdroppy_season');
+            Configuration::updateValue('BDROPPY_SEASON', $bdroppy_season);
 
-            $dropshipping_category_structure = (string)Tools::getValue('dropshipping_category_structure');
-            Configuration::updateValue('DROPSHIPPING_CATEGORY_STRUCTURE', $dropshipping_category_structure);
+            $bdroppy_category_structure = (string)Tools::getValue('bdroppy_category_structure');
+            Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', $bdroppy_category_structure);
 
-            $dropshipping_import_image = (string)Tools::getValue('dropshipping_import_image');
-            Configuration::updateValue('DROPSHIPPING_IMPORT_IMAGE', $dropshipping_import_image);
+            $bdroppy_import_image = (string)Tools::getValue('bdroppy_import_image');
+            Configuration::updateValue('BDROPPY_IMPORT_IMAGE', $bdroppy_import_image);
 
-            $dropshipping_limit_count = (string)Tools::getValue('dropshipping_limit_count');
-            Configuration::updateValue('DROPSHIPPING_LIMIT_COUNT', $dropshipping_limit_count);
+            $bdroppy_limit_count = (string)Tools::getValue('bdroppy_limit_count');
+            Configuration::updateValue('BDROPPY_LIMIT_COUNT', $bdroppy_limit_count);
 
             $saved = true;
         }
@@ -325,19 +320,17 @@ class Dropshipping extends Module
         $catalogs = $this->getCatalogs();
 
         $shopDomainSsl = Tools::getShopDomainSsl(true, true);
-        $stripeBOCssUrl = $shopDomainSsl.__PS_BASE_URI__.'modules/'.$this->name.'/views/css/dropshipping.css';
+        $stripeBOCssUrl = $shopDomainSsl.__PS_BASE_URI__.'modules/'.$this->name.'/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
-        $base_url = Configuration::get('DROPSHIPPING_API_URL');
-        $api_key = Configuration::get('DROPSHIPPING_API_KEY');
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
 
-        $txtStatus = '<span style="color: red;">Error</span>';
-        if(is_array($catalogs)) {
-            if(count($catalogs) > 1) {
-                $txtStatus = '<span style="color: green;">Ok</span>';
-            }
-        } else {
-            $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs . '</span>';
+        $httpCode = 500;
+        $cron_url = "";
+        $txtStatus = '<span style="color: red;">Error Code : ' . $httpCode . '</span>';
+        if($catalogs) {
+            $txtStatus = '<span style="color: green;">Ok</span>';
         }
         $urls = array(
             'https://dev.bdroppy.com' => $this->l('Sandbox mode', 'main'),
@@ -356,11 +349,22 @@ class Dropshipping extends Module
             '2' => $this->l('Gender > Category > Subcategory', 'main'),
         );
 
+        $iso_lang = Language::getIsoById($this->context->cookie->id_lang);
+        if (!in_array($iso_lang, array('en', 'fr', 'es', 'de', 'it', 'nl', 'pl', 'pt', 'ru'))) {
+            $iso_lang = 'en';
+        }
+        $home_url = sprintf('https://www.brandsdistribution.com', $iso_lang, urlencode($this->name));
+
         $tplVars = array(
+            'module_display_name'   => $this->displayName,
+            'description_big_html'  => '',
+            'description'           => '',
+            'home_url'              => $home_url,
+            'urls'                  => $urls,
             'urls'                  => $urls,
             'erros'                 => $errors,
             'confirmations'         => $confirmations,
-            'module_path'           => '/modules/dropshipping/',
+            'module_path'           => '/modules/bdroppy/',
             'base_url'              => $base_url,
             'api_key'               => $api_key,
             'cron_url'              => $this->getCronURL(),
@@ -385,9 +389,9 @@ class Dropshipping extends Module
     protected function getConfigFormValues()
     {
         return array(
-            'DROPSHIPPING_LIVE_MODE' => Configuration::get('DROPSHIPPING_LIVE_MODE', true),
-            'DROPSHIPPING_ACCOUNT_EMAIL' => Configuration::get('DROPSHIPPING_ACCOUNT_EMAIL', 'contact@prestashop.com'),
-            'DROPSHIPPING_ACCOUNT_PASSWORD' => Configuration::get('DROPSHIPPING_ACCOUNT_PASSWORD', null),
+            'BDROPPY_LIVE_MODE' => Configuration::get('BDROPPY_LIVE_MODE', true),
+            'BDROPPY_ACCOUNT_EMAIL' => Configuration::get('BDROPPY_ACCOUNT_EMAIL', 'contact@prestashop.com'),
+            'BDROPPY_ACCOUNT_PASSWORD' => Configuration::get('BDROPPY_ACCOUNT_PASSWORD', null),
         );
     }
 
@@ -417,7 +421,7 @@ class Dropshipping extends Module
             return;
         }
 
-        $rewixApi = new DropshippingRewixApi();
+        $rewixApi = new BdroppyRewixApi();
 
         try {
             return $rewixApi->validateOrder($params['cart']);
@@ -434,10 +438,10 @@ class Dropshipping extends Module
     public function hookActionPaymentConfirmation($params)
     {
         $order = new Order((int)$params['id_order']);
-        $rewixApi = new DropshippingRewixApi();
+        $rewixApi = new BdroppyRewixApi();
 
         try {
-            return $rewixApi->sendDropshippingOrder($order);
+            return $rewixApi->sendBdroppyOrder($order);
         } catch (Exception $e) {
             //$this->orderLogger->logDebug($e->getMessage());
             $this->context->controller->errors[] = $this->l($e->getMessage());
@@ -448,9 +452,9 @@ class Dropshipping extends Module
     public function hookActionProductDelete($params)
     {
         $id = $params['id_product'];
-        $rewixId = DropshippingRemoteProduct::getRewixIdByPsId($id);
-        DropshippingRemoteCombination::deleteByRewixId($rewixId);
-        DropshippingRemoteProduct::deleteByPsId($id);
+        $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+        BdroppyRemoteCombination::deleteByRewixId($rewixId);
+        BdroppyRemoteProduct::deleteByPsId($id);
     }
 
     public function hookActionCategoryDelete($params)
@@ -458,9 +462,9 @@ class Dropshipping extends Module
         $category = $params['category'];
         $subcategories = $params['deleted_children'];
 
-        DropshippingRemoteCategory::deleteByPsId($category->id);
+        BdroppyRemoteCategory::deleteByPsId($category->id);
         foreach ($subcategories as $cat) {
-            DropshippingRemoteCategory::deleteByPsId($cat->id);
+            BdroppyRemoteCategory::deleteByPsId($cat->id);
         }
     }
 

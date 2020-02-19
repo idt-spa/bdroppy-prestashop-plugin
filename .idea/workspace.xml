@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="fix status bug and limit product description_short">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/ConfigKeys.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ConfigKeys.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/ImportHelper.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportHelper.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/ImportTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RemoteCategory.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RemoteCategory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RemoteCombination.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RemoteCombination.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RemoteOrder.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RemoteOrder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RemoteProduct.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RemoteProduct.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RewixApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RewixApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/Translator.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Translator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config_gb.xml" beforeDir="false" afterPath="$PROJECT_DIR$/config_gb.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/admin/AdminSettingsDropshippingController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/admin/AdminSettingsBdroppyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/front/dropshipping.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/bdroppy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dropshipping.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/install.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/install.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/uninstall.php" beforeDir="false" afterPath="$PROJECT_DIR$/sql/uninstall.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/css/dropshipping.css" beforeDir="false" afterPath="$PROJECT_DIR$/views/css/bdroppy.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/configure.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/admin/configure.tpl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +92,14 @@
       <workItem from="1581585147057" duration="2908000" />
       <workItem from="1581590805547" duration="65000" />
       <workItem from="1581637321499" duration="1103000" />
-      <workItem from="1581674096909" duration="2959000" />
+      <workItem from="1581674096909" duration="4218000" />
+      <workItem from="1581925760568" duration="9697000" />
+      <workItem from="1582012368179" duration="6158000" />
+      <workItem from="1582118238475" duration="891000" />
+      <workItem from="1582128314701" duration="920000" />
+      <workItem from="1582129257165" duration="1443000" />
+      <workItem from="1582130851316" duration="734000" />
+      <workItem from="1582151364958" duration="1826000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -96,7 +122,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581638238584</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fix status bug and limit product description_short">
+      <created>1581685176227</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1581685176227</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -106,13 +139,26 @@
     <MESSAGE value="change project structure" />
     <MESSAGE value="change import product structure and category bug fix" />
     <MESSAGE value="modify version" />
-    <option name="LAST_COMMIT_MESSAGE" value="modify version" />
+    <MESSAGE value="fix status bug and limit product description_short" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix status bug and limit product description_short" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1581638238440">
+    <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1581638238440" />
+    <state x="278" y="45" width="800" height="687" key="#Deployment/0.0.1366.768@0.0.1366.768" timestamp="1582015696428" />
+    <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582016259861">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1581926030194">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1581926030194" />
+    <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
+      <screen x="0" y="0" width="1366" height="768" />
+    </state>
+    <state x="100" y="100" width="1166" height="568" key="DiffContextDialog/0.0.1366.768@0.0.1366.768" timestamp="1581955974363" />
     <state x="466" y="142" width="424" height="494" key="FileChooserDialogImpl" timestamp="1581590270453">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
@@ -121,10 +167,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="187" y="19" width="992" height="740" key="SettingsEditor/0.0.1366.768@0.0.1366.768" timestamp="1581590260411" />
-    <state x="369" y="119" width="766" height="592" key="find.popup" timestamp="1581586071590">
+    <state x="369" y="119" width="766" height="592" key="find.popup" timestamp="1582153389436">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="369" y="119" width="766" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1581586071590" />
+    <state x="369" y="119" width="766" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582153389436" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
       <screen x="0" y="0" width="1366" height="768" />
     </state>

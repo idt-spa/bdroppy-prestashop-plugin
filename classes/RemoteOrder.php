@@ -14,9 +14,9 @@
  */
 
 /**
- * @class DropshippingRemoteOrder
+ * @class BdroppyRemoteOrder
  */
-class DropshippingRemoteOrder extends ObjectModel
+class BdroppyRemoteOrder extends ObjectModel
 {
     public $id;
     public $rewix_order_id;
@@ -35,7 +35,7 @@ class DropshippingRemoteOrder extends ObjectModel
     const STATUS_DISPATCHED = 3;
 
     public static $definition = array(
-        'table'     => 'dropshipping_remoteorder',
+        'table'     => 'bdroppy_remoteorder',
         'primary'   => 'id',
         'multilang' => false,
         'fields'    => array(
@@ -70,7 +70,7 @@ class DropshippingRemoteOrder extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id');
-        $query->from('dropshipping_remoteorder');
+        $query->from('bdroppy_remoteorder');
         $query->where('`rewix_order_id` = ' . pSQL($rewixOrderId));
         
         return Db::getInstance()->getValue($query);
@@ -85,7 +85,7 @@ class DropshippingRemoteOrder extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('rewix_order_id');
-        $query->from('dropshipping_remoteorder');
+        $query->from('bdroppy_remoteorder');
         $query->where('`id` = ' . pSQL($psOrderId));
         
         return Db::getInstance()->getValue($query);
@@ -100,13 +100,13 @@ class DropshippingRemoteOrder extends ObjectModel
         $query = 'select o.id_order ' .
         'from `'._DB_PREFIX_.'orders` o ' .
         'where o.current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') ) ' .
-        'and o.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'dropshipping_remoteorder` r)';
+        'and o.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r)';
         return Db::getInstance()->ExecuteS($query);
     }
 
     public static function getOrders()
     {
-        $orders = new Collection('DropshippingRemoteOrder');
+        $orders = new Collection('BdroppyRemoteOrder');
  
         return $orders;
     }

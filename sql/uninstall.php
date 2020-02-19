@@ -31,12 +31,12 @@
  */
 $sql = array();
 
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_products`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_catalogs`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remoteorder`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remotecombination`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remotecategory`;';
-$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'dropshipping_remoteproduct`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_products`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_catalogs`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteorder`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_remotecombination`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_remotecategory`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

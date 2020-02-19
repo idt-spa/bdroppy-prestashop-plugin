@@ -17,7 +17,7 @@ include_once dirname(__FILE__).'/ImportTools.php';
 include_once dirname(__FILE__).'/RemoteOrder.php';
 include_once dirname(__FILE__).'/ConfigKeys.php';
 
-class DropshippingRewixApi
+class BdroppyRewixApi
 {
     const SOLD_API_LOCK_OP   = 'lock';
     const SOLD_API_SET_OP    = 'set';
@@ -30,14 +30,14 @@ class DropshippingRewixApi
     public function __construct()
     {
         //$this->logger = new FileLogger(AbstractLogger::DEBUG);
-        //$this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'Dropshipping-order.log');
+        //$this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'Bdroppy-order.log');
     }
 
     public function getUserCatalogs() {
         $catalogs = [];
-        $base_url = Configuration::get('DROPSHIPPING_API_URL');
-        $api_key = Configuration::get('DROPSHIPPING_API_KEY');
-        $api_password = Configuration::get('DROPSHIPPING_API_PASSWORD');
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
 
         $url = $base_url . '/restful/user_catalog/user/username/'.$api_key;
 
@@ -55,19 +55,17 @@ class DropshippingRewixApi
         if ($http_code === 200)
         {
             $catalogs = json_decode($data);
-            return $catalogs;
-        } else {
-            return $http_code;
         }
+        return $catalogs;
     }
 
     public function getCatalogById2($catalog = null)
     {
         if (is_null($catalog)) {return null;}
 
-        $base_url = Configuration::get('DROPSHIPPING_API_URL');
-        $api_key = Configuration::get('DROPSHIPPING_API_KEY');
-        $api_password = Configuration::get('DROPSHIPPING_API_PASSWORD');
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
 
         $url = $base_url . '/restful/export/api/products.json?user_catalog='.$catalog.'&acceptedlocales=en_US&onlyid=true';
 
@@ -121,14 +119,14 @@ class DropshippingRewixApi
                 $model->addAttribute('quantity', $op['qty']);
                 //$this->logger->logDebug('Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type']);
             } else {
-                //$this->logger->info( 'dropshipping', 'Invalid operation type: ' . $op['type'] );
+                //$this->logger->info( 'bdroppy', 'Invalid operation type: ' . $op['type'] );
             }
         }
         $xmlText = $xml->asXML();
 
-        $username = Configuration::get('DROPSHIPPING_API_KEY');
-        $password = (string)Configuration::get('DROPSHIPPING_API_PASSWORD');
-        $url = Configuration::get('DROPSHIPPING_API_URL') . '/restful/ghost/orders/sold';
+        $username = Configuration::get('BDROPPY_API_KEY');
+        $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
+        $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/sold';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -176,10 +174,10 @@ class DropshippingRewixApi
             $productId = (int)$line['id_product'];
             $modelId = (int)$line['id_product_attribute'];
             $rewixId = (int)$line['isbn'];
-            //$rewixId = DropshippingRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
+            //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if ($rewixId) {
                 $operation = array(
-                    'type' => DropshippingRewixApi::SOLD_API_LOCK_OP,
+                    'type' => BdroppyRewixApi::SOLD_API_LOCK_OP,
                     'model_id' => $rewixId,
                     'qty' => (int) $line['cart_quantity']
                 );
@@ -205,13 +203,13 @@ class DropshippingRewixApi
         return $success;
     }
 
-    public function sendDropshippingOrder($order)
+    public function sendBdroppyOrder($order)
     {
-        //$this->logger->logInfo('Sending dropshipping order ' . $order->id);
+        //$this->logger->logInfo('Sending bdroppy order ' . $order->id);
         $mixed = false;
         $lines = $order->getProductsDetail();
 
-        $catalog_id =  Configuration::get('DROPSHIPPING_CATALOG');
+        $catalog_id =  Configuration::get('BDROPPY_CATALOG');
         $rewix_order_key = $catalog_id .$order->id . time();
 
         $currency = new CurrencyCore($order->id_currency);
@@ -221,7 +219,7 @@ class DropshippingRewixApi
         $item_list = $xmlOrder->addChild('item_list');
         $xmlOrder->addChild('key', $rewix_order_key);
         $xmlOrder->addChild('date', str_replace('-', '/', $order->date_add) . ' +0000');
-        $xmlOrder->addChild( 'user_catalog_id',Configuration::get('DROPSHIPPING_CATALOG'));
+        $xmlOrder->addChild( 'user_catalog_id',Configuration::get('BDROPPY_CATALOG'));
         $xmlOrder->addChild( 'shipping_taxable', $order->total_shipping);
         $xmlOrder->addChild( 'shipping_currency', $currency->iso_code);
         $xmlOrder->addChild( 'price_total', $order->total_paid);
@@ -233,7 +231,7 @@ class DropshippingRewixApi
             $modelId = (int)$line['product_attribute_id'];
             $rewixId = (int)$line['product_isbn'];
 
-            //$rewixId = DropshippingRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
+            //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if (!$rewixId && $rewixProduct > 0) {
                 //$this->logger->logError('Order #'.$order->id.': Mixed Order!!!');
                 $mixed = true;
@@ -246,14 +244,14 @@ class DropshippingRewixApi
                 $item->addChild('price_currency', $currency->iso_code);
                 $item->addChild('stock_id', $rewixId);
                 $item->addChild('quantity', $orderedQty);
-                //$this->logger->logDebug('Creating dropshipping order with model ID#'.$rewixId.' with quantity '.$orderedQty);
+                //$this->logger->logDebug('Creating bdroppy order with model ID#'.$rewixId.' with quantity '.$orderedQty);
             }
         }
         if ($rewixProduct == 0) {
             return false;
         }
         if ( $mixed ){
-            //$this->logger->error( 'dropshipping', 'Order #' . $order->get_order_number() . ': Mixed Order!!!' );
+            //$this->logger->error( 'bdroppy', 'Order #' . $order->get_order_number() . ': Mixed Order!!!' );
             return false;
         }
 
@@ -287,9 +285,9 @@ class DropshippingRewixApi
 
         $xmlText = $xml->asXML();
 
-        $username = Configuration::get('DROPSHIPPING_API_KEY');
-        $password = (string)Configuration::get('DROPSHIPPING_API_PASSWORD');
-        $url = Configuration::get('DROPSHIPPING_API_URL') . '/restful/ghost/orders/0/dropshipping';
+        $username = Configuration::get('BDROPPY_API_KEY');
+        $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
+        $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/bdroppy';
         $ch       = curl_init( $url );
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -311,7 +309,7 @@ class DropshippingRewixApi
         //TODO I will get all growing order content
         //may I do something with it??
 
-        $url = Configuration::get('DROPSHIPPING_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
+        $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
         $ch  = curl_init( $url );
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -327,14 +325,14 @@ class DropshippingRewixApi
             return false;
         } elseif ($httpCode == 500) {
             //$this->logger->logError('Exception: Order #'.$order->id.' does not exists on rewix platform');
-            //$this->logger->logError('Dropshipping operation for order #'.$order->id.' failed!!');
+            //$this->logger->logError('Bdroppy operation for order #'.$order->id.' failed!!');
 
             //echo "url : $url<br>apiKey : $username<br>password : $password<br>httpCode : $httpCode<br>data : $data<br>id : $id";die;
-            $association    = new DropshippingRemoteOrder();
+            $association    = new BdroppyRemoteOrder();
             $association->rewix_order_key = $rewix_order_key;
             $association->rewix_order_id = (int) 0;
             $association->ps_order_id = (int) $order->id;
-            $association->status = (int) DropshippingRemoteOrder::STATUS_FAILED;
+            $association->status = (int) BdroppyRemoteOrder::STATUS_FAILED;
             //echo "<pre>";var_dump($rewix_order_key, $association, $association->save(false));die;
             $association->save();
             return false;
@@ -343,7 +341,7 @@ class DropshippingRewixApi
             return false;
         }
 
-        //$this->logger->logInfo('Dropshipping order created successfully');
+        //$this->logger->logInfo('Bdroppy order created successfully');
 
         $reader = new XMLReader();
         $reader->xml($data);
@@ -355,7 +353,7 @@ class DropshippingRewixApi
                 $rewixOrderId   = (int) $xmlOrder->order_id;
                 $status         = (int) $xmlOrder->status;
                 $orderId        = (int) $order->id;
-                $association    = new DropshippingRemoteOrder();
+                $association    = new BdroppyRemoteOrder();
                 $association->rewix_order_key = $rewix_order_key;
                 $association->rewix_order_id = $rewixOrderId;
                 $association->ps_order_id = $orderId;
@@ -386,7 +384,7 @@ class DropshippingRewixApi
 
     public function setGrowingOrderId($orderId)
     {
-        Configuration::updateValue(DropshippingConfigKeys::GROWING_ORDER_ID, $orderId);
+        Configuration::updateValue(BdroppyConfigKeys::GROWING_ORDER_ID, $orderId);
     }
 
     public function getPendingQtyByRewixModel($modelId)
@@ -401,7 +399,7 @@ class DropshippingRewixApi
             $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
                 'from `'._DB_PREFIX_.'order_detail` od ' .
                 'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_CHEQUE\', \'PS_OS_PAYMENT\', \'PS_OS_BANKWIRE\', \'PS_OS_WS_PAYMENT\', \'PS_OS_COD_VALIDATION\') )) ' .
-                'and od.id_order not in (select x.ps_order_id from `'._DB_PREFIX_.'Dropshipping_remoteorder` x) ' .
+                'and od.id_order not in (select x.ps_order_id from `'._DB_PREFIX_.'Bdroppy_remoteorder` x) ' .
                 'group by od.product_id ';
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
@@ -417,7 +415,7 @@ class DropshippingRewixApi
     private function getPsModelId($modelId)
     {
         $query = 'select p.ps_product_id ' .
-            'from `'._DB_PREFIX_.'Dropshipping_remoteproduct` p ' .
+            'from `'._DB_PREFIX_.'Bdroppy_remoteproduct` p ' .
             'where p.rewix_product_id = ' . (int) $modelId;
 
         $rewixProducts = Db::getInstance()->ExecuteS($query);
@@ -432,7 +430,7 @@ class DropshippingRewixApi
     private function getRewixModelId($modelId)
     {
         $query = 'select p.rewix_product_id ' .
-            'from `'._DB_PREFIX_.'Dropshipping_remoteproduct` p ' .
+            'from `'._DB_PREFIX_.'Bdroppy_remoteproduct` p ' .
             'where p.ps_product_id = ' . (int) $modelId;
 
         $products = Db::getInstance()->ExecuteS($query);
@@ -455,7 +453,7 @@ class DropshippingRewixApi
             $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
                 'from `'._DB_PREFIX_.'order_detail` od ' .
                 'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') )) ' .
-                'and od.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'Dropshipping_remoteorder` r) ' .
+                'and od.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'Bdroppy_remoteorder` r) ' .
                 'group by od.product_id ';
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
@@ -478,7 +476,7 @@ class DropshippingRewixApi
         $operations = array();
         if ($bookedProducts) {
             foreach ($bookedProducts as $bookedProduct) {
-                $productId = DropshippingRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
+                $productId = BdroppyRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
                 if ($productId > 0) {
                     $locked = $bookedProduct['locked'];
                     //$available = $bookedProduct['available'];
@@ -508,19 +506,19 @@ class DropshippingRewixApi
 
     public function sendMissingOrders()
     {
-        $orderIds = DropshippingRemoteOrder::getMissingOrdersId();
+        $orderIds = BdroppyRemoteOrder::getMissingOrdersId();
         foreach ($orderIds as $orderId) {
             $order = new Order(isset($orderId['id_order']) ? $orderId['id_order'] : $orderId);
-            $this->sendDropshippingOrder($order);
+            $this->sendBdroppyOrder($order);
         }
     }
 
     public function getGrowingOrderProducts()
     {
 
-        $username = Configuration::get(DropshippingConfigKeys::APIKEY);
-        $password = (string)Configuration::get(DropshippingConfigKeys::PASSWORD);
-        $url = Configuration::get(DropshippingConfigKeys::WEBSITE_URL)  . '/restful/ghost/orders/dropshipping/locked/';
+        $username = Configuration::get(BdroppyConfigKeys::APIKEY);
+        $password = (string)Configuration::get(BdroppyConfigKeys::PASSWORD);
+        $url = Configuration::get(BdroppyConfigKeys::WEBSITE_URL)  . '/restful/ghost/orders/bdroppy/locked/';
         //$this->logger->logDebug('Retrieving growing order ' . $url);
 
         $ch = curl_init($url);

@@ -9,7 +9,7 @@ require_once $currentDirectory . 'config' . $sep . 'config.inc.php';
 require_once $currentDirectory . 'init.php';
 include_once dirname(__FILE__).'/../../classes/ImportTools.php';
 
-class dropshippingDropshippingModuleFrontController extends ModuleFrontController
+class bdroppyBdroppyModuleFrontController extends ModuleFrontController
 {
     private $base_url;
     private $api_key;
@@ -32,7 +32,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
     private $season;
     private $brand;
     private $gender;
-    private $debugImportFile = 'dropshipping_import_debug.txt';
+    private $debugImportFile = 'bdroppy_import_debug.txt';
     public function __construct()
     {
         try {
@@ -47,36 +47,34 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
             ini_set('display_startup_errors', 1);
             error_reporting(E_ALL);
 
-            /*$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status='queued', imported=0 ;";
-            //$sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct`;";
-            Db::getInstance()->ExecuteS($sql);
-            echo $sql; die;*/
+            //$res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'queued', 'imported'=>0), 'id = 6706');
+            //var_dump($res); die;
 
             $configurations = array(
-                'DROPSHIPPING_API_URL' => Configuration::get('DROPSHIPPING_API_URL', true),
-                'DROPSHIPPING_API_KEY' => Configuration::get('DROPSHIPPING_API_KEY', null),
-                'DROPSHIPPING_API_PASSWORD' => Configuration::get('DROPSHIPPING_API_PASSWORD', null),
-                'DROPSHIPPING_CATALOG' => Configuration::get('DROPSHIPPING_CATALOG', null),
-                'DROPSHIPPING_SIZE' => Configuration::get('DROPSHIPPING_SIZE', null),
-                'DROPSHIPPING_GENDER' => Configuration::get('DROPSHIPPING_GENDER', null),
-                'DROPSHIPPING_COLOR' => Configuration::get('DROPSHIPPING_COLOR', null),
-                'DROPSHIPPING_SEASON' => Configuration::get('DROPSHIPPING_SEASON', null),
-                'DROPSHIPPING_CATEGORY_STRUCTURE' => Configuration::get('DROPSHIPPING_CATEGORY_STRUCTURE', null),
-                'DROPSHIPPING_IMPORT_IMAGE' => Configuration::get('DROPSHIPPING_IMPORT_IMAGE', null),
-                'DROPSHIPPING_LIMIT_COUNT' => Configuration::get('DROPSHIPPING_LIMIT_COUNT', null),
+                'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
+                'BDROPPY_API_KEY' => Configuration::get('BDROPPY_API_KEY', null),
+                'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
+                'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
+                'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
+                'BDROPPY_GENDER' => Configuration::get('BDROPPY_GENDER', null),
+                'BDROPPY_COLOR' => Configuration::get('BDROPPY_COLOR', null),
+                'BDROPPY_SEASON' => Configuration::get('BDROPPY_SEASON', null),
+                'BDROPPY_CATEGORY_STRUCTURE' => Configuration::get('BDROPPY_CATEGORY_STRUCTURE', null),
+                'BDROPPY_IMPORT_IMAGE' => Configuration::get('BDROPPY_IMPORT_IMAGE', null),
+                'BDROPPY_LIMIT_COUNT' => Configuration::get('BDROPPY_LIMIT_COUNT', null),
             );
 
-            $this->base_url = isset($configurations['DROPSHIPPING_API_URL']) ? $configurations['DROPSHIPPING_API_URL'] : '';
-            $this->api_key = isset($configurations['DROPSHIPPING_API_KEY']) ? $configurations['DROPSHIPPING_API_KEY'] : '';
-            $this->api_password = isset($configurations['DROPSHIPPING_API_PASSWORD']) ? $configurations['DROPSHIPPING_API_PASSWORD'] : '';
-            $this->api_catalog = isset($configurations['DROPSHIPPING_CATALOG']) ? $configurations['DROPSHIPPING_CATALOG'] : '';
-            $this->api_size = isset($configurations['DROPSHIPPING_SIZE']) ? $configurations['DROPSHIPPING_SIZE'] : '';
-            $this->api_gender = isset($configurations['DROPSHIPPING_GENDER']) ? $configurations['DROPSHIPPING_GENDER'] : '';
-            $this->api_color = isset($configurations['DROPSHIPPING_COLOR']) ? $configurations['DROPSHIPPING_COLOR'] : '';
-            $this->api_season = isset($configurations['DROPSHIPPING_SEASON']) ? $configurations['DROPSHIPPING_SEASON'] : '';
-            $this->api_category_structure = isset($configurations['DROPSHIPPING_CATEGORY_STRUCTURE']) ? $configurations['DROPSHIPPING_CATEGORY_STRUCTURE'] : '';
-            $this->api_import_image = isset($configurations['DROPSHIPPING_IMPORT_IMAGE']) ? $configurations['DROPSHIPPING_IMPORT_IMAGE'] : '';
-            $this->api_limit_count = isset($configurations['DROPSHIPPING_LIMIT_COUNT']) ? $configurations['DROPSHIPPING_LIMIT_COUNT'] : 5;
+            $this->base_url = isset($configurations['BDROPPY_API_URL']) ? $configurations['BDROPPY_API_URL'] : '';
+            $this->api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
+            $this->api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
+            $this->api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
+            $this->api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
+            $this->api_gender = isset($configurations['BDROPPY_GENDER']) ? $configurations['BDROPPY_GENDER'] : '';
+            $this->api_color = isset($configurations['BDROPPY_COLOR']) ? $configurations['BDROPPY_COLOR'] : '';
+            $this->api_season = isset($configurations['BDROPPY_SEASON']) ? $configurations['BDROPPY_SEASON'] : '';
+            $this->api_category_structure = isset($configurations['BDROPPY_CATEGORY_STRUCTURE']) ? $configurations['BDROPPY_CATEGORY_STRUCTURE'] : '';
+            $this->api_import_image = isset($configurations['BDROPPY_IMPORT_IMAGE']) ? $configurations['BDROPPY_IMPORT_IMAGE'] : '';
+            $this->api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
 
             if(!$this->api_limit_count)
                 $this->api_limit_count = 5;
@@ -98,7 +96,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
             if ($http_code === 200 && $data != "null") {
                 $ids = [];
                 $catalog = json_decode($data);
-                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated');";
+                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated');";
                 $prds = Db::getInstance()->ExecuteS($sql);
                 foreach ($catalog->items as $item) {
                     $ids[] = $item->refId;
@@ -108,7 +106,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                 }, $prds);
                 $add_products = array_diff($ids, $products);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
                 $delete_products = Db::getInstance()->ExecuteS($sql);
                 //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
 
@@ -116,38 +114,37 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                     switch ($item['sync_status']) {
                         case 'queued':
                         case 'delete':
-                            $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                            $re = Db::getInstance()->ExecuteS($sql);
+                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '".$item['rewix_product_id']."'");
                             break;
                         case 'updated':
                             $product = new Product($item['ps_product_id']);
                             $product->delete();
-                            //$sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status='deleted' WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                            $sql = "DELETE FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE rewix_product_id='" . $item['rewix_product_id'] . "';";
-                            Db::getInstance()->ExecuteS($sql);
+                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '".$item['rewix_product_id']."'");
                             break;
                     }
                 }
                 foreach ($add_products as $item) {
-                    $sql = "INSERT INTO `" . _DB_PREFIX_ . "dropshipping_remoteproduct` (rewix_product_id, rewix_catalog_id, sync_status) VALUES('" . $item . "','" . $this->api_catalog . "','queued');";
-                    $res = Db::getInstance()->ExecuteS($sql);
+                    Db::getInstance()->insert('bdroppy_remoteproduct', array(
+                        'rewix_product_id'  => pSQL($item),
+                        'rewix_catalog_id'  => pSQL($this->api_catalog),
+                        'sync_status'       => pSQL('queued'),
+                    ));
                 }
             }
 
             // select 10 products to import
-            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "dropshipping_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
+            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
             $items = Db::getInstance()->ExecuteS($sql);
             foreach ($items as $item) {
                 if ($item['sync_status'] == 'queued') {
                     if($this->default_lang == 'en_GB')
                         $this->default_lang = 'en_US';;
-                    $this->xmlPath = DropshippingImportTools::importProduct($item, $this->default_lang);
+                    $this->xmlPath = BdroppyImportTools::importProduct($item, $this->default_lang);
                     //$this->importToPS($item);
                 }
                 if ($item['sync_status'] == 'delete') {
-                    $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'deleted', imported=0 WHERE id=" . $item['id'] . ";";
-                    $r = Db::getInstance()->ExecuteS($sql);
-                    $this->removeFromPS($item);
+                    $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'deleted', 'imported'=>0), 'id = '.$item['id']);
+                    //$this->removeFromPS($item);
                 }
             }
             die;
@@ -188,7 +185,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
             }
             die();
         } catch (PrestaShopException $e) {
-            var_dump($e);die;
+            echo "<pre>";var_dump('000', $e->getMessage(), $e);
             return false;
         }
     }
@@ -496,7 +493,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
         if(isset($this->product->pictures[0]->url))
             return 'https://www.brandsdistribution.com'.$this->product->pictures[0]->url;
         else
-            return DROPSHIPPING_IMG .'no_image.png';
+            return BDROPPY_IMG .'no_image.png';
     }
 
     public function getDescriptions($lang)
@@ -700,7 +697,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                 $product->save();
                 $product->addToCategories(array($subCat->id_category));
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Product Saved(".$product->id.")\n", FILE_APPEND);
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=1 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
 
                 echo "Product ID : $product_id From $catalog_id Imported \n";
@@ -731,7 +728,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                         file_put_contents($this->debugImportFile, "Error in Attaching Image : " . var_export($e, true) . "\n", FILE_APPEND);
                     }
                 }
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=2 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=2 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
                 file_put_contents($this->debugImportFile, date('Y-m-d H:i:s') . " - Images Attached to Product " . var_export($images, true) . "\n", FILE_APPEND);
                 echo "Images Attached \n";
@@ -802,7 +799,7 @@ class dropshippingDropshippingModuleFrontController extends ModuleFrontControlle
                     $first = false;
                 }
                 echo "Combinations Saved \n*********************************\n";
-                $sql = "UPDATE `" . _DB_PREFIX_ . "dropshipping_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=9 WHERE id=".$item['id'].";";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` SET sync_status = 'updated', ps_product_id='".$product->id."', imported=9 WHERE id=".$item['id'].";";
                 $r = Db::getInstance()->ExecuteS($sql);
             }
         } catch (PrestaShopException $e) {

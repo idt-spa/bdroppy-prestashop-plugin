@@ -14,9 +14,9 @@
  */
 
 /**
- * @class DropshippingRemoteCategory
+ * @class BdroppyRemoteCategory
  */
-class DropshippingRemoteCategory extends ObjectModel
+class BdroppyRemoteCategory extends ObjectModel
 {
     public $id;
     public $rewix_category_id;
@@ -30,7 +30,7 @@ class DropshippingRemoteCategory extends ObjectModel
     const REWIX_SEASON_ID = 11;
 
     public static $definition = array(
-        'table' => 'dropshipping_remotecategory',
+        'table' => 'bdroppy_remotecategory',
         'primary' => 'id',
         'multilang' => false,
         'fields' => array(
@@ -49,7 +49,7 @@ class DropshippingRemoteCategory extends ObjectModel
     /**
      * @param string $tag - e.g. 4-shoes-5-highheels
      *
-     * @return DropshippingRemoteCategory
+     * @return BdroppyRemoteCategory
      */
     public static function fromRewixTag($tag)
     {
@@ -66,7 +66,7 @@ class DropshippingRemoteCategory extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id');
-        $query->from('dropshipping_remotecategory');
+        $query->from('bdroppy_remotecategory');
         $query->where('ps_category_id = \''.pSQL($id).'\'');
 
         $result = Db::getInstance()->getValue($query);
@@ -86,7 +86,7 @@ class DropshippingRemoteCategory extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id');
-        $query->from('dropshipping_remotecategory');
+        $query->from('bdroppy_remotecategory');
         $query->where('rewix_category_id = \''.pSQL($id).'\'');
 
         $result = Db::getInstance()->getValue($query);
@@ -141,7 +141,7 @@ class DropshippingRemoteCategory extends ObjectModel
         // all the models (combinations) should be automatically be deleted by the constraint
         $query = new DbQuery();
         $query->type('DELETE');
-        $query->from('dropshipping_remotecategory');
+        $query->from('bdroppy_remotecategory');
         $query->where('ps_category_id = '.(int) pSQL($id));
         $query->limit(1);
 

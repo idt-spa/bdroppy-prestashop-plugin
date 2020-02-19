@@ -14,9 +14,9 @@
  */
 
 /**
- * @class DropshippingRemoteProduct
+ * @class BdroppyRemoteProduct
  */
-class DropshippingRemoteProduct extends ObjectModel
+class BdroppyRemoteProduct extends ObjectModel
 {
     public $id;
     public $rewix_product_id;
@@ -33,7 +33,7 @@ class DropshippingRemoteProduct extends ObjectModel
     const SYNC_STATUS_UPDATED = 'updated';
 
     public static $definition = array(
-        'table'     => 'dropshipping_remoteproduct',
+        'table'     => 'bdroppy_remoteproduct',
         'primary'   => 'id',
         'multilang' => false,
         'fields'    => array(
@@ -72,7 +72,7 @@ class DropshippingRemoteProduct extends ObjectModel
 
     /**
      * @param int $id
-     * @return DropshippingRemoteProduct
+     * @return BdroppyRemoteProduct
      */
     public static function fromRewixId($id)
     {
@@ -90,7 +90,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('rewix_product_id');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`ps_product_id` = ' . (int)$id);
 
         return (int)Db::getInstance()->getValue($query);
@@ -104,7 +104,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('ps_product_id');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`rewix_product_id` = ' . (int)$id);
 
         return (int)Db::getInstance()->getValue($query);
@@ -121,7 +121,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('rewix_product_id');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`sync_status` = \'' . pSQL($status) . '\'');
         if ($maxPriority > 0) {
             $query->where('`priority` < ' . $maxPriority);
@@ -151,7 +151,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('*');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`sync_status` = \'' . pSQL($status) . '\'');
         if ($limit > 0) {
             $query->limit($limit);
@@ -171,7 +171,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`rewix_product_id` = ' . (int)$id);
 
         if ($imported) {
@@ -195,7 +195,7 @@ class DropshippingRemoteProduct extends ObjectModel
         // all the models (combinations) should be automatically be deleted by the constraint
         $query = new DbQuery();
         $query->type('DELETE');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('ps_product_id = ' . (int)pSQL($id));
         $query->limit(1);
 
@@ -210,7 +210,7 @@ class DropshippingRemoteProduct extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('COUNT(*)');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('`sync_status` = \'' . pSQL($status) . '\'');
         $result = Db::getInstance()->getValue($query);
         return $result;
@@ -225,7 +225,7 @@ class DropshippingRemoteProduct extends ObjectModel
         // all the models (combinations) should be automatically be deleted by the constraint
         $query = new DbQuery();
         $query->type('DELETE');
-        $query->from('dropshipping_remoteproduct');
+        $query->from('bdroppy_remoteproduct');
         $query->where('rewix_product_id = ' . (int)pSQL($id));
         $query->limit(1);
 

@@ -14,12 +14,12 @@
  */
 
 /**
- * @class DropshippingRemoteCombination
+ * @class BdroppyRemoteCombination
  */
-class DropshippingRemoteCombination extends ObjectModel
+class BdroppyRemoteCombination extends ObjectModel
 {
     public static $definition = array(
-        'table' => 'dropshipping_remotecombination',
+        'table' => 'bdroppy_remotecombination',
         'primary' => 'id',
         'multilang' => false,
         'fields' => array(
@@ -48,7 +48,7 @@ class DropshippingRemoteCombination extends ObjectModel
 
     /**
      * @param int $id
-     * @return DropshippingRemoteCombination
+     * @return BdroppyRemoteCombination
      */
     public static function fromRewixId($id)
     {
@@ -66,7 +66,7 @@ class DropshippingRemoteCombination extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id');
-        $query->from('dropshipping_remotecombination');
+        $query->from('bdroppy_remotecombination');
         $query->where('rewix_model_id = '.(int) $id);
 
         $result = Db::getInstance()->getValue($query);
@@ -87,7 +87,7 @@ class DropshippingRemoteCombination extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('*');
-        $query->from('dropshipping_remotecombination');
+        $query->from('bdroppy_remotecombination');
         $query->where('`rewix_product_id` = '.pSQL($rewix_product_id));
 
         return Db::getInstance()->executeS($query);
@@ -100,7 +100,7 @@ class DropshippingRemoteCombination extends ObjectModel
      */
     public static function getRewixModelIdByProductAndModelId($ps_product_id, $ps_attribute_id)
     {
-        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "dropshipping_products` WHERE ps_product_id=$ps_product_id;";
+        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_products` WHERE ps_product_id=$ps_product_id;";
 
         return Db::getInstance()->getValue($sql);
     }
@@ -113,7 +113,7 @@ class DropshippingRemoteCombination extends ObjectModel
     public static function getPsModelIdByRewixProductAndModelId($rewix_product_id, $rewix_model_id)
     {
         $sql =  "select r.ps_model_id " .
-                "from " . _DB_PREFIX_ . "dropshipping_remotecombination r " .
+                "from " . _DB_PREFIX_ . "bdroppy_remotecombination r " .
                 "where r.rewix_product_id = " . (int) $rewix_product_id .
                 " and r.rewix_model_id = " . (int) $rewix_model_id;
 
@@ -128,7 +128,7 @@ class DropshippingRemoteCombination extends ObjectModel
     {
         $query = new DbQuery();
         $query->type('DELETE');
-        $query->from('dropshipping_remotecombination');
+        $query->from('bdroppy_remotecombination');
         $query->where('rewix_product_id = ' . (int)pSQL($id));
 
         return Db::getInstance()->execute($query);
@@ -143,7 +143,7 @@ class DropshippingRemoteCombination extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('count(*)');
-        $query->from('dropshipping_remotecombination');
+        $query->from('bdroppy_remotecombination');
         $query->where('`rewix_product_id` = '.pSQL($rewix_product_id));
 
         return Db::getInstance()->getValue($query);

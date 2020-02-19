@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>dropshipping</name>
-	<displayName><![CDATA[Dropshipping]]></displayName>
+	<name>bdroppy</name>
+	<displayName><![CDATA[Bdroppy]]></displayName>
 	<version><![CDATA[1.0.0]]></version>
-	<description><![CDATA[Dropshipping of Brandsdistributions]]></description>
+	<description><![CDATA[Bdroppy of Brandsdistributions]]></description>
 	<author><![CDATA[Hamid Isaac]]></author>
 	<tab><![CDATA[administration]]></tab>
 	<is_configurable>1</is_configurable>

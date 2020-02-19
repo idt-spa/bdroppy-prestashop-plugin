@@ -13,18 +13,18 @@
  * @license   Proprietary
  */
 
-include_once dirname(__FILE__) . '/../dropshipping.php';
+include_once dirname(__FILE__) . '/../bdroppy.php';
 
 /**
- * @class DropshippingImportHelper
+ * @class BdroppyImportHelper
  */
-class DropshippingTranslator extends AdminController
+class BdroppyTranslator extends AdminController
 {
-    protected $dropshipping;
+    protected $bdroppy;
 
     public function __construct()
     {
-        $this->dropshipping = new Dropshipping();
+        $this->bdroppy = new Bdroppy();
     }
 
     public function t($string, $class = null, $addslashes = false, $htmlentities = true)
@@ -32,7 +32,7 @@ class DropshippingTranslator extends AdminController
         if (_PS_VERSION_>= '1.7') {
             return Context::getContext()->getTranslator()->trans($string);
         } else {
-            return $this->dropshipping->l($string, $class, $addslashes, $htmlentities);
+            return $this->bdroppy->l($string, $class, $addslashes, $htmlentities);
         }
     }
 }

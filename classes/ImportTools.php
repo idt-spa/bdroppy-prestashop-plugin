@@ -20,7 +20,7 @@ include_once dirname(__FILE__) . '/RemoteCombination.php';
 include_once dirname(__FILE__) . '/ImportHelper.php';
 include_once dirname(__FILE__) . '/RewixApi.php';
 
-class DropshippingImportTools
+class BdroppyImportTools
 {
     const DATA_SOURCE_PATH = 'rewix-sync-products.xml';
     const DATA_SOURCE_INCREMENTAL_PATH = 'rewix-sync-products-incremental.xml';
@@ -41,9 +41,9 @@ class DropshippingImportTools
     public static function getLogger()
     {
         if (self::$logger == null) {
-            $verboseLog = (bool)Configuration::get(DropshippingConfigKeys::VERBOSE_LOG);
+            $verboseLog = (bool)Configuration::get(BdroppyConfigKeys::VERBOSE_LOG);
             self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'dropshipping-import.log';
+            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-import.log';
             self::$logger->setFilename($filename);
         }
 
@@ -186,10 +186,10 @@ class DropshippingImportTools
             return $path;
         }
         
-        $locale = Configuration::get(DropshippingConfigKeys::LOCALE);
-        $username = Configuration::get(DropshippingConfigKeys::APIKEY);
-        $password = Configuration::get(DropshippingConfigKeys::PASSWORD);
-        $websiteUrl = Configuration::get(DropshippingConfigKeys::WEBSITE_URL);
+        $locale = Configuration::get(BdroppyConfigKeys::LOCALE);
+        $username = Configuration::get(BdroppyConfigKeys::APIKEY);
+        $password = Configuration::get(BdroppyConfigKeys::PASSWORD);
+        $websiteUrl = Configuration::get(BdroppyConfigKeys::WEBSITE_URL);
         $url = "{$websiteUrl}/restful/export/api/products.xml?acceptedlocales={$locale}&addtags=true" . ( empty($since) ? '' : '&since=' . urlencode($since) );
         
         $ch = curl_init($url);
@@ -207,7 +207,7 @@ class DropshippingImportTools
             //$logger->logDebug('Error loading XML Data: There has been an error executing the request. Error:' . $curlError);
             return false;
         } elseif ($httpCode == 412) {
-            Configuration::updateValue(DropshippingConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
+            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
             //$logger->logDebug('Error loading XML Data: Incremental sync too late. Running full sync at next execution');
             return false;
         } elseif ($httpCode != 200) {
@@ -262,9 +262,9 @@ class DropshippingImportTools
                 if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
                     $xmlProduct = self::getProductXML($reader);
                     
-                    $id = DropshippingRemoteProduct::getIdByRewixId((int) $xmlProduct->id, true);
+                    $id = BdroppyRemoteProduct::getIdByRewixId((int) $xmlProduct->id, true);
                     if ($id != 0) {
-                            $rewixProduct = new DropshippingRemoteProduct($id);
+                            $rewixProduct = new BdroppyRemoteProduct($id);
 
                             if ($rewixProduct && $rewixProduct->simple) {
                                 $product = new Product($rewixProduct->ps_product_id);
@@ -282,13 +282,13 @@ class DropshippingImportTools
                 }
             }
 
-            $remoteProducts = DropshippingRemoteProduct::getByStatus(DropshippingRemoteProduct::SYNC_STATUS_UPDATED, 0);
+            $remoteProducts = BdroppyRemoteProduct::getByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED, 0);
             //$logger->logDebug(count($remoteProducts) . ' products which quantities will be updated.');
             $productsCount = 0;
 
             foreach ($remoteProducts as $remoteProduct) {
                 if ($remoteProduct['imported'] == 1) {
-                    $models = DropshippingRemoteCombination::getByRewixProductId($remoteProduct['rewix_product_id']);
+                    $models = BdroppyRemoteCombination::getByRewixProductId($remoteProduct['rewix_product_id']);
                     $productsCount += 1;
                 
                     if ($remoteProduct['simple']) {
@@ -345,7 +345,7 @@ class DropshippingImportTools
 
             //$logger->logDebug('All products (' . $productsCount . ') have been successfully updated. Update lastUpdate ' . $lastUpdate);
 
-            Configuration::updateValue(DropshippingConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
+            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
 
             if (file_exists($path)) {
                 unlink($path);
@@ -361,7 +361,7 @@ class DropshippingImportTools
 
         //$logger->logDebug('Starting Incremental Sync Quantities');
 
-        $path =  self::getXmlSource(Configuration::get(DropshippingConfigKeys::LAST_QUANTITIES_SYNC));
+        $path =  self::getXmlSource(Configuration::get(BdroppyConfigKeys::LAST_QUANTITIES_SYNC));
         if ($path == false) {
             return false;
         }
@@ -372,7 +372,7 @@ class DropshippingImportTools
             if (file_exists($path)) {
                 unlink($path);
             }
-            Configuration::updateValue(DropshippingConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
+            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
             throw new Exception('Cannot read xml file ' . $path);
         }
         
@@ -411,10 +411,10 @@ class DropshippingImportTools
         $productsCount = 0;
 
         foreach ($xmlProducts as $key => $xmlProduct) {
-            $id = DropshippingRemoteProduct::getIdByRewixId($key);
+            $id = BdroppyRemoteProduct::getIdByRewixId($key);
             if ($id) {
                 $productsCount += 1;
-                $product = new DropshippingRemoteProduct($id);
+                $product = new BdroppyRemoteProduct($id);
                 if ($product->simple) {
                     $availability = StockAvailable::getQuantityAvailableByProduct($product->ps_product_id);
                     if ($availability != $xmlProduct['stock']) {
@@ -431,7 +431,7 @@ class DropshippingImportTools
                     $qtyChanged = false;
                     $models = $xmlProduct['models'];
                     foreach ($models as $mkey => $qty) {
-                        $modelId = DropshippingRemoteCombination::getPsModelIdByRewixProductAndModelId($key, $mkey);
+                        $modelId = BdroppyRemoteCombination::getPsModelIdByRewixProductAndModelId($key, $mkey);
                         if ($modelId) {
                             $availability = StockAvailable::getQuantityAvailableByProduct($product->ps_product_id, $modelId);
                             if ($availability != $qty) {
@@ -461,7 +461,7 @@ class DropshippingImportTools
 
         //$logger->logInfo('Competed Incremental Sync Quantities');
 
-        Configuration::updateValue(DropshippingConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
+        Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
 
         if (file_exists($path)) {
             unlink($path);
@@ -471,7 +471,7 @@ class DropshippingImportTools
     
     public static function processImportQueue()
     {
-        $productIds = DropshippingRemoteProduct::getIdsByStatus(DropshippingRemoteProduct::SYNC_STATUS_QUEUED, 30, 4);
+        $productIds = BdroppyRemoteProduct::getIdsByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED, 30, 4);
         if (count($productIds) > 0) {
             self::importProducts($productIds);
         }
@@ -513,7 +513,7 @@ class DropshippingImportTools
                                 $counterModel += $result;
                                 ++$counterProduct;
                                 //self::getLogger()->logDebug($xmlProduct->id . ' has been successfully imported.');
-                                Configuration::updateValue(DropshippingConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
+                                Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
                             }
                         } catch (Exception $e) {
                             //self::getLogger()->logError('Error import product ' . $xmlProduct->id . ': ' . $e->getMessage());
@@ -524,7 +524,7 @@ class DropshippingImportTools
                     }
                 } elseif ($reader->name == 'page') {
                     $lastUpdate = $reader->getAttribute('lastUpdate');
-                    $currentLastUpdate = Configuration::get(DropshippingConfigKeys::LAST_QUANTITIES_SYNC);
+                    $currentLastUpdate = Configuration::get(BdroppyConfigKeys::LAST_QUANTITIES_SYNC);
                     //If we are out of sync compared to full catalog download we do not override the update date
                     if (empty($currentLastUpdate)) {
                         $lastUpdate = null;
@@ -546,63 +546,67 @@ class DropshippingImportTools
         self::incrementPriority($failedProducts);
         self::$categoryStructure = null;
         
-        Configuration::updateValue(DropshippingConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
+        Configuration::updateValue(BdroppyConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
     }
 
     public static function importProduct($item, $default_lang)
     {
-        @set_time_limit(3600);
-        @ini_set('memory_limit', '1024M');
+        try {
+            @set_time_limit(3600);
+            @ini_set('memory_limit', '1024M');
 
-        $xmlProduct = false;
-        $product_id = $item['rewix_product_id'];
-        $catalog_id = $item['rewix_catalog_id'];
+            $xmlProduct = false;
+            $product_id = $item['rewix_product_id'];
+            $catalog_id = $item['rewix_catalog_id'];
 
-        $url = Configuration::get('DROPSHIPPING_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-        curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('DROPSHIPPING_API_KEY') . ':' . Configuration::get('DROPSHIPPING_API_PASSWORD'));
-        $data = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curl_error = curl_error($ch);
-        curl_close($ch);
-        //var_dump($product_id, $catalog_id, $http_code, $data);die;
-        if ($http_code === 200) {
-            $xmlProduct = json_decode($data);
-        }
-        if($xmlProduct) {
-            $refId = (int)$xmlProduct->id;
-            $sku = (string)$xmlProduct->code;
-            $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
-
-            $product = new Product($remoteProduct->ps_product_id);
-            //echo "<pre>";var_dump($refId, $sku, $remoteProduct, $product);die;
-
-            //self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
-
-            // populate general common fields
-            $product = self::populateProductAttributes($xmlProduct, $product, $default_lang);
-            if (self::checkSimpleImport($xmlProduct)) {
-                //self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
-                $product = self::importSimpleProduct($xmlProduct, $product);
-                $remoteProduct->simple = 1;
-                $remoteProduct->save();
-            } else {
-                $product = self::importModels($xmlProduct, $product);
+            $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+            curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('BDROPPY_API_KEY') . ':' . Configuration::get('BDROPPY_API_PASSWORD'));
+            $data = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curl_error = curl_error($ch);
+            curl_close($ch);
+            //var_dump($product_id, $catalog_id, $http_code, $data);die;
+            if ($http_code === 200) {
+                $xmlProduct = json_decode($data);
             }
-            $product->save();
+            if($xmlProduct) {
+                $refId = (int)$xmlProduct->id;
+                $sku = (string)$xmlProduct->code;
+                $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
 
-            if (Configuration::get('DROPSHIPPING_IMPORT_IMAGE')) {
-                //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
-                self::importProductImages($xmlProduct, $product, Configuration::get('DROPSHIPPING_IMPORT_IMAGE'));
+                $product = new Product($remoteProduct->ps_product_id);
+                //echo "<pre>";var_dump($refId, $sku, $remoteProduct, $product);die;
+
+                //self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
+
+                // populate general common fields
+                $product = self::populateProductAttributes($xmlProduct, $product, $default_lang);
+                if (self::checkSimpleImport($xmlProduct)) {
+                    //self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
+                    $product = self::importSimpleProduct($xmlProduct, $product);
+                    $remoteProduct->simple = 1;
+                    $remoteProduct->save();
+                } else {
+                    $product = self::importModels($xmlProduct, $product);
+                }
+                $product->save();
+
+                if (Configuration::get('BDROPPY_IMPORT_IMAGE')) {
+                    //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
+                    self::importProductImages($xmlProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
+                }
+
+                self::updateImportedProduct($refId, $product->id);
+
+                return 1;
             }
-
-            self::updateImportedProduct($refId, $product->id);
-
-            return 1;
+        } catch (PrestaShopException $e) {
+            var_dump(1, $e->getMessage(), $e);
         }
     }
 
@@ -610,7 +614,7 @@ class DropshippingImportTools
     {
         $prods = '';
         foreach ($products as $product) {
-            $p = DropshippingRemoteProduct::fromRewixId($product['id']);
+            $p = BdroppyRemoteProduct::fromRewixId($product['id']);
             $p->priority = $p->priority + 1;
             $p->reason = $product['message'];
             $p->imported = 0;
@@ -629,7 +633,7 @@ class DropshippingImportTools
         $prods = '';
         foreach ($products as $id) {
             $prods .= $id . ', ';
-            DropshippingRemoteProduct::deleteByRewixId($id);
+            BdroppyRemoteProduct::deleteByRewixId($id);
         }
         if (Tools::strlen($prods) > 0) {
             //self::getLogger()->logWarning('Removed from queue ' . $prods . 'not available upstream.');
@@ -649,57 +653,194 @@ class DropshippingImportTools
         );
     }
 
-    private static function importProductImages($xmlProduct, $product, $count)
+    protected static function get_best_path($tgt_width, $tgt_height, $path_infos)
     {
-        $imageCount = 1;
-        $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
-        if(strpos(Configuration::get('DROPSHIPPING_API_URL'),'dev') !== false){
-            $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
-        }else{
-            $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+        $path_infos = array_reverse($path_infos);
+        $path = '';
+        foreach ($path_infos as $path_info) {
+            list($width, $height, $path) = $path_info;
+            if ($width >= $tgt_width && $height >= $tgt_height) {
+                return $path;
+            }
         }
-        $product->deleteImages();
 
-        $i = 0;
-        foreach ($xmlProduct->pictures as $image) {
-            $imageUrl = "{$websiteUrl}{$image->url}";
+        return $path;
+    }
 
-            $ch = curl_init($imageUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $content = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-            if ($httpCode != 200) {
-                //self::getLogger()->logDebug('Error loading Image: There has been an error executing the request: ' . $httpCode . '. Error:' . $curlError);
-            } else {
-                $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'dropshipping_import');
-                $handle = fopen($tmpfile, "w");
-                fwrite($handle, $content);
-                fclose($handle);
-                $image = new Image();
-                $image->id_product = $product->id;
-                $image->position = $imageCount;
-                $image->cover = (int)$imageCount === 1;
+    function copyImg($id_entity, $id_image, $url, $entity = 'products', $regenerate = true) {
+        $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'ps_import');
+        $watermark_types = explode(',', Configuration::get('WATERMARK_TYPES'));
 
-                if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
+        switch ($entity) {
+            default:
+            case 'products':
+                $image_obj = new Image($id_image);
+                $path = $image_obj->getPathForCreation();
+
+                break;
+            case 'categories':
+                $path = _PS_CAT_IMG_DIR_ . (int) $id_entity;
+
+                break;
+            case 'manufacturers':
+                $path = _PS_MANU_IMG_DIR_ . (int) $id_entity;
+
+                break;
+            case 'suppliers':
+                $path = _PS_SUPP_IMG_DIR_ . (int) $id_entity;
+
+                break;
+            case 'stores':
+                $path = _PS_STORE_IMG_DIR_ . (int) $id_entity;
+
+                break;
+        }
+
+        $url = urldecode(trim($url));
+        $parced_url = parse_url($url);
+
+        if (isset($parced_url['path'])) {
+            $uri = ltrim($parced_url['path'], '/');
+            $parts = explode('/', $uri);
+            foreach ($parts as &$part) {
+                $part = rawurlencode($part);
+            }
+            unset($part);
+            $parced_url['path'] = '/' . implode('/', $parts);
+        }
+
+        if (isset($parced_url['query'])) {
+            $query_parts = array();
+            parse_str($parced_url['query'], $query_parts);
+            $parced_url['query'] = http_build_query($query_parts);
+        }
+
+        if (!function_exists('http_build_url')) {
+            require_once _PS_TOOL_DIR_ . 'http_build_url/http_build_url.php';
+        }
+
+        $url = http_build_url('', $parced_url);
+
+        $orig_tmpfile = $tmpfile;
+
+        if (Tools::copy($url, $tmpfile)) {
+            // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
+            if (!ImageManager::checkImageMemoryLimit($tmpfile)) {
+                @unlink($tmpfile);
+
+                return false;
+            }
+
+            $tgt_width = $tgt_height = 0;
+            $src_width = $src_height = 0;
+            $error = 0;
+            ImageManager::resize($tmpfile, $path . '.jpg', null, null, 'jpg', false, $error, $tgt_width, $tgt_height, 5, $src_width, $src_height);
+            $images_types = ImageType::getImagesTypes($entity, true);
+
+            if ($regenerate) {
+                $previous_path = null;
+                $path_infos = array();
+                $path_infos[] = array($tgt_width, $tgt_height, $path . '.jpg');
+                foreach ($images_types as $image_type) {
+                    $tmpfile = self::get_best_path($image_type['width'], $image_type['height'], $path_infos);
+
+                    if (ImageManager::resize(
+                        $tmpfile,
+                        $path . '-' . stripslashes($image_type['name']) . '.jpg',
+                        $image_type['width'],
+                        $image_type['height'],
+                        'jpg',
                         false,
-                        true
-                    )) === true && $image->add()
-                ) {
-                    if (!DropshippingImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
-                        $image->delete();
-                    } else {
-                        $imageCount++;
+                        $error,
+                        $tgt_width,
+                        $tgt_height,
+                        5,
+                        $src_width,
+                        $src_height
+                    )) {
+                        // the last image should not be added in the candidate list if it's bigger than the original image
+                        if ($tgt_width <= $src_width && $tgt_height <= $src_height) {
+                            $path_infos[] = array($tgt_width, $tgt_height, $path . '-' . stripslashes($image_type['name']) . '.jpg');
+                        }
+                        if ($entity == 'products') {
+                            if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '.jpg')) {
+                                unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '.jpg');
+                            }
+                            if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '_' . (int) Context::getContext()->shop->id . '.jpg')) {
+                                unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '_' . (int) Context::getContext()->shop->id . '.jpg');
+                            }
+                        }
+                    }
+                    if (in_array($image_type['id_image_type'], $watermark_types)) {
+                        Hook::exec('actionWatermark', array('id_image' => $id_image, 'id_product' => $id_entity));
                     }
                 }
-                @unlink($tmpfile);
             }
-            $i++;
-            if($count != 'all') {
-                if($i >= $count)
-                    break;
+        } else {
+            @unlink($orig_tmpfile);
+
+            return false;
+        }
+        unlink($orig_tmpfile);
+
+        return true;
+    }
+
+    private static function importProductImages($xmlProduct, $product, $count)
+    {
+        try {
+            $imageCount = 1;
+            $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
+            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+            }else{
+                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
             }
+            $product->deleteImages();
+
+            $i = 0;
+            foreach ($xmlProduct->pictures as $image) {
+                $imageUrl = "{$websiteUrl}{$image->url}";
+
+                $ch = curl_init($imageUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $content = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($ch);
+                curl_close($ch);
+                if ($httpCode != 200) {
+                    //self::getLogger()->logDebug('Error loading Image: There has been an error executing the request: ' . $httpCode . '. Error:' . $curlError);
+                } else {
+                    $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
+                    $handle = fopen($tmpfile, "w");
+                    fwrite($handle, $content);
+                    fclose($handle);
+                    $image = new Image();
+                    $image->id_product = $product->id;
+                    $image->position = $imageCount;
+                    $image->cover = (int)$imageCount === 1;
+
+                    if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
+                            false,
+                            true
+                        )) === true && $image->add()
+                    ) {
+                        if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
+                            $image->delete();
+                        } else {
+                            $imageCount++;
+                        }
+                    }
+                    @unlink($tmpfile);
+                }
+                $i++;
+                if($count != 'all') {
+                    if($i >= $count)
+                        break;
+                }
+            }
+        } catch (PrestaShopException $e) {
+            var_dump(5, $e->getMessage(), $e);
         }
     }
 
@@ -735,7 +876,7 @@ class DropshippingImportTools
                     }
                 }
 
-                $category = DropshippingRemoteCategory::getCategory(
+                $category = BdroppyRemoteCategory::getCategory(
                     $category,
                     $id,
                     $tags[$id]['value'],
@@ -755,17 +896,21 @@ class DropshippingImportTools
     /** Update the products just imported **/
     private static function updateImportedProduct($refId, $productId)
     {
-        $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
-        if ($remoteProduct->ps_product_id < 1) {
-            $remoteProduct->ps_product_id = $productId;
-        }
+        try {
+            $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
+            if ($remoteProduct->ps_product_id < 1) {
+                $remoteProduct->ps_product_id = $productId;
+            }
 
-        $remoteProduct->sync_status = DropshippingRemoteProduct::SYNC_STATUS_UPDATED;
-        $remoteProduct->imported = 1;
-        $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-        $remoteProduct->priority = 0;
-        $remoteProduct->reason = '';
-        $remoteProduct->save();
+            $remoteProduct->sync_status = BdroppyRemoteProduct::SYNC_STATUS_UPDATED;
+            $remoteProduct->imported = 1;
+            $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+            $remoteProduct->priority = 0;
+            $remoteProduct->reason = '';
+            $remoteProduct->save();
+        } catch (PrestaShopException $e) {
+            var_dump(6, $e->getMessage(), $e);
+        }
     }
 
     /**
@@ -880,27 +1025,27 @@ class DropshippingImportTools
 
         // fixme: use another initialization method
         $tags = array(
-            DropshippingRemoteCategory::REWIX_BRAND_ID       => array(
+            BdroppyRemoteCategory::REWIX_BRAND_ID       => array(
                 'value'       => '',
                 'translation' => '',
             ),
-            DropshippingRemoteCategory::REWIX_CATEGORY_ID    => array(
+            BdroppyRemoteCategory::REWIX_CATEGORY_ID    => array(
                 'value'       => '',
                 'translation' => '',
             ),
-            DropshippingRemoteCategory::REWIX_SUBCATEGORY_ID => array(
+            BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID => array(
                 'value'       => '',
                 'translation' => '',
             ),
-            DropshippingRemoteCategory::REWIX_GENDER_ID      => array(
+            BdroppyRemoteCategory::REWIX_GENDER_ID      => array(
                 'value'       => '',
                 'translation' => '',
             ),
-            DropshippingRemoteCategory::REWIX_COLOR_ID       => array(
+            BdroppyRemoteCategory::REWIX_COLOR_ID       => array(
                 'value'       => '',
                 'translation' => '',
             ),
-            DropshippingRemoteCategory::REWIX_SEASON_ID      => array(
+            BdroppyRemoteCategory::REWIX_SEASON_ID      => array(
                 'value'       => '',
                 'translation' => '',
             ),
@@ -923,7 +1068,7 @@ class DropshippingImportTools
         $availability = (int)$xml->availability;
 
         if ($checkImported) {
-            $remoteProduct = DropshippingRemoteProduct::fromRewixId($refId);
+            $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
             $imported = (bool)$remoteProduct->imported;
         } else {
             $imported = false;
@@ -970,23 +1115,23 @@ class DropshippingImportTools
      */
     private static function calculatePrice($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
     {
-        $taxRule = new Tax(Configuration::get(DropshippingConfigKeys::TAX_RATE));
-        $conversion = Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
-        $markup = (1 + Configuration::get(DropshippingConfigKeys::MARKUP) / 100) * $conversion;
+        $taxRule = new Tax(Configuration::get(BdroppyConfigKeys::TAX_RATE));
+        $conversion = Configuration::get(BdroppyConfigKeys::CONVERSION_COEFFICIENT);
+        $markup = (1 + Configuration::get(BdroppyConfigKeys::MARKUP) / 100) * $conversion;
 
-        if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'suggested') {
+        if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'suggested') {
             try {
                 $price = $suggestedPrice * $markup;
             } catch (Exception $e) {
                 //self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
             }
-        } elseif (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'best_taxable') {
+        } elseif (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'best_taxable') {
             $price = $bestTaxable * $markup;
         } else {
-            if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'taxable') {
+            if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'taxable') {
                 $price = $taxable * $markup;
             } else {
-                if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'street_price') {
+                if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'street_price') {
                     $price = $streetPrice * $markup;
                 } else {
                     $price = $bestTaxable;
@@ -1006,22 +1151,22 @@ class DropshippingImportTools
      */
     private static function calculatePriceTax($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
     {
-        $conversion = Configuration::get(DropshippingConfigKeys::CONVERSION_COEFFICIENT);
-        $markup = (1 + Configuration::get(DropshippingConfigKeys::MARKUP) / 100) * $conversion;
+        $conversion = Configuration::get(BdroppyConfigKeys::CONVERSION_COEFFICIENT);
+        $markup = (1 + Configuration::get(BdroppyConfigKeys::MARKUP) / 100) * $conversion;
 
-        if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'suggested') {
+        if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'suggested') {
             try {
                 $price = $suggestedPrice * $markup;
             } catch (Exception $e) {
                 //self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
             }
-        } elseif (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'best_taxable') {
+        } elseif (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'best_taxable') {
             $price = $bestTaxable * $markup;
         } else {
-            if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'taxable') {
+            if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'taxable') {
                 $price = $taxable * $markup;
             } else {
-                if (Configuration::get(DropshippingConfigKeys::PRICE_BASE) == 'street_price') {
+                if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'street_price') {
                     $price = $streetPrice * $markup;
                 } else {
                     $price = $bestTaxable;
@@ -1041,72 +1186,77 @@ class DropshippingImportTools
 
     private static function populateProductAttributes($xmlProduct, Product $product, $default_lang)
     {
-        $productData = self::populateProduct($xmlProduct, $default_lang);
-        $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
-        $product->active = (int)true;
-        $product->weight = (float)$xmlProduct->weight;
+        try {
+            $productData = self::populateProduct($xmlProduct, $default_lang);
+            $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
+            $product->active = (int)true;
+            $product->weight = (float)$xmlProduct->weight;
 
-        $product->wholesale_price = $productData['best_taxable'];
-        $product->price = round($productData['proposed_price'], 3);
-        //$product->id_tax_rules_group = Configuration::get(DropshippingConfigKeys::TAX_RULE);
+            $product->wholesale_price = $productData['best_taxable'];
+            $product->price = round($productData['proposed_price'], 3);
+            //$product->id_tax_rules_group = Configuration::get(BdroppyConfigKeys::TAX_RULE);
 
-        $languages = Language::getLanguages();
-        foreach ($languages as $lang) {
-            $langCode = str_replace('-', '_', $lang['locale']);
-            if($langCode == 'en_GB')
-                $langCode = 'en_US';
-            $product->name[$lang['id_lang']] = $productData['name'];
-            $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
-            $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
-            $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($xmlProduct, $langCode), 0, 2000);
+            $languages = Language::getLanguages();
+            foreach ($languages as $lang) {
+                $langCode = str_replace('-', '_', $lang['locale']);
+                if($langCode == 'en_GB')
+                    $langCode = 'en_US';
+                $product->name[$lang['id_lang']] = $productData['name'];
+                $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
+                $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
+                $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($xmlProduct, $langCode), 0, 800);
+            }
+
+            if (!isset($product->date_add) || empty($product->date_add)) {
+                $product->date_add = date('Y-m-d H:i:s');
+            }
+            $product->date_upd = date('Y-m-d H:i:s');
+
+            $product->id_manufacturer = self::getManufacturer($productData['brand']);
+            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags']);
+            $product->id_category_default = $categoryDefaultId;
+            $product->save();
+
+            // updateCategories requires the product to have an id already set
+            $product->updateCategories($categories);
+
+            /*$colorFeatureId = Configuration::get('BDROPPY_COLOR');
+            $genderFeatureId = Configuration::get('BDROPPY_GENDER');
+            $seasonFeatureId = Configuration::get('BDROPPY_SEASON');
+
+            if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
+                $featureValueId = FeatureValue::addFeatureValueImport(
+                    $colorFeatureId,
+                    $productData['color'],
+                    $product->id,
+                    Configuration::get('PS_LANG_DEFAULT')
+                );
+                Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
+            }
+            if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen($productData['gender']) > 0) {
+                $featureValueId = FeatureValue::addFeatureValueImport(
+                    $genderFeatureId,
+                    $productData['gender'],
+                    $product->id,
+                    Configuration::get('PS_LANG_DEFAULT')
+                );
+                Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
+            }
+            if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen($productData['season']) > 0) {
+                $featureValueId = FeatureValue::addFeatureValueImport(
+                    $seasonFeatureId,
+                    $productData['season'],
+                    $product->id,
+                    Configuration::get('PS_LANG_DEFAULT')
+                );
+                Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
+            }*/
+
+            return $product;
+        } catch (PrestaShopException $e) {
+            var_dump(2, $e->getMessage(), $e);
         }
 
-        if (!isset($product->date_add) || empty($product->date_add)) {
-            $product->date_add = date('Y-m-d H:i:s');
-        }
-        $product->date_upd = date('Y-m-d H:i:s');
-
-        $product->id_manufacturer = self::getManufacturer($productData['brand']);
-        list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags']);
-        $product->id_category_default = $categoryDefaultId;
-        $product->save();
-
-        // updateCategories requires the product to have an id already set
-        $product->updateCategories($categories);
-
-        /*$colorFeatureId = Configuration::get('DROPSHIPPING_COLOR');
-        $genderFeatureId = Configuration::get('DROPSHIPPING_GENDER');
-        $seasonFeatureId = Configuration::get('DROPSHIPPING_SEASON');
-
-        if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
-            $featureValueId = FeatureValue::addFeatureValueImport(
-                $colorFeatureId,
-                $productData['color'],
-                $product->id,
-                Configuration::get('PS_LANG_DEFAULT')
-            );
-            Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
-        }
-        if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen($productData['gender']) > 0) {
-            $featureValueId = FeatureValue::addFeatureValueImport(
-                $genderFeatureId,
-                $productData['gender'],
-                $product->id,
-                Configuration::get('PS_LANG_DEFAULT')
-            );
-            Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
-        }
-        if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen($productData['season']) > 0) {
-            $featureValueId = FeatureValue::addFeatureValueImport(
-                $seasonFeatureId,
-                $productData['season'],
-                $product->id,
-                Configuration::get('PS_LANG_DEFAULT')
-            );
-            Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
-        }*/
-
-        return $product;
     }
 
     /**
@@ -1133,87 +1283,93 @@ class DropshippingImportTools
 
     private static function importModels($xmlProduct, Product $product)
     {
-        $xmlModels = $xmlProduct->models;
-        $modelCount = 0;
+        try {
+            $xmlModels = $xmlProduct->models;
+            $modelCount = 0;
 
-        $languages = Language::getLanguages(false);
-        $first = true;
-        foreach ($xmlModels as $model) {
-            $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
-            $quantity = (int)$model->availability;
-            $reference = self::fitModelReference((string)$model->code, (string)$model->size);
-            $ean13 = trim((string)$model->barcode);
+            $languages = Language::getLanguages(false);
+            $first = true;
+            foreach ($xmlModels as $model) {
+                $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
+                $quantity = (int)$model->availability;
+                $reference = self::fitModelReference((string)$model->code, (string)$model->size);
+                $ean13 = trim((string)$model->barcode);
+                if(strlen($ean13)>13) {
+                    $ean13 = substr($ean13, 0, 13);
+                }
 
-            $combinationAttributes = array();
-            if($model->color) {
-                $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('DROPSHIPPING_COLOR')." AND al.name = '" . $model->color . "';";
-                $r = Db::getInstance()->executeS($sql);
-                if ($r) {
-                    $attribute = (object)$r[0];
-                } else {
-                    $attribute = new Attribute();
-                    foreach ($languages as $lang) {
-                        $langCode = str_replace('-', '_', $lang['locale']);
-                        if($langCode == 'en_GB')
-                            $langCode = 'en_US';
-                        $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
-                    }
-                    $attribute->id_attribute_group = Configuration::get('DROPSHIPPING_COLOR');
-                    $attribute->save();
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('DROPSHIPPING_COLOR')." AND al.name = '" . $model->color . "';";
+                $combinationAttributes = array();
+                if($model->color) {
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
+                    } else {
+                        $attribute = new Attribute();
+                        foreach ($languages as $lang) {
+                            $langCode = str_replace('-', '_', $lang['locale']);
+                            if($langCode == 'en_GB')
+                                $langCode = 'en_US';
+                            $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
+                        }
+                        $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
+                        $attribute->save();
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
+                        $r = Db::getInstance()->executeS($sql);
+                        if ($r) {
+                            $attribute = (object)$r[0];
+                        }
                     }
+                    $combinationAttributes[] = $attribute->id_attribute;
                 }
-                $combinationAttributes[] = $attribute->id_attribute;
-            }
-            if($model->size) {
-                $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('DROPSHIPPING_SIZE') . " AND al.name = '" . $model->size . "';";
-                $r = Db::getInstance()->executeS($sql);
-
-                if ($r) {
-                    $attribute = (object)$r[0];
-                } else {
-                    $attribute = new Attribute();
-                    foreach ($languages as $lang) {
-                        $attribute->name[$lang['id_lang']] = $model->size;
-                    }
-                    $attribute->id_attribute_group = Configuration::get('DROPSHIPPING_SIZE');
-                    $attribute->save();
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('DROPSHIPPING_SIZE') . " AND al.name = '" . $model->size . "';";
+                if($model->size) {
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                     $r = Db::getInstance()->executeS($sql);
 
                     if ($r) {
                         $attribute = (object)$r[0];
+                    } else {
+                        $attribute = new Attribute();
+                        foreach ($languages as $lang) {
+                            $attribute->name[$lang['id_lang']] = $model->size;
+                        }
+                        $attribute->id_attribute_group = Configuration::get('BDROPPY_SIZE');
+                        $attribute->save();
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                        $r = Db::getInstance()->executeS($sql);
+
+                        if ($r) {
+                            $attribute = (object)$r[0];
+                        }
                     }
+                    $combinationAttributes[] = $attribute->id_attribute;
                 }
-                $combinationAttributes[] = $attribute->id_attribute;
+
+                $impact_on_price_per_unit = 0;
+                $impact_on_price = 0;
+                $impact_on_weight = $xmlProduct->weight;
+                $isbn_code = $model->id;
+                $id_supplier = null;
+                $default = $first;
+                $location = null;
+                $id_images = null;
+                $upc = null;
+                $minimal_quantity = 1;
+                $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
+                $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
+                Db::getInstance()->update('product_attribute', array('wholesale_price'=>(float) $xmlProduct->bestTaxable), 'id_product_attribute = '.(int)$idProductAttribute );
+                $first = false;
             }
 
-            $impact_on_price_per_unit = 0;
-            $impact_on_price = 0;
-            $impact_on_weight = $xmlProduct->weight;
-            $isbn_code = $model->id;
-            $id_supplier = null;
-            $default = $first;
-            $location = null;
-            $id_images = null;
-            $upc = null;
-            $minimal_quantity = 1;
-            $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
-            $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-            $sql = "UPDATE `" . _DB_PREFIX_ . "product_attribute` SET wholesale_price = ". (float) $xmlProduct->bestTaxable . " WHERE id_product_attribute=".$idProductAttribute.";";
-            $r = Db::getInstance()->ExecuteS($sql);
-            $first = false;
+            return $product;
+        } catch (PrestaShopException $e) {
+            var_dump(4, $e->getMessage(), $e);
         }
-
-        return $product;
     }
 
     private static function checkNosizeModel($xmlProduct, Product $product)
     {
-        if (DropshippingRemoteCombination::countByRewixProductId($product->id) == 0) {
+        if (BdroppyRemoteCombination::countByRewixProductId($product->id) == 0) {
             self::insertNosizeModel($xmlProduct);
         }
     }
@@ -1223,7 +1379,7 @@ class DropshippingImportTools
     {
         $xmlModel = $xmlProduct->models[0];
 
-        $remoteCombination = DropshippingRemoteCombination::fromRewixId((int)$xmlModel->id);
+        $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$xmlModel->id);
         $remoteCombination->rewix_product_id = (int) $xmlProduct->id;
 
         //$reference = self::fitModelReference((string)$xmlModel->code, (string)$xmlModel->size);
@@ -1235,20 +1391,24 @@ class DropshippingImportTools
 
     private static function importSimpleProduct($xmlProduct, Product $product)
     {
-        $xmlModel = $xmlProduct->models[0];
-        $product->minimal_quantity = 1;
-        $product->ean13 = (string)$xmlModel->barcode;
-        $product->reference = self::fitReference((string)$xmlModel->code, $xmlProduct->id);
-        StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);
+        try {
+            $xmlModel = $xmlProduct->models[0];
+            $product->minimal_quantity = 1;
+            $product->ean13 = (string)$xmlModel->barcode;
+            $product->reference = self::fitReference((string)$xmlModel->code, $xmlProduct->id);
+            StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);
 
-        self::insertNosizeModel($xmlProduct);
+            self::insertNosizeModel($xmlProduct);
 
-        return $product;
+            return $product;
+        } catch (PrestaShopException $e) {
+            var_dump(3, $e->getMessage(), $e);
+        }
     }
 
     private static function getSizeAttributeFromValue($value)
     {
-        $sizeAttrGroupId = Configuration::get('DROPSHIPPING_SIZE');
+        $sizeAttrGroupId = Configuration::get('BDROPPY_SIZE');
         if (Tools::strlen($sizeAttrGroupId) == 0 || $sizeAttrGroupId == 0) {
             return false;
         }
@@ -1292,23 +1452,23 @@ class DropshippingImportTools
         if (self::$categoryStructure != null) {
             return self::$categoryStructure;
         }
-        if (Configuration::get('DROPSHIPPING_CATEGORY_STRUCTURE') == '2') {
+        if (Configuration::get('BDROPPY_CATEGORY_STRUCTURE') == '2') {
             self::$categoryStructure = array(
                 array(
-                    DropshippingRemoteCategory::REWIX_GENDER_ID,
-                    DropshippingRemoteCategory::REWIX_CATEGORY_ID,
-                    DropshippingRemoteCategory::REWIX_SUBCATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_GENDER_ID,
+                    BdroppyRemoteCategory::REWIX_CATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID,
                 ),
                 array(
-                    DropshippingRemoteCategory::REWIX_CATEGORY_ID,
-                    DropshippingRemoteCategory::REWIX_SUBCATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_CATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID,
                 ),
             );
         } else {
             self::$categoryStructure = array(
                 array(
-                    DropshippingRemoteCategory::REWIX_CATEGORY_ID,
-                    DropshippingRemoteCategory::REWIX_SUBCATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_CATEGORY_ID,
+                    BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID,
                 ),
             );
         }
@@ -1378,7 +1538,7 @@ class DropshippingImportTools
 
     public static function syncWithSupplier()
     {
-        $rewixApi = new DropshippingRewixApi();
+        $rewixApi = new BdroppyRewixApi();
                 
         $rewixApi->syncBookedProducts();
         $rewixApi->sendMissingOrders();
