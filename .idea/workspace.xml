@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="add importing status">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/ImportTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/front/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/bdroppy.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -83,7 +81,7 @@
       <workItem from="1582128314701" duration="920000" />
       <workItem from="1582129257165" duration="1443000" />
       <workItem from="1582130851316" duration="734000" />
-      <workItem from="1582151364958" duration="5097000" />
+      <workItem from="1582151364958" duration="5674000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -120,7 +118,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582153545914</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add importing status">
+      <created>1582156703843</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1582156703843</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,7 +137,8 @@
     <MESSAGE value="modify version" />
     <MESSAGE value="fix status bug and limit product description_short" />
     <MESSAGE value="change name to bdroppy" />
-    <option name="LAST_COMMIT_MESSAGE" value="change name to bdroppy" />
+    <MESSAGE value="add importing status" />
+    <option name="LAST_COMMIT_MESSAGE" value="add importing status" />
   </component>
   <component name="WindowStateProjectService">
     <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
@@ -143,10 +149,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582153545001">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582157374978">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582153545001" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582157374978" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
@@ -163,10 +169,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1366.768@0.0.1366.768" timestamp="1582156586539" />
-    <state x="369" y="119" width="766" height="592" key="find.popup" timestamp="1582155345899">
+    <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582157217308">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="369" y="119" width="766" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582155345899" />
+    <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582157217308" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
       <screen x="0" y="0" width="1366" height="768" />
     </state>

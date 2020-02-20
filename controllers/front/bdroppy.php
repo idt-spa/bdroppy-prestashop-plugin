@@ -96,7 +96,7 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             if ($http_code === 200 && $data != "null") {
                 $ids = [];
                 $catalog = json_decode($data);
-                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated');";
+                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
                 $prds = Db::getInstance()->ExecuteS($sql);
                 foreach ($catalog->items as $item) {
                     $ids[] = $item->refId;
