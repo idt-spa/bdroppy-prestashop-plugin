@@ -167,6 +167,8 @@
 				<h3 class="tab"> <i class="icon-info-sign"></i>&nbsp;{l s='About' mod='bdroppy'}</h3>
 				<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0"><img src="{$module_path|escape:'htmlall':'UTF-8'}logo.png" alt="{$module_display_name|escape:'htmlall':'UTF-8'}" style="float: left; padding-right: 1em"/>Bdroppy</p>
 				<br>
+				<p>Version : {$module_version|escape:'htmlall':'UTF-8'}</p>
+				<br>
 				<p style="clear: left;">{l s='Thanks for installing this module on your website.' mod='samdha'}</p>
 				{if $description_big_html}{$description_big_html}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
 				<p>

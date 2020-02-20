@@ -357,6 +357,7 @@ class Bdroppy extends Module
 
         $tplVars = array(
             'module_display_name'   => $this->displayName,
+            'module_version'        => $this->version,
             'description_big_html'  => '',
             'description'           => '',
             'home_url'              => $home_url,

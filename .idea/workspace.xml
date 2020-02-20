@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="add importing status">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/front/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/bdroppy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/configure.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/admin/configure.tpl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +81,9 @@
       <workItem from="1582128314701" duration="920000" />
       <workItem from="1582129257165" duration="1443000" />
       <workItem from="1582130851316" duration="734000" />
-      <workItem from="1582151364958" duration="5674000" />
+      <workItem from="1582151364958" duration="5879000" />
+      <workItem from="1582157475574" duration="917000" />
+      <workItem from="1582190710871" duration="573000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -125,7 +127,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582156703843</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="add importing status">
+      <created>1582157391634</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1582157391634</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,10 +158,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582157374978">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582157918046">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582157374978" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582157918046" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
@@ -169,10 +178,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1366.768@0.0.1366.768" timestamp="1582156586539" />
-    <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582157217308">
+    <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582157857494">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582157217308" />
+    <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582157857494" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
