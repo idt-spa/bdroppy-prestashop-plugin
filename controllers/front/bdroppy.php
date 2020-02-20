@@ -2,11 +2,6 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-$currentDirectory = str_replace('modules/reproxy/webservice/', '',
-    dirname($_SERVER['SCRIPT_FILENAME']) . "/");
-$sep = DIRECTORY_SEPARATOR;
-require_once $currentDirectory . 'config' . $sep . 'config.inc.php';
-require_once $currentDirectory . 'init.php';
 include_once dirname(__FILE__).'/../../classes/ImportTools.php';
 
 class bdroppyBdroppyModuleFrontController extends ModuleFrontController
@@ -32,20 +27,13 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
     private $season;
     private $brand;
     private $gender;
+    private $db;
     private $debugImportFile = 'bdroppy_import_debug.txt';
     public function __construct()
     {
-        try {
-            header('Access-Control-Allow-Origin: *');
-            @ini_set('max_execution_time', 100000);
             $this->context = Context::getContext();
             $this->context->controller = $this;
             $this->default_lang = str_replace('-', '_', $this->context->language->locale);
-
-
-            ini_set('display_errors', 1);
-            ini_set('display_startup_errors', 1);
-            error_reporting(E_ALL);
 
             //$res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'queued', 'imported'=>0), 'id = 6706');
             //var_dump($res); die;
@@ -64,6 +52,7 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
                 'BDROPPY_LIMIT_COUNT' => Configuration::get('BDROPPY_LIMIT_COUNT', null),
             );
 
+            $this->db = Db::getInstance();
             $this->base_url = isset($configurations['BDROPPY_API_URL']) ? $configurations['BDROPPY_API_URL'] : '';
             $this->api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
             $this->api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
@@ -76,123 +65,114 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             $this->api_import_image = isset($configurations['BDROPPY_IMPORT_IMAGE']) ? $configurations['BDROPPY_IMPORT_IMAGE'] : '';
             $this->api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
 
-            if(!$this->api_limit_count)
-                $this->api_limit_count = 5;
-            $url = $this->base_url . '/restful/export/api/products.json?user_catalog='.$this->api_catalog.'&acceptedlocales=en_US&onlyid=true';
+    }
 
-            $header = "authorization: Basic " . base64_encode($this->api_key . ':' . $this->api_password);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-            $data  = curl_exec($ch);
-            $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-            $curl_error = curl_error( $ch );
-            curl_close( $ch );
-
-            //echo "<pre>";var_dump($url, $http_code, $data);die;
-            if ($http_code === 200 && $data != "null") {
-                $ids = [];
-                $catalog = json_decode($data);
-                $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
-                $prds = Db::getInstance()->ExecuteS($sql);
-                foreach ($catalog->items as $item) {
-                    $ids[] = $item->refId;
-                }
-                $products = array_map(function ($item) {
-                    return (integer)$item['rewix_product_id'];
-                }, $prds);
-                $add_products = array_diff($ids, $products);
-
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
-                $delete_products = Db::getInstance()->ExecuteS($sql);
-                //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
-
+    public function initContent() {
+        try {
+            header('Access-Control-Allow-Origin: *');
+            @ini_set('max_execution_time', 100000);
+            if($this->api_catalog == "" || $this->api_catalog == "0") {
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
+                $delete_products = $this->db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
                     switch ($item['sync_status']) {
                         case 'queued':
                         case 'delete':
-                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '".$item['rewix_product_id']."'");
+                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
                             break;
                         case 'updated':
                             $product = new Product($item['ps_product_id']);
                             $product->delete();
-                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '".$item['rewix_product_id']."'");
+                            Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
                             break;
                     }
                 }
-                foreach ($add_products as $item) {
-                    Db::getInstance()->insert('bdroppy_remoteproduct', array(
-                        'rewix_product_id'  => pSQL($item),
-                        'rewix_catalog_id'  => pSQL($this->api_catalog),
-                        'sync_status'       => pSQL('queued'),
-                    ));
-                }
-            }
-
-            // select 10 products to import
-            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
-            $items = Db::getInstance()->ExecuteS($sql);
-            foreach ($items as $item) {
-                $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'importing'), 'id = '.$item['id']);
-            }
-            foreach ($items as $item) {
-                if ($item['sync_status'] == 'queued') {
-                    if($this->default_lang == 'en_GB')
-                        $this->default_lang = 'en_US';;
-                    $this->xmlPath = BdroppyImportTools::importProduct($item, $this->default_lang);
-                    //$this->importToPS($item);
-                }
-                if ($item['sync_status'] == 'delete') {
-                    $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status'=>'deleted', 'imported'=>0), 'id = '.$item['id']);
-                    //$this->removeFromPS($item);
-                }
-            }
-            die;
-
-
-            Tools::setCookieLanguage($this->context->cookie);
-
-            $protocol_link = (Configuration::get('PS_SSL_ENABLED') || Tools::usingSecureMode()) ? 'https://' : 'http://';
-            if ((isset($this->ssl) && $this->ssl && Configuration::get('PS_SSL_ENABLED')) || Tools::usingSecureMode()) {
-                $use_ssl = true;
             } else {
-                $use_ssl = false;
-            }
-            $protocol_content = ($use_ssl) ? 'https://' : 'http://';
-            $link = new Link($protocol_link, $protocol_content);
-            $this->context->link = $link;
+                if (!$this->api_limit_count)
+                    $this->api_limit_count = 5;
+                $url = $this->base_url . '/restful/export/api/products.json?user_catalog=' . $this->api_catalog . '&acceptedlocales=en_US&onlyid=true';
 
-            $module = Module::getInstanceByName(Tools::getValue('module'));
-            if ($module && $module->active) {
-                $log = $module->runJobs();
-            }
+                $header = "authorization: Basic " . base64_encode($this->api_key . ':' . $this->api_password);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+                $data = curl_exec($ch);
+                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curl_error = curl_error($ch);
+                curl_close($ch);
 
-            if ($module->config->_method == 'traffic') {
-                // generate empty picture http://www.nexen.net/articles/dossier/16997-une_image_vide_sans_gd.php
-                $hex = '47494638396101000100800000ffffff00000021f90401000000002c00000000010001000002024401003b';
-                $img = '';
-                $t = strlen($hex) / 2;
-                for ($i = 0; $i < $t; $i++) {
-                    $img .= chr(hexdec(substr($hex, $i * 2, 2)));
+                //echo "<pre>";var_dump($this->api_catalog, $url, $http_code, $data);die;
+                if ($http_code === 200 && $data != "null") {
+                    $ids = [];
+                    $catalog = json_decode($data);
+                    $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
+                    $prds = Db::getInstance()->ExecuteS($sql);
+                    foreach ($catalog->items as $item) {
+                        $ids[] = $item->refId;
+                    }
+                    $products = array_map(function ($item) {
+                        return (integer)$item['rewix_product_id'];
+                    }, $prds);
+                    $add_products = array_diff($ids, $products);
+
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
+                    $delete_products = Db::getInstance()->ExecuteS($sql);
+                    //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
+
+                    foreach ($delete_products as $item) {
+                        switch ($item['sync_status']) {
+                            case 'queued':
+                            case 'delete':
+                                Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                break;
+                            case 'updated':
+                                $product = new Product($item['ps_product_id']);
+                                $product->delete();
+                                Db::getInstance()->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                break;
+                        }
+                    }
+                    foreach ($add_products as $item) {
+                        Db::getInstance()->insert('bdroppy_remoteproduct', array(
+                            'rewix_product_id' => pSQL($item),
+                            'rewix_catalog_id' => pSQL($this->api_catalog),
+                            'sync_status' => pSQL('queued'),
+                        ));
+                    }
                 }
-                header('Last-Modified: Fri, 01 Jan 1999 00:00 GMT', true, 200);
-                header('Content-Length: ' . strlen($img));
-                header('Content-Type: image/gif');
-                echo $img;
-            } else {
-                header('Content-Type: text/plain');
-                echo $log;
+
+                // select 10 products to import
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='queued' LIMIT " . $this->api_limit_count . ";";
+                $items = Db::getInstance()->ExecuteS($sql);
+                foreach ($items as $item) {
+                    $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'importing'), 'id = ' . $item['id']);
+                }
+                foreach ($items as $item) {
+                    if ($item['sync_status'] == 'queued') {
+                        if ($this->default_lang == 'en_GB')
+                            $this->default_lang = 'en_US';;
+                        $this->xmlPath = BdroppyImportTools::importProduct($item, $this->default_lang);
+                        //$this->importToPS($item);
+                    }
+                    if ($item['sync_status'] == 'delete') {
+                        $res = Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'deleted', 'imported' => 0), 'id = ' . $item['id']);
+                        //$this->removeFromPS($item);
+                    }
+                }
             }
-            die();
+            parent::initContent();
+            $this->context->smarty->assign(array(
+                'msg' => 'Importing...',
+            ));
+            $this->setTemplate('module:mk_formpage/views/templates/front/import.tpl');
         } catch (PrestaShopException $e) {
             echo "<pre>";var_dump('000', $e->getMessage(), $e);
             return false;
         }
     }
-
     private function removeFromPS($item) {
         //TODO remove product function
     }

@@ -229,15 +229,7 @@ class Bdroppy extends Module
 
     public function getCronURL()
     {
-        if (version_compare(_PS_VERSION_, '1.5.0.0', '>=')) {
-            $result = $this->context->link->getModuleLink(
-                $this->name,
-                'bdroppy'
-            );
-        } else {
-            $result = $this->samdha_tools->getHttpHost(true).$this->_path.'cron.php?token='.$this->config->_token;
-        }
-        return $result;
+        return _PS_BASE_URL_.__PS_BASE_URI__."modules/".$this->name."/cron.php";
     }
 
     private function getCatalogs() {
