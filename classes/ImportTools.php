@@ -24,7 +24,7 @@ class BdroppyImportTools
 {
     const DATA_SOURCE_PATH = 'rewix-sync-products.xml';
     const DATA_SOURCE_INCREMENTAL_PATH = 'rewix-sync-products-incremental.xml';
-    
+
     public static $logger = null;
     public static $products = array();
     public static $brands = array();
@@ -116,13 +116,13 @@ class BdroppyImportTools
         if (!is_dir($dir)) {
             mkdir($dir);
         }
-        
+
         if ($incremental == false) {
             $path = $dir . DIRECTORY_SEPARATOR . self::DATA_SOURCE_PATH;
         } else {
             $path = $dir . DIRECTORY_SEPARATOR . self::DATA_SOURCE_INCREMENTAL_PATH;
         }
-        
+
         return $path;
     }
 
@@ -162,7 +162,7 @@ class BdroppyImportTools
     private static function downloadXmlSource($since = null)
     {
         $logger = self::getLogger();
-        
+
         @set_time_limit(3600);
         @ini_set('memory_limit', '1024M');
 
@@ -176,7 +176,7 @@ class BdroppyImportTools
         } else {
             $life = 60; // allow update incremental data every 1 minutes
         }
-        
+
         if (!$filemtime || (time() - $filemtime) >= $life) {
             // remove old .xml data
             if (file_exists($path)) {
@@ -185,13 +185,13 @@ class BdroppyImportTools
         } else {
             return $path;
         }
-        
+
         $locale = Configuration::get(BdroppyConfigKeys::LOCALE);
         $username = Configuration::get(BdroppyConfigKeys::APIKEY);
         $password = Configuration::get(BdroppyConfigKeys::PASSWORD);
         $websiteUrl = Configuration::get(BdroppyConfigKeys::WEBSITE_URL);
         $url = "{$websiteUrl}/restful/export/api/products.xml?acceptedlocales={$locale}&addtags=true" . ( empty($since) ? '' : '&since=' . urlencode($since) );
-        
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
@@ -214,7 +214,7 @@ class BdroppyImportTools
             //$logger->logDebug('Error loading XML Data: There has been an error executing the request: ' . $httpCode);
             return false;
         }
-        
+
         if (file_put_contents($path, $data) === false) {
             //$logger->logError('Error saving XML Data.');
         }
@@ -226,7 +226,7 @@ class BdroppyImportTools
                 unlink($filename);
             }
         }
-        
+
         return $path;
     }
 
@@ -243,7 +243,7 @@ class BdroppyImportTools
         set_time_limit(3600);
         $path = self::getXmlSource();
         $lastUpdate = null;
-        
+
         $logger = self::getLogger();
         //$logger->logDebug('Starting update quantity procedure for all products from source file ' . $path);
 
@@ -261,17 +261,17 @@ class BdroppyImportTools
             while ($reader->read()) {
                 if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
                     $xmlProduct = self::getProductXML($reader);
-                    
+
                     $id = BdroppyRemoteProduct::getIdByRewixId((int) $xmlProduct->id, true);
                     if ($id != 0) {
-                            $rewixProduct = new BdroppyRemoteProduct($id);
+                        $rewixProduct = new BdroppyRemoteProduct($id);
 
-                            if ($rewixProduct && $rewixProduct->simple) {
-                                $product = new Product($rewixProduct->ps_product_id);
-                                self::checkNosizeModel($xmlProduct, $product);
+                        if ($rewixProduct && $rewixProduct->simple) {
+                            $product = new Product($rewixProduct->ps_product_id);
+                            self::checkNosizeModel($xmlProduct, $product);
                         }
                     }
-                       
+
                     $xmlProducts[(int)$xmlProduct->id] = (int)$xmlProduct->availability;
                     $models = $xmlProduct->models;
                     foreach ($models->model as $xmlModel) {
@@ -290,7 +290,7 @@ class BdroppyImportTools
                 if ($remoteProduct['imported'] == 1) {
                     $models = BdroppyRemoteCombination::getByRewixProductId($remoteProduct['rewix_product_id']);
                     $productsCount += 1;
-                
+
                     if ($remoteProduct['simple']) {
                         $availability = StockAvailable::getQuantityAvailableByProduct($remoteProduct['ps_product_id']);
                         if (! array_key_exists($remoteProduct['rewix_product_id'], $xmlProducts)) {
@@ -375,9 +375,9 @@ class BdroppyImportTools
             Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
             throw new Exception('Cannot read xml file ' . $path);
         }
-        
+
         //$logger->logInfo('Loading Products in Prestashop');
-        
+
         $xmlProducts = array();
         //$xmlModels = array();
 
@@ -468,7 +468,7 @@ class BdroppyImportTools
         }
         return true;
     }
-    
+
     public static function processImportQueue()
     {
         $productIds = BdroppyRemoteProduct::getIdsByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED, 30, 4);
@@ -486,7 +486,7 @@ class BdroppyImportTools
         $path = self::getXmlSource();
         $failedProducts = array();
         $lastUpdate = null;
-        
+
         //self::getLogger()->logDebug('Starting import procedure for ' . count($productIds) . ' from source file ' . $path);
 
         try {
@@ -545,8 +545,36 @@ class BdroppyImportTools
         // if a product fails to be import, increments priority by 1 and save.
         self::incrementPriority($failedProducts);
         self::$categoryStructure = null;
-        
+
         Configuration::updateValue(BdroppyConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
+    }
+
+    public static function updateProductPrices($item, $default_lang) {
+        $product_id = $item['rewix_product_id'];
+        $catalog_id = $item['rewix_catalog_id'];
+
+        $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+        curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('BDROPPY_API_KEY') . ':' . Configuration::get('BDROPPY_API_PASSWORD'));
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+        if ($http_code === 200) {
+            $xmlProduct = json_decode($data);
+            $product = new Product($item['ps_product_id']);
+            $price = (float)$xmlProduct->sellPrice;
+            $bestTaxable = (float)$xmlProduct->bestTaxable;
+            $product->wholesale_price = $bestTaxable;
+            $product->price = round($price, 3);
+            $product->save();
+            $refId = (int)$xmlProduct->id;
+            self::updateImportedProduct($refId, $product->id);
+        }
     }
 
     public static function importProduct($item, $default_lang)
@@ -1564,7 +1592,7 @@ class BdroppyImportTools
     public static function syncWithSupplier()
     {
         $rewixApi = new BdroppyRewixApi();
-                
+
         $rewixApi->syncBookedProducts();
         $rewixApi->sendMissingOrders();
     }

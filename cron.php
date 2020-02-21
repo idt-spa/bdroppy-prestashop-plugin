@@ -11,6 +11,7 @@ include_once _PS_ROOT_DIR_ . '/init.php';
 include_once dirname(__FILE__) . '/classes/ImportTools.php';
 
 BdroppyCron::importProducts();
+BdroppyCron::updatePrices();
 //BdroppyCron::syncProducts();
 //BdroppyCron::syncQuantities();
 //BdroppyCron::syncCarts();
@@ -167,6 +168,61 @@ class BdroppyCron
                         $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'deleted', 'imported' => 0), 'id = ' . $item['id']);
                         //$removeFromPS($item);
                     }
+                }
+            }
+        } catch (PrestaShopException $e) {
+            echo "<pre>";var_dump('000', $e->getMessage(), $e);
+            return false;
+        }
+    }
+
+    public static function updatePrices() {
+        try {
+            header('Access-Control-Allow-Origin: *');
+            @ini_set('max_execution_time', 100000);
+
+            $context = Context::getContext();
+            $default_lang = str_replace('-', '_', $context->language->locale);
+
+            $configurations = array(
+                'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
+                'BDROPPY_API_KEY' => Configuration::get('BDROPPY_API_KEY', null),
+                'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
+                'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
+                'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
+                'BDROPPY_GENDER' => Configuration::get('BDROPPY_GENDER', null),
+                'BDROPPY_COLOR' => Configuration::get('BDROPPY_COLOR', null),
+                'BDROPPY_SEASON' => Configuration::get('BDROPPY_SEASON', null),
+                'BDROPPY_CATEGORY_STRUCTURE' => Configuration::get('BDROPPY_CATEGORY_STRUCTURE', null),
+                'BDROPPY_IMPORT_IMAGE' => Configuration::get('BDROPPY_IMPORT_IMAGE', null),
+                'BDROPPY_LIMIT_COUNT' => Configuration::get('BDROPPY_LIMIT_COUNT', null),
+                'BDROPPY_IMPORT_BRAND_TO_TITLE' => Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE', null),
+                'BDROPPY_IMPORT_TAG_TO_TITLE' => Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE', null),
+                'BDROPPY_AUTO_UPDATE_PRICES' => Configuration::get('BDROPPY_AUTO_UPDATE_PRICES', null),
+            );
+
+            $db = Db::getInstance();
+            $base_url = isset($configurations['BDROPPY_API_URL']) ? $configurations['BDROPPY_API_URL'] : '';
+            $api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
+            $api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
+            $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
+            $api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
+            $api_gender = isset($configurations['BDROPPY_GENDER']) ? $configurations['BDROPPY_GENDER'] : '';
+            $api_color = isset($configurations['BDROPPY_COLOR']) ? $configurations['BDROPPY_COLOR'] : '';
+            $api_season = isset($configurations['BDROPPY_SEASON']) ? $configurations['BDROPPY_SEASON'] : '';
+            $api_category_structure = isset($configurations['BDROPPY_CATEGORY_STRUCTURE']) ? $configurations['BDROPPY_CATEGORY_STRUCTURE'] : '';
+            $api_import_image = isset($configurations['BDROPPY_IMPORT_IMAGE']) ? $configurations['BDROPPY_IMPORT_IMAGE'] : '';
+            $api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
+            $bdroppy_import_brand_to_title = isset($configurations['BDROPPY_IMPORT_BRAND_TO_TITLE']) ? $configurations['BDROPPY_IMPORT_BRAND_TO_TITLE'] : '';
+            $bdroppy_import_tag_to_title = isset($configurations['BDROPPY_IMPORT_TAG_TO_TITLE']) ? $configurations['BDROPPY_IMPORT_TAG_TO_TITLE'] : '';
+            $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
+
+            if($bdroppy_auto_update_prices) {
+                // select 10 products to import
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated';";
+                $items = $db->ExecuteS($sql);
+                foreach ($items as $item) {
+                    BdroppyImportTools::updateProductPrices($item, $default_lang);
                 }
             }
         } catch (PrestaShopException $e) {
