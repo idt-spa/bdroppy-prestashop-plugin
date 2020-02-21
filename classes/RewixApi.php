@@ -182,6 +182,9 @@ class BdroppyRewixApi
                     'qty' => (int) $line['cart_quantity']
                 );
                 $operations[] = $operation;
+            } else {
+                $err = 'Model ID Not Found!';
+                throw new Exception($err);
             }
         }
 
