@@ -51,8 +51,23 @@ class BdroppyCron
             $api_import_image = isset($configurations['BDROPPY_IMPORT_IMAGE']) ? $configurations['BDROPPY_IMPORT_IMAGE'] : '';
             $api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
 
+            if (!$api_limit_count)
+                $api_limit_count = 5;
+            //requeue
+            $fiveago = date('Y-m-d H:i:s', strtotime("-5 minutes"));
+            $db = Db::getInstance();
+            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='importing' AND last_sync_date <= '$fiveago' LIMIT " . $api_limit_count . ";";
+            $products = $db->ExecuteS($sql);
+            foreach ($products as $item) {
+                if($item['ps_product_id'] != 0) {
+                    $product = new Product($item['ps_product_id']);
+                    $product->delete();
+                }
+                $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'queued'), 'id = ' . $item['id']);
+            }
+
             if($api_catalog == "" || $api_catalog == "0") {
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` LIMIT " . $api_limit_count . ";";
                 $delete_products = $db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
                     switch ($item['sync_status']) {
@@ -77,8 +92,6 @@ class BdroppyCron
                     }
                 }
             } else {
-                if (!$api_limit_count)
-                    $api_limit_count = 5;
                 $url = $base_url . '/restful/export/api/products.json?user_catalog=' . $api_catalog . '&acceptedlocales=en_US&onlyid=true';
 
                 $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);

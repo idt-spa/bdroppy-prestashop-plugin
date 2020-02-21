@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="add module verion to about tab">
-      <change afterPath="$PROJECT_DIR$/cron.php" afterDir="false" />
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="add cron instead controller">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/front/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/front/bdroppy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron.php" beforeDir="false" afterPath="$PROJECT_DIR$/cron.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +85,8 @@
       <workItem from="1582157475574" duration="917000" />
       <workItem from="1582190710871" duration="1088000" />
       <workItem from="1582191828415" duration="3866000" />
-      <workItem from="1582212018937" duration="2540000" />
+      <workItem from="1582212018937" duration="6254000" />
+      <workItem from="1582271922693" duration="5298000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -145,7 +144,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582191325009</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="add cron instead controller">
+      <created>1582214620015</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1582214620015</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -159,7 +165,8 @@
     <MESSAGE value="change name to bdroppy" />
     <MESSAGE value="add importing status" />
     <MESSAGE value="add module verion to about tab" />
-    <option name="LAST_COMMIT_MESSAGE" value="add module verion to about tab" />
+    <MESSAGE value="add cron instead controller" />
+    <option name="LAST_COMMIT_MESSAGE" value="add cron instead controller" />
   </component>
   <component name="WindowStateProjectService">
     <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
@@ -170,10 +177,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582214526369">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582279974324">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582214526369" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582279974324" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
@@ -186,14 +193,14 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="187" y="19" width="992" height="740" key="SettingsEditor/0.0.1366.768@0.0.1366.768" timestamp="1581590260411" />
-    <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1582192017043">
+    <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1582275431464">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1366.768@0.0.1366.768" timestamp="1582192017043" />
-    <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582157857494">
+    <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1366.768@0.0.1366.768" timestamp="1582275431464" />
+    <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582277878271">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582157857494" />
+    <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582277878271" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
