@@ -1419,6 +1419,7 @@ class BdroppyImportTools
             $xmlModel = $xmlProduct->models[0];
             $product->minimal_quantity = 1;
             $product->ean13 = (string)$xmlModel->barcode;
+            $product->isbn = $xmlModel->id;
             $product->reference = self::fitReference((string)$xmlModel->code, $xmlProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);
 
