@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/RewixApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RewixApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +88,7 @@
       <workItem from="1582212018937" duration="6254000" />
       <workItem from="1582271922693" duration="6508000" />
       <workItem from="1582281333718" duration="716000" />
-      <workItem from="1582284736720" duration="4540000" />
+      <workItem from="1582284736720" duration="4763000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -174,7 +174,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582295864220</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="check model id on sending order">
+      <created>1582296434915</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1582296434915</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,7 +199,8 @@
     <MESSAGE value="add requeue" />
     <MESSAGE value="fix features bug" />
     <MESSAGE value="add isbn (model id) for simple products" />
-    <option name="LAST_COMMIT_MESSAGE" value="add isbn (model id) for simple products" />
+    <MESSAGE value="check model id on sending order" />
+    <option name="LAST_COMMIT_MESSAGE" value="check model id on sending order" />
   </component>
   <component name="WindowStateProjectService">
     <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
@@ -203,10 +211,10 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582295864034">
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2" timestamp="1582296434785">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
-    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582295864034" />
+    <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582296434785" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
