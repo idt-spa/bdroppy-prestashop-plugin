@@ -1202,7 +1202,20 @@ class BdroppyImportTools
                 $langCode = str_replace('-', '_', $lang['locale']);
                 if($langCode == 'en_GB')
                     $langCode = 'en_US';
-                $product->name[$lang['id_lang']] = $productData['name'];
+                $name = '';
+                if(Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
+                    $name = $productData['brand'] . ' - ' . $productData['name'];
+                } else {
+                    $name = $productData['name'];
+                }
+                $pname_tag = Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE');
+                if($pname_tag) {
+                    $tag = $productData[$pname_tag];
+                    if (!empty($tag)) {
+                        $name .= ' - ' . $tag;
+                    }
+                }
+                $product->name[$lang['id_lang']] = $name;
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
                 $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
                 $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($xmlProduct, $langCode), 0, 800);
@@ -1221,10 +1234,20 @@ class BdroppyImportTools
             // updateCategories requires the product to have an id already set
             $product->updateCategories($categories);
 
-            /*$colorFeatureId = Configuration::get('BDROPPY_COLOR');
+            $sizeFeatureId = Configuration::get('BDROPPY_SIZE');
+            $colorFeatureId = Configuration::get('BDROPPY_COLOR');
             $genderFeatureId = Configuration::get('BDROPPY_GENDER');
             $seasonFeatureId = Configuration::get('BDROPPY_SEASON');
 
+            if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($productData['size']) > 0) {
+                $featureValueId = FeatureValue::addFeatureValueImport(
+                    $sizeFeatureId,
+                    $productData['size'],
+                    $product->id,
+                    Configuration::get('PS_LANG_DEFAULT')
+                );
+                Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
+            }
             if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
                 $featureValueId = FeatureValue::addFeatureValueImport(
                     $colorFeatureId,
@@ -1251,7 +1274,7 @@ class BdroppyImportTools
                     Configuration::get('PS_LANG_DEFAULT')
                 );
                 Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
-            }*/
+            }
 
             return $product;
         } catch (PrestaShopException $e) {

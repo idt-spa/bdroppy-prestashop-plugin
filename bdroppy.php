@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -94,6 +94,25 @@ class Bdroppy extends Module
         $importTab->add();
     }
 
+    public function installFeatures() {
+        $languages = Language::getLanguages();
+        $feature = new Feature();
+        foreach ($languages as $language)
+            $feature->name[$language['id_lang']] = strval('Size');
+        $feature->add();
+        $feature = new Feature();
+        foreach ($languages as $language)
+            $feature->name[$language['id_lang']] = strval('Gender');
+        $feature->add();
+        $feature = new Feature();
+        foreach ($languages as $language)
+            $feature->name[$language['id_lang']] = strval('Color');
+        $feature->add();
+        $feature = new Feature();
+        foreach ($languages as $language)
+            $feature->name[$language['id_lang']] = strval('Season');
+        $feature->add();
+    }
     public function installAttributes() {
         $languages = Language::getLanguages(false);
         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Size';";
@@ -164,7 +183,8 @@ class Bdroppy extends Module
 
     public function install()
     {
-        $this->installAttributes();
+        //$this->installAttributes();
+        $this->installFeatures();
         $this->installTabs();
 
         //Init default value:
@@ -179,6 +199,9 @@ class Bdroppy extends Module
         Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', '');
         Configuration::updateValue('BDROPPY_IMPORT_IMAGE', '');
         Configuration::updateValue('BDROPPY_LIMIT_COUNT', '');
+        Configuration::updateValue('BDROPPY_IMPORT_BRAND_TO_TITLE', '');
+        Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', '');
+        Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', '');
 
         include(dirname(__FILE__).'/sql/install.php');
 
@@ -209,6 +232,9 @@ class Bdroppy extends Module
         Configuration::deleteByName('BDROPPY_CATEGORY_STRUCTURE');
         Configuration::deleteByName('BDROPPY_IMPORT_IMAGE');
         Configuration::deleteByName('BDROPPY_LIMIT_COUNT');
+        Configuration::deleteByName('BDROPPY_IMPORT_BRAND_TO_TITLE');
+        Configuration::deleteByName('BDROPPY_IMPORT_TAG_TO_TITLE');
+        Configuration::deleteByName('BDROPPY_AUTO_UPDATE_PRICES');
 
         // Uninstall Tabs
         $moduleTabs = Tab::getCollectionFromModule($this->name);
@@ -287,6 +313,15 @@ class Bdroppy extends Module
             $bdroppy_limit_count = (string)Tools::getValue('bdroppy_limit_count');
             Configuration::updateValue('BDROPPY_LIMIT_COUNT', $bdroppy_limit_count);
 
+            $bdroppy_import_brand_to_title = (int)Tools::getValue('bdroppy_import_brand_to_title');
+            Configuration::updateValue('BDROPPY_IMPORT_BRAND_TO_TITLE', $bdroppy_import_brand_to_title);
+
+            $bdroppy_import_tag_to_title = (string)Tools::getValue('bdroppy_import_tag_to_title');
+            Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', $bdroppy_import_tag_to_title);
+
+            $bdroppy_auto_update_prices = (int)Tools::getValue('bdroppy_auto_update_prices');
+            Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', $bdroppy_auto_update_prices);
+
             $saved = true;
         }
         $errors = "";
@@ -300,12 +335,13 @@ class Bdroppy extends Module
             }
         }
 
-        $res = AttributeGroup::getAttributesGroups($this->context->language->id);
+        //$res = AttributeGroup::getAttributesGroups($this->context->language->id);
+        $res = Feature::getFeatures($this->context->language->id);
         $attributes = array(
             '0' => $this->l('Select', 'main'),
         );
-        foreach ($res as $attribute) {
-            $attributes[$attribute['id_attribute_group']] = $attribute['public_name'];
+        foreach ($res as $feature) {
+            $attributes[$feature['id_feature']] = $feature['name'];
         }
 
         //return $output . $this->displayForm() . $this->displayPriceForm();
@@ -317,6 +353,8 @@ class Bdroppy extends Module
         $api_key = "Unkown";
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_key = Configuration::get('BDROPPY_API_KEY');
+        $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
+        $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
         $httpCode = 500;
         $cron_url = "";
@@ -327,6 +365,10 @@ class Bdroppy extends Module
         $urls = array(
             'https://dev.bdroppy.com' => $this->l('Sandbox mode', 'main'),
             'https://prod.bdroppy.com' => $this->l('Live mode', 'main')
+        );
+        $bdroppy_import_tag_to_title = array(
+            '0' => $this->l('No Tag', 'main'),
+            'color' => $this->l('Color', 'main')
         );
         $import_image = array(
             '0' => $this->l('No import', 'main'),
@@ -348,27 +390,30 @@ class Bdroppy extends Module
         $home_url = sprintf('https://www.brandsdistribution.com', $iso_lang, urlencode($this->name));
 
         $tplVars = array(
-            'module_display_name'   => $this->displayName,
-            'module_version'        => $this->version,
-            'description_big_html'  => '',
-            'description'           => '',
-            'home_url'              => $home_url,
-            'urls'                  => $urls,
-            'urls'                  => $urls,
-            'erros'                 => $errors,
-            'confirmations'         => $confirmations,
-            'module_path'           => '/modules/bdroppy/',
-            'base_url'              => $base_url,
-            'api_key'               => $api_key,
-            'cron_url'              => $this->getCronURL(),
-            'catalogs'              => $catalogs,
-            'attributes'            => $attributes,
-            'import_image'          => $import_image,
-            'category_structure'    => $category_structure,
-            'stripeBOCssUrl'        => $stripeBOCssUrl,
-            'base_url'              => $base_url,
-            'api_key'               => $api_key,
-            'txtStatus'             => $txtStatus
+            'module_display_name'               => $this->displayName,
+            'module_version'                    => $this->version,
+            'description_big_html'              => '',
+            'description'                       => '',
+            'home_url'                          => $home_url,
+            'urls'                              => $urls,
+            'urls'                              => $urls,
+            'erros'                             => $errors,
+            'confirmations'                     => $confirmations,
+            'module_path'                       => '/modules/bdroppy/',
+            'base_url'                          => $base_url,
+            'api_key'                           => $api_key,
+            'cron_url'                          => $this->getCronURL(),
+            'catalogs'                          => $catalogs,
+            'attributes'                        => $attributes,
+            'import_image'                      => $import_image,
+            'category_structure'                => $category_structure,
+            'stripeBOCssUrl'                    => $stripeBOCssUrl,
+            'base_url'                          => $base_url,
+            'api_key'                           => $api_key,
+            'txtStatus'                         => $txtStatus,
+            'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
+            'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
+            'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
         );
         $this->context->smarty->assign($tplVars);
         $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
