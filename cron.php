@@ -98,56 +98,59 @@ class BdroppyCron
             } else {
                 if (!$api_limit_count)
                     $api_limit_count = 5;
-                $url = $base_url . '/restful/export/api/products.json?user_catalog=' . $api_catalog . '&acceptedlocales=en_US&onlyid=true';
+                $min = date('i') % 5;
+                if($min == 0 || $min == 5) {
+                    $url = $base_url . '/restful/export/api/products.json?user_catalog=' . $api_catalog . '&acceptedlocales=en_US&onlyid=true';
 
-                $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-                $data = curl_exec($ch);
-                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curl_error = curl_error($ch);
-                curl_close($ch);
+                    $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+                    $data = curl_exec($ch);
+                    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    $curl_error = curl_error($ch);
+                    curl_close($ch);
 
-                if ($http_code === 200 && $data != "null") {
-                    $ids = [];
-                    $catalog = json_decode($data);
-                    $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
-                    $prds = $db->ExecuteS($sql);
-                    foreach ($catalog->items as $item) {
-                        $ids[] = $item->refId;
-                    }
-                    $products = array_map(function ($item) {
-                        return (integer)$item['rewix_product_id'];
-                    }, $prds);
-                    $add_products = array_diff($ids, $products);
-
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $api_catalog . "';";
-                    $delete_products = $db->ExecuteS($sql);
-                    //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
-
-                    foreach ($delete_products as $item) {
-                        switch ($item['sync_status']) {
-                            case 'queued':
-                            case 'delete':
-                                $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                                break;
-                            case 'updated':
-                                $product = new Product($item['ps_product_id']);
-                                $product->delete();
-                                $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                                break;
+                    if ($http_code === 200 && $data != "null") {
+                        $ids = [];
+                        $catalog = json_decode($data);
+                        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
+                        $prds = $db->ExecuteS($sql);
+                        foreach ($catalog->items as $item) {
+                            $ids[] = $item->refId;
                         }
-                    }
-                    foreach ($add_products as $item) {
-                        $db->insert('bdroppy_remoteproduct', array(
-                            'rewix_product_id' => pSQL($item),
-                            'rewix_catalog_id' => pSQL($api_catalog),
-                            'sync_status' => pSQL('queued'),
-                        ));
+                        $products = array_map(function ($item) {
+                            return (integer)$item['rewix_product_id'];
+                        }, $prds);
+                        $add_products = array_diff($ids, $products);
+
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $api_catalog . "';";
+                        $delete_products = $db->ExecuteS($sql);
+                        //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
+
+                        foreach ($delete_products as $item) {
+                            switch ($item['sync_status']) {
+                                case 'queued':
+                                case 'delete':
+                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                    break;
+                                case 'updated':
+                                    $product = new Product($item['ps_product_id']);
+                                    $product->delete();
+                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                    break;
+                            }
+                        }
+                        foreach ($add_products as $item) {
+                            $db->insert('bdroppy_remoteproduct', array(
+                                'rewix_product_id' => pSQL($item),
+                                'rewix_catalog_id' => pSQL($api_catalog),
+                                'sync_status' => pSQL('queued'),
+                            ));
+                        }
                     }
                 }
 
