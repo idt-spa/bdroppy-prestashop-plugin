@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.5';
+        $this->version = '1.0.6';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -191,6 +191,7 @@ class Bdroppy extends Module
         Configuration::updateValue('BDROPPY_API_URL', '');
         Configuration::updateValue('BDROPPY_API_KEY', '');
         Configuration::updateValue('BDROPPY_API_PASSWORD', '');
+        Configuration::updateValue('BDROPPY_TOKEN', '');
         Configuration::updateValue('BDROPPY_CATALOG', '');
         Configuration::updateValue('BDROPPY_SIZE', '');
         Configuration::updateValue('BDROPPY_GENDER', '');
@@ -224,6 +225,7 @@ class Bdroppy extends Module
         Configuration::deleteByName('BDROPPY_API_URL');
         Configuration::deleteByName('BDROPPY_API_KEY');
         Configuration::deleteByName('BDROPPY_API_PASSWORD');
+        Configuration::deleteByName('BDROPPY_TOKEN');
         Configuration::deleteByName('BDROPPY_CATALOG');
         Configuration::deleteByName('BDROPPY_SIZE');
         Configuration::deleteByName('BDROPPY_GENDER');
@@ -263,11 +265,13 @@ class Bdroppy extends Module
         $catalogs[0] = 'No Catalog';
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getUserCatalogs();
-        foreach ($res as $r){
+        foreach ($res['catalogs'] as $r){
             $r = $rewixApi->getCatalogById2($r->_id);
             $catalogs[$r->_id]  = isset($r->name)? $r->name ." ( $r->currency ) ( ".count($r->ids)." products )" : null;
         }
-        return $catalogs;
+        $ret['http_code'] = $res['http_code'];
+        $ret['catalogs'] = $catalogs;
+        return $ret;
     }
 
     public function getContent()
@@ -280,9 +284,11 @@ class Bdroppy extends Module
             $apiUrl = (string)Tools::getValue('bdroppy_api_url');
             $apiKey = (string)Tools::getValue('bdroppy_api_key');
             $apiPassword = (string)Tools::getValue('bdroppy_api_password');
+            $apiToken = (string)Tools::getValue('bdroppy_token');
 
             Configuration::updateValue('BDROPPY_API_URL', $apiUrl);
             Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
+            Configuration::updateValue('BDROPPY_TOKEN', $apiToken);
             if ($apiPassword) {
                 Configuration::updateValue('BDROPPY_API_PASSWORD', $apiPassword);
             }
@@ -351,15 +357,18 @@ class Bdroppy extends Module
         $stripeBOCssUrl = $shopDomainSsl.__PS_BASE_URI__.'modules/'.$this->name.'/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
+        $api_token = "Unkown";
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
-        $httpCode = 500;
+        $httpCode = $catalogs['http_code'];
         $cron_url = "";
+
         $txtStatus = '<span style="color: red;">Error Code : ' . $httpCode . '</span>';
-        if($catalogs) {
+        if(count($catalogs['catalogs'])>1) {
             $txtStatus = '<span style="color: green;">Ok</span>';
         }
         $urls = array(
@@ -402,8 +411,9 @@ class Bdroppy extends Module
             'module_path'                       => '/modules/bdroppy/',
             'base_url'                          => $base_url,
             'api_key'                           => $api_key,
+            'api_token'                         => $api_token,
             'cron_url'                          => $this->getCronURL(),
-            'catalogs'                          => $catalogs,
+            'catalogs'                          => $catalogs['catalogs'],
             'attributes'                        => $attributes,
             'import_image'                      => $import_image,
             'category_structure'                => $category_structure,

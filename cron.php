@@ -29,6 +29,7 @@ class BdroppyCron
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
                 'BDROPPY_API_KEY' => Configuration::get('BDROPPY_API_KEY', null),
                 'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
+                'BDROPPY_TOKEN' => Configuration::get('BDROPPY_TOKEN', null),
                 'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
                 'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
                 'BDROPPY_GENDER' => Configuration::get('BDROPPY_GENDER', null),
@@ -46,6 +47,7 @@ class BdroppyCron
             $base_url = isset($configurations['BDROPPY_API_URL']) ? $configurations['BDROPPY_API_URL'] : '';
             $api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
             $api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
+            $api_token = isset($configurations['BDROPPY_TOKEN']) ? $configurations['BDROPPY_TOKEN'] : '';
             $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
             $api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
             $api_gender = isset($configurations['BDROPPY_GENDER']) ? $configurations['BDROPPY_GENDER'] : '';
@@ -99,16 +101,18 @@ class BdroppyCron
                 if (!$api_limit_count)
                     $api_limit_count = 5;
                 $min = date('i') % 5;
-                if($min == 0 || $min == 5) {
+                if($min == 0 || $min == 5 || $_GET['dev'] == 'isaac') {
                     $url = $base_url . '/restful/export/api/products.json?user_catalog=' . $api_catalog . '&acceptedlocales=en_US&onlyid=true';
 
-                    $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);
+                    $header = "Authorization: Bearer " . $api_token;
+
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
                     $data = curl_exec($ch);
                     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     $curl_error = curl_error($ch);
@@ -191,6 +195,7 @@ class BdroppyCron
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
                 'BDROPPY_API_KEY' => Configuration::get('BDROPPY_API_KEY', null),
                 'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
+                'BDROPPY_TOKEN' => Configuration::get('BDROPPY_TOEKN', null),
                 'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
                 'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
                 'BDROPPY_GENDER' => Configuration::get('BDROPPY_GENDER', null),
@@ -208,6 +213,7 @@ class BdroppyCron
             $base_url = isset($configurations['BDROPPY_API_URL']) ? $configurations['BDROPPY_API_URL'] : '';
             $api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
             $api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
+            $api_token = isset($configurations['BDROPPY_TOKEN']) ? $configurations['BDROPPY_TOKEN'] : '';
             $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
             $api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
             $api_gender = isset($configurations['BDROPPY_GENDER']) ? $configurations['BDROPPY_GENDER'] : '';

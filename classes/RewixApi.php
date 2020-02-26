@@ -38,10 +38,11 @@ class BdroppyRewixApi
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_key = Configuration::get('BDROPPY_API_KEY');
         $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
 
-        $url = $base_url . '/restful/user_catalog/user/username/'.$api_key;
+        $url = $base_url . '/restful/user_catalog';
 
-        $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);
+        $header = "Authorization: Bearer " . $api_token;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -56,7 +57,9 @@ class BdroppyRewixApi
         {
             $catalogs = json_decode($data);
         }
-        return $catalogs;
+        $ret['http_code'] = $http_code;
+        $ret['catalogs'] = $catalogs;
+        return $ret;
     }
 
     public function getCatalogById2($catalog = null)
@@ -66,10 +69,11 @@ class BdroppyRewixApi
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_key = Configuration::get('BDROPPY_API_KEY');
         $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
 
         $url = $base_url . '/restful/export/api/products.json?user_catalog='.$catalog.'&acceptedlocales=en_US&onlyid=true';
 
-        $header = "authorization: Basic " . base64_encode($api_key . ':' . $api_password);
+        $header = "Authorization: Bearer " . $api_token;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -126,12 +130,14 @@ class BdroppyRewixApi
 
         $username = Configuration::get('BDROPPY_API_KEY');
         $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
         $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/sold';
+        $header = "Authorization: Bearer " . $api_token;
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml'));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
         $data = curl_exec($ch);
@@ -291,14 +297,16 @@ class BdroppyRewixApi
         $username = Configuration::get('BDROPPY_API_KEY');
         $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
         $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/dropshipping';
-        $ch       = curl_init( $url );
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $header = "Authorization: Bearer " . $api_token;
+
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch, CURLOPT_USERPWD, $username . ':' . $password );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/xml', 'Accept: application/xml' ) );
-        curl_setopt( $ch, CURLOPT_POST, 1 );
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $xmlText );
-        $data   = curl_exec( $ch );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
+        $data = curl_exec($ch);
         $httpCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
         curl_close( $ch );
         $reader = new XMLReader();
@@ -313,11 +321,13 @@ class BdroppyRewixApi
         //may I do something with it??
 
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
-        $ch  = curl_init( $url );
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $header = "Authorization: Bearer " . $api_token;
+
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch, CURLOPT_USERPWD, $username . ':' . $password );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, ['Accept: application/xml'] );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/xml', $header));
         $data = curl_exec( $ch );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -523,10 +533,12 @@ class BdroppyRewixApi
         $password = (string)Configuration::get(BdroppyConfigKeys::PASSWORD);
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/orders/dropshipping/locked/';
         //$this->logger->logDebug('Retrieving growing order ' . $url);
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $header = "Authorization: Bearer " . $api_token;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
         $data = curl_exec($ch);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

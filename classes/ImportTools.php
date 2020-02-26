@@ -552,14 +552,18 @@ class BdroppyImportTools
     public static function updateProductPrices($item, $default_lang) {
         $product_id = $item['rewix_product_id'];
         $catalog_id = $item['rewix_catalog_id'];
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $header = "Authorization: Bearer " . $api_token;
 
         $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-        curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('BDROPPY_API_KEY') . ':' . Configuration::get('BDROPPY_API_PASSWORD'));
         $data = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curl_error = curl_error($ch);
@@ -586,14 +590,18 @@ class BdroppyImportTools
             $xmlProduct = false;
             $product_id = $item['rewix_product_id'];
             $catalog_id = $item['rewix_catalog_id'];
+            $api_key = Configuration::get('BDROPPY_API_KEY');
+            $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+            $api_token = Configuration::get('BDROPPY_TOKEN');
+            $header = "Authorization: Bearer " . $api_token;
 
             $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-            curl_setopt($ch, CURLOPT_USERPWD, Configuration::get('BDROPPY_API_KEY') . ':' . Configuration::get('BDROPPY_API_PASSWORD'));
             $data = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $curl_error = curl_error($ch);

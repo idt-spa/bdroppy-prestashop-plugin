@@ -54,15 +54,9 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="control-label col-lg-3" for="simple_product">{l s='API Key' mod='bdroppy'}:</label>
+						<label class="control-label col-lg-3" for="simple_product">{l s='Token' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
-							<input type="text" name="bdroppy_api_key" value="{Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="control-label col-lg-3" for="simple_product">{l s='API Password' mod='bdroppy'}:</label>
-						<div class="col-lg-7">
-							<input type="text" name="bdroppy_api_password" value="{Configuration::get('BDROPPY_API_PASSWORD')|escape:'htmlall':'UTF-8'}" />
+							<textarea rows="5" name="bdroppy_token">{Configuration::get('BDROPPY_TOKEN')|escape:'htmlall':'UTF-8'}</textarea>
 						</div>
 					</div>
 					<div class="panel-footer">
@@ -197,7 +191,7 @@
 					<div class="card">
 						<h2>API Connection Status</h2>
 						<p><strong>URL</strong> {$base_url}</p>
-						<p><strong>API Key</strong> {$api_key}</p>
+						<p><strong>Token</strong> {$api_token}</p>
 						<p><strong>Status</strong> {$txtStatus}</p>
 					</div>
 				</fieldset>

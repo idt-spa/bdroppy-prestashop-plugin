@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="check catalog changes every 5 minutes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/ImportTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/RewixApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RewixApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cron.php" beforeDir="false" afterPath="$PROJECT_DIR$/cron.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/templates/admin/configure.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/admin/configure.tpl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +95,8 @@
       <workItem from="1582284736720" duration="6452000" />
       <workItem from="1582299719006" duration="2748000" />
       <workItem from="1582302527153" duration="762000" />
-      <workItem from="1582711659370" duration="3122000" />
+      <workItem from="1582711659370" duration="3958000" />
+      <workItem from="1582732083428" duration="5867000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -198,7 +203,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582712059544</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="check catalog changes every 5 minutes">
+      <created>1582718820655</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1582718820655</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -219,7 +231,8 @@
     <MESSAGE value="check model id on sending order" />
     <MESSAGE value="update version" />
     <MESSAGE value="order api call bugfix" />
-    <option name="LAST_COMMIT_MESSAGE" value="order api call bugfix" />
+    <MESSAGE value="check catalog changes every 5 minutes" />
+    <option name="LAST_COMMIT_MESSAGE" value="check catalog changes every 5 minutes" />
   </component>
   <component name="WindowStateProjectService">
     <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
@@ -230,11 +243,11 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2" timestamp="1582718703784">
+    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2" timestamp="1582738163333">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582302662351" />
-    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1582718703784" />
+    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1582738163333" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
@@ -247,18 +260,20 @@
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="187" y="19" width="992" height="740" key="SettingsEditor/0.0.1366.768@0.0.1366.768" timestamp="1581590260411" />
-    <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1582275431464">
-      <screen x="0" y="0" width="1366" height="768" />
+    <state x="390" y="17" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1582737684804">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="347" y="16" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1366.768@0.0.1366.768" timestamp="1582275431464" />
+    <state x="390" y="17" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1536.824@0.0.1536.824" timestamp="1582737684804" />
     <state x="369" y="119" width="838" height="592" key="find.popup" timestamp="1582299729506">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="369" y="119" width="838" height="592" key="find.popup/0.0.1366.768@0.0.1366.768" timestamp="1582299729506" />
-    <state x="347" y="166" key="run.anything.popup" timestamp="1582301034512">
-      <screen x="0" y="0" width="1366" height="768" />
+    <state x="390" y="178" key="run.anything.popup" timestamp="1582732923982">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="347" y="166" key="run.anything.popup/0.0.1366.768@0.0.1366.768" timestamp="1582301034512" />
+    <state x="390" y="178" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1582732923982" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1581585481682">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
