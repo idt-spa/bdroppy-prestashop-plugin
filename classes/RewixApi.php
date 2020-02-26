@@ -290,7 +290,7 @@ class BdroppyRewixApi
 
         $username = Configuration::get('BDROPPY_API_KEY');
         $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
-        $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/bdroppy';
+        $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/dropshipping';
         $ch       = curl_init( $url );
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -521,7 +521,7 @@ class BdroppyRewixApi
 
         $username = Configuration::get(BdroppyConfigKeys::APIKEY);
         $password = (string)Configuration::get(BdroppyConfigKeys::PASSWORD);
-        $url = Configuration::get(BdroppyConfigKeys::WEBSITE_URL)  . '/restful/ghost/orders/bdroppy/locked/';
+        $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/orders/dropshipping/locked/';
         //$this->logger->logDebug('Retrieving growing order ' . $url);
 
         $ch = curl_init($url);
