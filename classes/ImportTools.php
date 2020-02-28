@@ -41,7 +41,7 @@ class BdroppyImportTools
     public static function getLogger()
     {
         if (self::$logger == null) {
-            $verboseLog = (bool)Configuration::get(BdroppyConfigKeys::VERBOSE_LOG);
+            $verboseLog = true;
             self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
             $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-import.log';
             self::$logger->setFilename($filename);
@@ -143,7 +143,7 @@ class BdroppyImportTools
             $life = 2 * 60; // update incremental data every 2 minutes
         }
         if (!$filemtime || (time() - $filemtime) >= $life) {
-            //self::getLogger()->logError('XML Source is too old or does not exist. Downloading a new source');
+            self::getLogger()->logError('XML Source is too old or does not exist. Downloading a new source');
             $path = self::downloadXmlSource($since);
         }
         if (!$path) {
@@ -407,7 +407,7 @@ class BdroppyImportTools
 
         //$logger->logDebug('Syncing Models');
 
-        //self::getLogger()->logDebug(count($xmlProducts) . ' products which quantities will be updated.');
+        self::getLogger()->logDebug(count($xmlProducts) . ' products which quantities will be updated.');
         $productsCount = 0;
 
         foreach ($xmlProducts as $key => $xmlProduct) {
@@ -487,7 +487,7 @@ class BdroppyImportTools
         $failedProducts = array();
         $lastUpdate = null;
 
-        //self::getLogger()->logDebug('Starting import procedure for ' . count($productIds) . ' from source file ' . $path);
+        self::getLogger()->logDebug('Starting import procedure for ' . count($productIds) . ' from source file ' . $path);
 
         try {
             if (!$path) {
@@ -505,18 +505,18 @@ class BdroppyImportTools
                     $xmlProduct = self::getProductXML($reader);
                     if (in_array((int)$xmlProduct->id, $productIds)) {
                         // Product to import founded!
-                        //self::getLogger()->logDebug($xmlProduct->id . ' is in queue ready to be imported.');
+                        self::getLogger()->logDebug($xmlProduct->id . ' is in queue ready to be imported.');
 
                         try {
                             $result = self::importProduct($xmlProduct);
                             if ($result > 0) {
                                 $counterModel += $result;
                                 ++$counterProduct;
-                                //self::getLogger()->logDebug($xmlProduct->id . ' has been successfully imported.');
+                                self::getLogger()->logDebug($xmlProduct->id . ' has been successfully imported.');
                                 Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
                             }
                         } catch (Exception $e) {
-                            //self::getLogger()->logError('Error import product ' . $xmlProduct->id . ': ' . $e->getMessage());
+                            self::getLogger()->logError('Error import product ' . $xmlProduct->id . ': ' . $e->getMessage());
                             $failedProducts[] = array('id' => (int)$xmlProduct->id, 'message' => $e->getMessage());
                         }
                         // Remove the imported id from the list
@@ -533,9 +533,9 @@ class BdroppyImportTools
                     }
                 }
             }
-            //self::getLogger()->logDebug($counterProduct . ' products have been successfully imported');
+            self::getLogger()->logDebug($counterProduct . ' products have been successfully imported');
         } catch (Exception $e) {
-            //self::getLogger()->logError('Error during the import procedure: ' . $e->getMessage());
+            self::getLogger()->logError('Error during the import procedure: ' . $e->getMessage());
         }
 
         // TODO: delete all imported images
@@ -549,32 +549,16 @@ class BdroppyImportTools
         Configuration::updateValue(BdroppyConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
     }
 
-    public static function updateProductPrices($item, $default_lang) {
-        $product_id = $item['rewix_product_id'];
-        $catalog_id = $item['rewix_catalog_id'];
-        $api_key = Configuration::get('BDROPPY_API_KEY');
-        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
-        $api_token = Configuration::get('BDROPPY_TOKEN');
-        $header = "Authorization: Bearer " . $api_token;
-
-        $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-        $data = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curl_error = curl_error($ch);
-        curl_close($ch);
-        if ($http_code === 200) {
-            $xmlProduct = json_decode($data);
+    public static function updateProductPrices($item) {
+        $rewixApi = new BdroppyRewixApi();
+        $res = $rewixApi->getProduct($item['rewix_product_id'], $item['rewix_catalog_id']);
+        if ($res['http_code'] === 200) {
+            $xmlProduct = json_decode($res['data']);
+            $productData = self::populateProduct($xmlProduct);
             $product = new Product($item['ps_product_id']);
-            $price = (float)$xmlProduct->sellPrice;
-            $bestTaxable = (float)$xmlProduct->bestTaxable;
-            $product->wholesale_price = $bestTaxable;
-            $product->price = round($price, 3);
+            $product->wholesale_price = $productData['taxable'];
+            $product->price = round($productData['proposed_price'], 3);
+            $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
             $product->save();
             $refId = (int)$xmlProduct->id;
             self::updateImportedProduct($refId, $product->id);
@@ -588,27 +572,11 @@ class BdroppyImportTools
             @ini_set('memory_limit', '1024M');
 
             $xmlProduct = false;
-            $product_id = $item['rewix_product_id'];
-            $catalog_id = $item['rewix_catalog_id'];
-            $api_key = Configuration::get('BDROPPY_API_KEY');
-            $api_password = Configuration::get('BDROPPY_API_PASSWORD');
-            $api_token = Configuration::get('BDROPPY_TOKEN');
-            $header = "Authorization: Bearer " . $api_token;
+            $rewixApi = new BdroppyRewixApi();
+            $res = $rewixApi->getProduct($item['rewix_product_id'], $item['rewix_catalog_id']);
 
-            $url = Configuration::get('BDROPPY_API_URL') . "/restful/product/$product_id/usercatalog/$catalog_id";
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-            $data = curl_exec($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curl_error = curl_error($ch);
-            curl_close($ch);
-            //var_dump($product_id, $catalog_id, $http_code, $data);die;
-            if ($http_code === 200) {
-                $xmlProduct = json_decode($data);
+            if ($res['http_code'] === 200) {
+                $xmlProduct = json_decode($res['data']);
             }
             if($xmlProduct) {
                 $refId = (int)$xmlProduct->id;
@@ -616,14 +584,13 @@ class BdroppyImportTools
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
 
                 $product = new Product($remoteProduct->ps_product_id);
-                //echo "<pre>";var_dump($refId, $sku, $remoteProduct, $product);die;
 
-                //self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
+                self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
 
                 // populate general common fields
                 $product = self::populateProductAttributes($xmlProduct, $product, $default_lang);
                 if (self::checkSimpleImport($xmlProduct)) {
-                    //self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
+                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
                     $product = self::importSimpleProduct($xmlProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
@@ -634,7 +601,7 @@ class BdroppyImportTools
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE')) {
-                    //self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
+                    self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
                     self::importProductImages($xmlProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
 
@@ -643,7 +610,7 @@ class BdroppyImportTools
                 return 1;
             }
         } catch (PrestaShopException $e) {
-            var_dump(1, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'import - importProduct : ' . $e->getMessage() );
         }
     }
 
@@ -661,7 +628,7 @@ class BdroppyImportTools
             $prods .= $product['id'] . ', ';
         }
         if (Tools::strlen($prods) > 0) {
-            //self::getLogger()->logWarning('Incremented priority to products ' . $prods . 'due to errors in import procedure');
+            self::getLogger()->logWarning('Incremented priority to products ' . $prods . 'due to errors in import procedure');
         }
     }
 
@@ -673,7 +640,7 @@ class BdroppyImportTools
             BdroppyRemoteProduct::deleteByRewixId($id);
         }
         if (Tools::strlen($prods) > 0) {
-            //self::getLogger()->logWarning('Removed from queue ' . $prods . 'not available upstream.');
+            self::getLogger()->logWarning('Removed from queue ' . $prods . 'not available upstream.');
         }
     }
 
@@ -846,7 +813,7 @@ class BdroppyImportTools
                 $curlError = curl_error($ch);
                 curl_close($ch);
                 if ($httpCode != 200) {
-                    //self::getLogger()->logDebug('Error loading Image: There has been an error executing the request: ' . $httpCode . '. Error:' . $curlError);
+                    self::getLogger()->logDebug('Error loading Image: There has been an error executing the request: ' . $httpCode . '. Error:' . $curlError);
                 } else {
                     $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
                     $handle = fopen($tmpfile, "w");
@@ -877,7 +844,7 @@ class BdroppyImportTools
                 }
             }
         } catch (PrestaShopException $e) {
-            var_dump(5, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'importProductImages : ' . $e->getMessage() );
         }
     }
 
@@ -946,7 +913,7 @@ class BdroppyImportTools
             $remoteProduct->reason = '';
             $remoteProduct->save();
         } catch (PrestaShopException $e) {
-            var_dump(6, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'updateImportedProduct : ' . $e->getMessage() );
         }
     }
 
@@ -965,7 +932,7 @@ class BdroppyImportTools
                 $product = self::populateProduct($xmlProduct);
 
                 if (!$product) {
-                    //self::getLogger()->logDebug('Fail to load product!');
+                    self::getLogger()->logDebug('Fail to load product!');
 
                     return false;
                 } else {
@@ -1096,12 +1063,12 @@ class BdroppyImportTools
         }
 
         $name = (string)$xml->name;
-        $price = (float)$xml->sellPrice;
-        $priceTax = (float)$xml->taxable;
-        $bestTaxable = (float)$xml->bestTaxable;
-        $taxable = (float)$xml->taxable;
-        $suggested = (float)$xml->suggestedPrice;
-        $streetPrice = (float)$xml->streetPrice;
+        $price = self::calculatePrice((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
+        $priceTax = self::calculatePriceTax((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
+        $bestTaxable = ((float)$xml->bestTaxable) * Configuration::get('BDROPPY_CONVERSION');
+        $taxable = ((float)$xml->taxable) * Configuration::get('BDROPPY_CONVERSION');
+        $suggested = ((float)$xml->suggestedPrice) * Configuration::get('BDROPPY_CONVERSION');
+        $streetPrice = ((float)$xml->streetPrice) * Configuration::get('BDROPPY_CONVERSION');
         $availability = (int)$xml->availability;
 
         if ($checkImported) {
@@ -1152,23 +1119,23 @@ class BdroppyImportTools
      */
     private static function calculatePrice($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
     {
-        $taxRule = new Tax(Configuration::get(BdroppyConfigKeys::TAX_RATE));
-        $conversion = Configuration::get(BdroppyConfigKeys::CONVERSION_COEFFICIENT);
-        $markup = (1 + Configuration::get(BdroppyConfigKeys::MARKUP) / 100) * $conversion;
+        $taxRule = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
+        $conversion = Configuration::get('BDROPPY_CONVERSION');
+        $markup = (1 + Configuration::get('BDROPPY_MARKUP') / 100) * $conversion;
 
-        if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'suggested') {
+        if (Configuration::get('BDROPPY_PRICE_BASE') == 'suggested') {
             try {
                 $price = $suggestedPrice * $markup;
             } catch (Exception $e) {
-                //self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
+                self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
             }
-        } elseif (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'best_taxable') {
+        } elseif (Configuration::get('BDROPPY_PRICE_BASE') == 'best_taxable') {
             $price = $bestTaxable * $markup;
         } else {
-            if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'taxable') {
+            if (Configuration::get('BDROPPY_PRICE_BASE') == 'taxable') {
                 $price = $taxable * $markup;
             } else {
-                if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'street_price') {
+                if (Configuration::get('BDROPPY_PRICE_BASE') == 'street_price') {
                     $price = $streetPrice * $markup;
                 } else {
                     $price = $bestTaxable;
@@ -1188,22 +1155,22 @@ class BdroppyImportTools
      */
     private static function calculatePriceTax($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
     {
-        $conversion = Configuration::get(BdroppyConfigKeys::CONVERSION_COEFFICIENT);
-        $markup = (1 + Configuration::get(BdroppyConfigKeys::MARKUP) / 100) * $conversion;
+        $conversion = Configuration::get('BDROPPY_CONVERSION');
+        $markup = (1 + Configuration::get('BDROPPY_MARKUP') / 100) * $conversion;
 
-        if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'suggested') {
+        if (Configuration::get('BDROPPY_PRICE_BASE') == 'suggested') {
             try {
                 $price = $suggestedPrice * $markup;
             } catch (Exception $e) {
-                //self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
+                self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
             }
-        } elseif (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'best_taxable') {
+        } elseif (Configuration::get('BDROPPY_PRICE_BASE') == 'best_taxable') {
             $price = $bestTaxable * $markup;
         } else {
-            if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'taxable') {
+            if (Configuration::get('BDROPPY_PRICE_BASE') == 'taxable') {
                 $price = $taxable * $markup;
             } else {
-                if (Configuration::get(BdroppyConfigKeys::PRICE_BASE) == 'street_price') {
+                if (Configuration::get('BDROPPY_PRICE_BASE') == 'street_price') {
                     $price = $streetPrice * $markup;
                 } else {
                     $price = $bestTaxable;
@@ -1229,9 +1196,9 @@ class BdroppyImportTools
             $product->active = (int)true;
             $product->weight = (float)$xmlProduct->weight;
 
-            $product->wholesale_price = $productData['best_taxable'];
+            $product->wholesale_price = $productData['taxable'];
             $product->price = round($productData['proposed_price'], 3);
-            //$product->id_tax_rules_group = Configuration::get(BdroppyConfigKeys::TAX_RULE);
+            $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
@@ -1314,7 +1281,7 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            var_dump(2, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'populateProductAttributes : ' . $e->getMessage() );
         }
 
     }
@@ -1423,7 +1390,7 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            var_dump(4, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'importModels : ' . $e->getMessage() );
         }
     }
 
@@ -1463,7 +1430,7 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            var_dump(3, $e->getMessage(), $e);
+            self::getLogger()->logDebug( 'importSimpleProduct : ' . $e->getMessage() );
         }
     }
 

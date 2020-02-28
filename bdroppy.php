@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.6';
+        $this->version = '1.0.5';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -200,6 +200,11 @@ class Bdroppy extends Module
         Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', '');
         Configuration::updateValue('BDROPPY_IMPORT_IMAGE', '');
         Configuration::updateValue('BDROPPY_LIMIT_COUNT', '');
+        Configuration::updateValue('BDROPPY_TAX_RULE', '');
+        Configuration::updateValue('BDROPPY_TAX_RATE', '');
+        Configuration::updateValue('BDROPPY_PRICE_BASE', '');
+        Configuration::updateValue('BDROPPY_MARKUP', '');
+        Configuration::updateValue('BDROPPY_CONVERSION', '');
         Configuration::updateValue('BDROPPY_IMPORT_BRAND_TO_TITLE', '');
         Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', '');
         Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', '');
@@ -234,6 +239,11 @@ class Bdroppy extends Module
         Configuration::deleteByName('BDROPPY_CATEGORY_STRUCTURE');
         Configuration::deleteByName('BDROPPY_IMPORT_IMAGE');
         Configuration::deleteByName('BDROPPY_LIMIT_COUNT');
+        Configuration::deleteByName('BDROPPY_TAX_RULE');
+        Configuration::deleteByName('BDROPPY_TAX_RATE');
+        Configuration::deleteByName('BDROPPY_PRICE_BASE', '');
+        Configuration::deleteByName('BDROPPY_MARKUP', '');
+        Configuration::deleteByName('BDROPPY_CONVERSION', '');
         Configuration::deleteByName('BDROPPY_IMPORT_BRAND_TO_TITLE');
         Configuration::deleteByName('BDROPPY_IMPORT_TAG_TO_TITLE');
         Configuration::deleteByName('BDROPPY_AUTO_UPDATE_PRICES');
@@ -316,6 +326,21 @@ class Bdroppy extends Module
             $bdroppy_import_image = (string)Tools::getValue('bdroppy_import_image');
             Configuration::updateValue('BDROPPY_IMPORT_IMAGE', $bdroppy_import_image);
 
+            $bdroppy_tax_rule = (string)Tools::getValue('bdroppy_tax_rule');
+            Configuration::updateValue('BDROPPY_TAX_RULE', $bdroppy_tax_rule);
+
+            $bdroppy_tax_rate = (string)Tools::getValue('bdroppy_tax_rate');
+            Configuration::updateValue('BDROPPY_TAX_RATE', $bdroppy_tax_rate);
+
+            $bdroppy_price_base = (string)Tools::getValue('bdroppy_price_base');
+            Configuration::updateValue('BDROPPY_PRICE_BASE', $bdroppy_price_base);
+
+            $bdroppy_markup = (string)Tools::getValue('bdroppy_markup');
+            Configuration::updateValue('BDROPPY_MARKUP', $bdroppy_markup);
+
+            $bdroppy_conversion = (string)Tools::getValue('bdroppy_conversion');
+            Configuration::updateValue('BDROPPY_CONVERSION', $bdroppy_conversion);
+
             $bdroppy_limit_count = (string)Tools::getValue('bdroppy_limit_count');
             Configuration::updateValue('BDROPPY_LIMIT_COUNT', $bdroppy_limit_count);
 
@@ -350,6 +375,16 @@ class Bdroppy extends Module
             $attributes[$feature['id_feature']] = $feature['name'];
         }
 
+        $tax_rules = [];
+        $taxes = TaxRulesGroup::getTaxRulesGroups();
+        foreach ($taxes as $tax) {
+            $tax_rules[$tax['id_tax_rules_group']] = $tax['name'];
+        }
+        $tax_rates = [];
+        $rates = BrandsSyncImportTools::getAvailableTaxes();
+        foreach ($rates as $rate) {
+            $tax_rates[$rate['id_tax']] = $rate['name'];
+        }
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
 
@@ -378,6 +413,13 @@ class Bdroppy extends Module
         $bdroppy_import_tag_to_title = array(
             '0' => $this->l('No Tag', 'main'),
             'color' => $this->l('Color', 'main')
+        );
+
+        $price_bases = array(
+            'taxable' => $this->l('Taxable', 'main'),
+            'best_taxable' => $this->l('Best Taxable', 'main'),
+            'street_price' => $this->l('Street Price', 'main'),
+            'suggested' => $this->l('Suggested Price', 'main')
         );
         $import_image = array(
             '0' => $this->l('No import', 'main'),
@@ -416,6 +458,9 @@ class Bdroppy extends Module
             'catalogs'                          => $catalogs['catalogs'],
             'attributes'                        => $attributes,
             'import_image'                      => $import_image,
+            'tax_rule'                          => $tax_rules,
+            'tax_rate'                          => $tax_rates,
+            'price_bases'                       => $price_bases,
             'category_structure'                => $category_structure,
             'stripeBOCssUrl'                    => $stripeBOCssUrl,
             'base_url'                          => $base_url,

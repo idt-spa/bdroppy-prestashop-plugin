@@ -174,6 +174,43 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Price Base' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<select name="bdroppy_price_base" id="bdroppy_price_base">
+								{html_options options=$price_bases selected=Configuration::get('BDROPPY_PRICE_BASE')}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Markup (%)' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<input type="text" name="bdroppy_markup" value="{Configuration::get('BDROPPY_MARKUP')|escape:'htmlall':'UTF-8'}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Conversion Coefficient' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<input type="text" name="bdroppy_conversion" value="{Configuration::get('BDROPPY_CONVERSION')|escape:'htmlall':'UTF-8'}" />
+							<p class="help-block">{l s='For example, the conversion EUR->GBP' mod='bdroppy'}</p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Tax Rule' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<select name="bdroppy_tax_rule" id="bdroppy_tax_rule">
+								{html_options options=$tax_rule selected=Configuration::get('BDROPPY_TAX_RULE')}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Tax Rate' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<select name="bdroppy_tax_rate" id="bdroppy_tax_rate">
+								{html_options options=$tax_rate selected=Configuration::get('BDROPPY_TAX_RATE')}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Product Per Minute' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<input type="text" name="bdroppy_limit_count" value="{Configuration::get('BDROPPY_LIMIT_COUNT')|escape:'htmlall':'UTF-8'}" />
