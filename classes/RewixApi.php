@@ -398,7 +398,6 @@ class BdroppyRewixApi
             $association->rewix_order_id = (int) 0;
             $association->ps_order_id = (int) $order->id;
             $association->status = (int) BdroppyRemoteOrder::STATUS_FAILED;
-            //echo "<pre>";var_dump($rewix_order_key, $association, $association->save(false));die;
             $association->save();
             return false;
         } elseif ($httpCode != 200) {

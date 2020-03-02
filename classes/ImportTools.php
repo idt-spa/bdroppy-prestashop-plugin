@@ -35,9 +35,6 @@ class BdroppyImportTools
 
     private static $categoryStructure = null;
 
-    /**
-     * @return FileLogger
-     */
     public static function getLogger()
     {
         if (self::$logger == null) {
@@ -80,473 +77,12 @@ class BdroppyImportTools
         return self::$partners;
     }
 
-    public static function tryLock()
-    {
-        //get XML path and use 'lock':
-        $lock = self::getLockPath();
-
-        $lockFile = fopen($lock, 'w+');
-        if (flock($lockFile, LOCK_EX)) {
-            return $lockFile;
-        } else {
-            fclose($lockFile);
-
-            return false;
-        }
-    }
-
-    private static function getLockPath()
-    {
-        $dir = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'download' . DIRECTORY_SEPARATOR . 'import';
-        if (!is_dir($dir)) {
-            mkdir($dir);
-        }
-
-        $xmlPath = $dir . DIRECTORY_SEPARATOR . 'rewix.lock';
-
-        return $xmlPath;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getXmlPath($incremental = false)
-    {
-        $dir = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'download' . DIRECTORY_SEPARATOR . 'import';
-        if (!is_dir($dir)) {
-            mkdir($dir);
-        }
-
-        if ($incremental == false) {
-            $path = $dir . DIRECTORY_SEPARATOR . self::DATA_SOURCE_PATH;
-        } else {
-            $path = $dir . DIRECTORY_SEPARATOR . self::DATA_SOURCE_INCREMENTAL_PATH;
-        }
-
-        return $path;
-    }
-
-    /** METHODS ABOUT DOWNLOAD/UPDATE XML **/
-
-    /**
-     * @param int $time
-     *
-     * @return bool|string if successful the path of newly downloaded xml source file
-     */
-    public static function getXmlSource($since = null)
-    {
-        $path = self::getXmlPath(!empty($since));
-        $filemtime = @filemtime($path); // returns false if file doesn't exist
-        if (empty($since)) {
-            $life = 7200; // update full catalog every two hours
-        } else {
-            $life = 2 * 60; // update incremental data every 2 minutes
-        }
-        if (!$filemtime || (time() - $filemtime) >= $life) {
-            self::getLogger()->logError('XML Source is too old or does not exist. Downloading a new source');
-            $path = self::downloadXmlSource($since);
-        }
-        if (!$path) {
-            return false;
-        }
-        $copy = substr_replace($path, uniqid('-') . '.xml', -4);
-        if (copy($path, $copy)) {
-            return $copy;
-        }
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    private static function downloadXmlSource($since = null)
-    {
-        $logger = self::getLogger();
-
-        @set_time_limit(3600);
-        @ini_set('memory_limit', '1024M');
-
-        $path = self::getXmlPath(!empty($since));
-
-        //$logger->logInfo('Loading XML Data: ' . $path);
-        //$logger->logInfo('Removing old XML Data.');
-        $filemtime = @filemtime($path); // returns false if file doesn't exist
-        if (empty($since)) {
-            $life = 5400; // allow update full catalog every 1.5 hours
-        } else {
-            $life = 60; // allow update incremental data every 1 minutes
-        }
-
-        if (!$filemtime || (time() - $filemtime) >= $life) {
-            // remove old .xml data
-            if (file_exists($path)) {
-                unlink($path);
-            }
-        } else {
-            return $path;
-        }
-
-        $locale = Configuration::get(BdroppyConfigKeys::LOCALE);
-        $username = Configuration::get(BdroppyConfigKeys::APIKEY);
-        $password = Configuration::get(BdroppyConfigKeys::PASSWORD);
-        $websiteUrl = Configuration::get(BdroppyConfigKeys::WEBSITE_URL);
-        $url = "{$websiteUrl}/restful/export/api/products.xml?acceptedlocales={$locale}&addtags=true" . ( empty($since) ? '' : '&since=' . urlencode($since) );
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
-        $data = curl_exec($ch);
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-        if ($httpCode == 401) {
-            //$logger->logDebug('Error loading XML Data: You are NOT authorized to access this service.');
-            return false;
-        } elseif ($httpCode == 0) {
-            //$logger->logDebug('Error loading XML Data: There has been an error executing the request. Error:' . $curlError);
-            return false;
-        } elseif ($httpCode == 412) {
-            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
-            //$logger->logDebug('Error loading XML Data: Incremental sync too late. Running full sync at next execution');
-            return false;
-        } elseif ($httpCode != 200) {
-            //$logger->logDebug('Error loading XML Data: There has been an error executing the request: ' . $httpCode);
-            return false;
-        }
-
-        if (file_put_contents($path, $data) === false) {
-            //$logger->logError('Error saving XML Data.');
-        }
-
-        // remove files older than 1 hour
-        $globs = substr_replace($path, '-*', -4);
-        foreach (glob($globs) as $filename) {
-            if ((time() - filemtime($filename)) > 3600) {
-                unlink($filename);
-            }
-        }
-
-        return $path;
-    }
-
-    private static function getProductXML(XMLReader $reader)
-    {
-        $doc = new DOMDocument('1.0', 'UTF-8');
-        $xmlProduct = simplexml_import_dom($doc->importNode($reader->expand(), true));
-
-        return $xmlProduct;
-    }
-
-    public static function updateAllQuantities()
-    {
-        set_time_limit(3600);
-        $path = self::getXmlSource();
-        $lastUpdate = null;
-
-        $logger = self::getLogger();
-        //$logger->logDebug('Starting update quantity procedure for all products from source file ' . $path);
-
-        try {
-            if (!$path) {
-                throw new Exception('Cannot find xml source file.');
-            }
-
-            $reader = new XMLReader();
-            $reader->open($path);
-
-            $xmlProducts = array();
-            $xmlModels = array();
-
-            while ($reader->read()) {
-                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
-                    $xmlProduct = self::getProductXML($reader);
-
-                    $id = BdroppyRemoteProduct::getIdByRewixId((int) $xmlProduct->id, true);
-                    if ($id != 0) {
-                        $rewixProduct = new BdroppyRemoteProduct($id);
-
-                        if ($rewixProduct && $rewixProduct->simple) {
-                            $product = new Product($rewixProduct->ps_product_id);
-                            self::checkNosizeModel($xmlProduct, $product);
-                        }
-                    }
-
-                    $xmlProducts[(int)$xmlProduct->id] = (int)$xmlProduct->availability;
-                    $models = $xmlProduct->models;
-                    foreach ($models->model as $xmlModel) {
-                        $xmlModels[(int)$xmlModel->id] = (int)$xmlModel->availability;
-                    }
-                } elseif ($reader->name == 'page') {
-                    $lastUpdate = $reader->getAttribute('lastUpdate');
-                }
-            }
-
-            $remoteProducts = BdroppyRemoteProduct::getByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED, 0);
-            //$logger->logDebug(count($remoteProducts) . ' products which quantities will be updated.');
-            $productsCount = 0;
-
-            foreach ($remoteProducts as $remoteProduct) {
-                if ($remoteProduct['imported'] == 1) {
-                    $models = BdroppyRemoteCombination::getByRewixProductId($remoteProduct['rewix_product_id']);
-                    $productsCount += 1;
-
-                    if ($remoteProduct['simple']) {
-                        $availability = StockAvailable::getQuantityAvailableByProduct($remoteProduct['ps_product_id']);
-                        if (! array_key_exists($remoteProduct['rewix_product_id'], $xmlProducts)) {
-                            StockAvailable::setQuantity(
-                                $remoteProduct['ps_product_id'],
-                                0,
-                                0
-                            );
-                            //$logger->logDebug('Product ' . $remoteProduct['ps_product_id'] . ' is no more available');
-                        } else if ($availability != $xmlProducts[$remoteProduct['rewix_product_id']]) {
-                            StockAvailable::setQuantity(
-                                $remoteProduct['ps_product_id'],
-                                0,
-                                $xmlProducts[$remoteProduct['rewix_product_id']]
-                            );
-                            //$logger->logDebug('Product ' . $remoteProduct['ps_product_id'] . ' quantity updated: ' . $availability . ' -> ' . $xmlProducts[$remoteProduct['rewix_product_id']]);
-                        }
-                    } else {
-                        $productQuantity = 0;
-                        $oldQuantity = 0;
-                        $qtyChanged = false;
-                        foreach ($models as $model) {
-                            $modelId = $model['rewix_model_id'];
-                            $quantity = 0;
-                            if (isset($xmlModels[$modelId]) && $xmlModels[$modelId] > 0) {
-                                $quantity = (int) $xmlModels[$modelId];
-                            }
-                            $availability = StockAvailable::getQuantityAvailableByProduct($remoteProduct['ps_product_id'], $model['ps_model_id']);
-                            if ($availability != $quantity) {
-                                $qtyChanged = true;
-                                StockAvailable::setQuantity(
-                                    $remoteProduct['ps_product_id'],
-                                    $model['ps_model_id'],
-                                    $quantity
-                                );
-                                //$logger->logDebug('Product ' . $remoteProduct['ps_product_id'] . ' - ' . $model['ps_model_id'] . ' quantity updated: ' . $availability . ' -> ' . $quantity);
-                            }
-                            $oldQuantity += $availability;
-                            $productQuantity += $quantity;
-                        }
-                        if ($qtyChanged) {
-                            StockAvailable::setQuantity(
-                                $remoteProduct['ps_product_id'],
-                                0,
-                                $productQuantity
-                            );
-                            //$logger->logDebug('Product ' . $remoteProduct['ps_product_id'] . ' quantity updated: ' . $oldQuantity . ' -> ' . $productQuantity);
-                        }
-                    }
-                }
-            }
-
-            //$logger->logDebug('All products (' . $productsCount . ') have been successfully updated. Update lastUpdate ' . $lastUpdate);
-
-            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
-
-            if (file_exists($path)) {
-                unlink($path);
-            }
-        } catch (Exception $e) {
-            //$logger->logError('Error during the update quantity procedure: ' . $e->getMessage());
-        }
-    }
-
-    public static function updateAllQuantitiesIncremental()
-    {
-        $logger = self::getLogger();
-
-        //$logger->logDebug('Starting Incremental Sync Quantities');
-
-        $path =  self::getXmlSource(Configuration::get(BdroppyConfigKeys::LAST_QUANTITIES_SYNC));
-        if ($path == false) {
-            return false;
-        }
-        $lastUpdate = null;
-        $reader = new XMLReader();
-        $read = $reader->open($path);
-        if ($read == false) {
-            if (file_exists($path)) {
-                unlink($path);
-            }
-            Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, null, null, 0, 0);
-            throw new Exception('Cannot read xml file ' . $path);
-        }
-
-        //$logger->logInfo('Loading Products in Prestashop');
-
-        $xmlProducts = array();
-        //$xmlModels = array();
-
-        //$logger->logDebug('Reading Supplier XML Data');
-
-        while ($reader -> read()) {
-            if ($reader -> nodeType == XMLReader::ELEMENT) {
-                if ($reader->name == 'item') {
-                    $xmlProduct = self::getProductXML($reader);
-                    $xmlProducts[(int)$xmlProduct->id] = array(
-                        'stock' => (int)$xmlProduct->availability,
-                        'models' => array()
-                    );
-                    $models = $xmlProduct->models;
-                    foreach ($models->model as $xmlModel) {
-                        $xmlProducts[(int)$xmlProduct->id]['models'][(int)$xmlModel->id] = (int)$xmlModel->availability;
-                    }
-                } elseif ($reader->name == 'page') {
-                    $lastUpdate = $reader->getAttribute('lastUpdate');
-                }
-            }
-        }
-        $reader->close();
-        if (file_exists($path)) {
-            unlink($path);
-        }
-
-        //$logger->logDebug('Syncing Models');
-
-        self::getLogger()->logDebug(count($xmlProducts) . ' products which quantities will be updated.');
-        $productsCount = 0;
-
-        foreach ($xmlProducts as $key => $xmlProduct) {
-            $id = BdroppyRemoteProduct::getIdByRewixId($key);
-            if ($id) {
-                $productsCount += 1;
-                $product = new BdroppyRemoteProduct($id);
-                if ($product->simple) {
-                    $availability = StockAvailable::getQuantityAvailableByProduct($product->ps_product_id);
-                    if ($availability != $xmlProduct['stock']) {
-                        StockAvailable::setQuantity(
-                            $product->ps_product_id,
-                            0,
-                            $xmlProduct['stock']
-                        );
-                        //$logger->logDebug('Product ' . $product->ps_product_id . ' quantity updated: ' . $availability . ' -> ' .$xmlProduct['stock']);
-                    }
-                } else {
-                    $productQuantity = 0;
-                    $oldQuantity = 0;
-                    $qtyChanged = false;
-                    $models = $xmlProduct['models'];
-                    foreach ($models as $mkey => $qty) {
-                        $modelId = BdroppyRemoteCombination::getPsModelIdByRewixProductAndModelId($key, $mkey);
-                        if ($modelId) {
-                            $availability = StockAvailable::getQuantityAvailableByProduct($product->ps_product_id, $modelId);
-                            if ($availability != $qty) {
-                                $qtyChanged = true;
-                                StockAvailable::setQuantity(
-                                    $product->ps_product_id,
-                                    $modelId,
-                                    $qty
-                                );
-                                //$logger->logDebug('Model ID #'.$key.' new quantity = '.$qty);
-                            }
-                            $oldQuantity += $availability;
-                            $productQuantity += $qty;
-                        }
-                    }
-                    if ($qtyChanged) {
-                        StockAvailable::setQuantity(
-                            $product->ps_product_id,
-                            0,
-                            $productQuantity
-                        );
-                        //$logger->logDebug('Product ' . $product->ps_product_id . ' quantity updated: ' . $oldQuantity . ' -> ' . $productQuantity);
-                    }
-                }
-            }
-        }
-
-        //$logger->logInfo('Competed Incremental Sync Quantities');
-
-        Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
-
-        if (file_exists($path)) {
-            unlink($path);
-        }
-        return true;
-    }
-
     public static function processImportQueue()
     {
         $productIds = BdroppyRemoteProduct::getIdsByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED, 30, 4);
         if (count($productIds) > 0) {
             self::importProducts($productIds);
         }
-    }
-
-    /**
-     * @param $productIds array product IDs to be imported
-     */
-    public static function importProducts($productIds)
-    {
-        set_time_limit(3600);
-        $path = self::getXmlSource();
-        $failedProducts = array();
-        $lastUpdate = null;
-
-        self::getLogger()->logDebug('Starting import procedure for ' . count($productIds) . ' from source file ' . $path);
-
-        try {
-            if (!$path) {
-                throw new Exception('Cannot find xml source file.');
-            }
-
-            $reader = new XMLReader();
-            $reader->open($path);
-
-            $counterProduct = 0;
-            $counterModel = 0;
-
-            while ($reader->read()) {
-                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
-                    $xmlProduct = self::getProductXML($reader);
-                    if (in_array((int)$xmlProduct->id, $productIds)) {
-                        // Product to import founded!
-                        self::getLogger()->logDebug($xmlProduct->id . ' is in queue ready to be imported.');
-
-                        try {
-                            $result = self::importProduct($xmlProduct);
-                            if ($result > 0) {
-                                $counterModel += $result;
-                                ++$counterProduct;
-                                self::getLogger()->logDebug($xmlProduct->id . ' has been successfully imported.');
-                                Configuration::updateValue(BdroppyConfigKeys::LAST_QUANTITIES_SYNC, $lastUpdate, null, 0, 0);
-                            }
-                        } catch (Exception $e) {
-                            self::getLogger()->logError('Error import product ' . $xmlProduct->id . ': ' . $e->getMessage());
-                            $failedProducts[] = array('id' => (int)$xmlProduct->id, 'message' => $e->getMessage());
-                        }
-                        // Remove the imported id from the list
-                        unset($productIds[array_search((int)$xmlProduct->id, $productIds)]);
-                    }
-                } elseif ($reader->name == 'page') {
-                    $lastUpdate = $reader->getAttribute('lastUpdate');
-                    $currentLastUpdate = Configuration::get(BdroppyConfigKeys::LAST_QUANTITIES_SYNC);
-                    //If we are out of sync compared to full catalog download we do not override the update date
-                    if (empty($currentLastUpdate)) {
-                        $lastUpdate = null;
-                    } elseif (strcmp($currentLastUpdate, $lastUpdate) < 0) {
-                        $lastUpdate = $currentLastUpdate;
-                    }
-                }
-            }
-            self::getLogger()->logDebug($counterProduct . ' products have been successfully imported');
-        } catch (Exception $e) {
-            self::getLogger()->logError('Error during the import procedure: ' . $e->getMessage());
-        }
-
-        // TODO: delete all imported images
-
-        // if a product is ignored and it is already imported, it's not available from upstream anymore
-        self::dequeueProducts($productIds);
-        // if a product fails to be import, increments priority by 1 and save.
-        self::incrementPriority($failedProducts);
-        self::$categoryStructure = null;
-
-        Configuration::updateValue(BdroppyConfigKeys::LAST_IMPORT_SYNC, (int) time(), null, 0, 0);
     }
 
     public static function updateProductPrices($item) {
@@ -556,7 +92,7 @@ class BdroppyImportTools
             $xmlProduct = json_decode($res['data']);
             $productData = self::populateProduct($xmlProduct);
             $product = new Product($item['ps_product_id']);
-            $product->wholesale_price = $productData['taxable'];
+            $product->wholesale_price = $productData['best_taxable'];
             $product->price = round($productData['proposed_price'], 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
             $product->save();
@@ -611,36 +147,6 @@ class BdroppyImportTools
             }
         } catch (PrestaShopException $e) {
             self::getLogger()->logDebug( 'import - importProduct : ' . $e->getMessage() );
-        }
-    }
-
-    private static function incrementPriority($products)
-    {
-        $prods = '';
-        foreach ($products as $product) {
-            $p = BdroppyRemoteProduct::fromRewixId($product['id']);
-            $p->priority = $p->priority + 1;
-            $p->reason = $product['message'];
-            $p->imported = 0;
-            $p->last_sync_date = date('Y-m-d H:i:s');
-            $p->save();
-
-            $prods .= $product['id'] . ', ';
-        }
-        if (Tools::strlen($prods) > 0) {
-            self::getLogger()->logWarning('Incremented priority to products ' . $prods . 'due to errors in import procedure');
-        }
-    }
-
-    private static function dequeueProducts($products)
-    {
-        $prods = '';
-        foreach ($products as $id) {
-            $prods .= $id . ', ';
-            BdroppyRemoteProduct::deleteByRewixId($id);
-        }
-        if (Tools::strlen($prods) > 0) {
-            self::getLogger()->logWarning('Removed from queue ' . $prods . 'not available upstream.');
         }
     }
 
@@ -996,9 +502,11 @@ class BdroppyImportTools
     private static function getBrand($product, $lang){
         return self::getTagValue($product, 'brand',$lang);
     }
+
     private static function getGender($product, $lang){
         return self::getTagValue($product, 'gender',$lang);
     }
+
     private static function getSeason($product, $lang){
         return self::getTagValue($product, 'season',$lang);
     }
@@ -1016,12 +524,6 @@ class BdroppyImportTools
         }
     }
 
-    /**
-     * @param $xml SimpleXMLElement node element
-     * @param bool $checkImported , default true
-     *
-     * @return array
-     */
     private static function populateProduct($xml, $default_lang, $checkImported = true)
     {
         $sku = (string)$xml->code;
@@ -1063,12 +565,12 @@ class BdroppyImportTools
         }
 
         $name = (string)$xml->name;
-        $price = self::calculatePrice((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
-        $priceTax = self::calculatePriceTax((float)$xml->suggestedPrice, (float)$xml->bestTaxable, (float)$xml->taxable, (float)$xml->streetPrice);
-        $bestTaxable = ((float)$xml->bestTaxable) * Configuration::get('BDROPPY_CONVERSION');
-        $taxable = ((float)$xml->taxable) * Configuration::get('BDROPPY_CONVERSION');
-        $suggested = ((float)$xml->suggestedPrice) * Configuration::get('BDROPPY_CONVERSION');
-        $streetPrice = ((float)$xml->streetPrice) * Configuration::get('BDROPPY_CONVERSION');
+        $price = (float)$xml->sellPrice;
+        $priceTax = (float)$xml->sellPrice;
+        $bestTaxable = (float)$xml->bestTaxable;
+        $taxable = (float)$xml->taxable;
+        $suggested = (float)$xml->suggestedPrice;
+        $streetPrice = (float)$xml->streetPrice;
         $availability = (int)$xml->availability;
 
         if ($checkImported) {
@@ -1111,78 +613,6 @@ class BdroppyImportTools
         return false;
     }
 
-    /**
-     * @param $bestTaxable integer
-     * @param $taxable integer
-     * @param $streetPrice integer
-     * @return float (the price based on the prices' settings)
-     */
-    private static function calculatePrice($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
-    {
-        $taxRule = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
-        $conversion = Configuration::get('BDROPPY_CONVERSION');
-        $markup = (1 + Configuration::get('BDROPPY_MARKUP') / 100) * $conversion;
-
-        if (Configuration::get('BDROPPY_PRICE_BASE') == 'suggested') {
-            try {
-                $price = $suggestedPrice * $markup;
-            } catch (Exception $e) {
-                self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
-            }
-        } elseif (Configuration::get('BDROPPY_PRICE_BASE') == 'best_taxable') {
-            $price = $bestTaxable * $markup;
-        } else {
-            if (Configuration::get('BDROPPY_PRICE_BASE') == 'taxable') {
-                $price = $taxable * $markup;
-            } else {
-                if (Configuration::get('BDROPPY_PRICE_BASE') == 'street_price') {
-                    $price = $streetPrice * $markup;
-                } else {
-                    $price = $bestTaxable;
-                }
-            }
-        }
-
-        $price = ceil($price) - 0.01;
-
-        return $price / (1 + $taxRule->rate / 100);
-    }
-    /**
-     * @param $bestTaxable integer
-     * @param $taxable integer
-     * @param $streetPrice integer
-     * @return float (the price based on the prices' settings)
-     */
-    private static function calculatePriceTax($suggestedPrice, $bestTaxable, $taxable, $streetPrice)
-    {
-        $conversion = Configuration::get('BDROPPY_CONVERSION');
-        $markup = (1 + Configuration::get('BDROPPY_MARKUP') / 100) * $conversion;
-
-        if (Configuration::get('BDROPPY_PRICE_BASE') == 'suggested') {
-            try {
-                $price = $suggestedPrice * $markup;
-            } catch (Exception $e) {
-                self::getLogger()->logError('Error during the import, suggested price missing: ' . $e->getMessage());
-            }
-        } elseif (Configuration::get('BDROPPY_PRICE_BASE') == 'best_taxable') {
-            $price = $bestTaxable * $markup;
-        } else {
-            if (Configuration::get('BDROPPY_PRICE_BASE') == 'taxable') {
-                $price = $taxable * $markup;
-            } else {
-                if (Configuration::get('BDROPPY_PRICE_BASE') == 'street_price') {
-                    $price = $streetPrice * $markup;
-                } else {
-                    $price = $bestTaxable;
-                }
-            }
-        }
-
-        $price = ceil($price) - 0.01;
-
-        return $price;
-    }
-
     private static function stripTagValues($value)
     {
         return html_entity_decode(str_replace('\n', '', trim($value)));
@@ -1196,7 +626,7 @@ class BdroppyImportTools
             $product->active = (int)true;
             $product->weight = (float)$xmlProduct->weight;
 
-            $product->wholesale_price = $productData['taxable'];
+            $product->wholesale_price = $productData['best_taxable'];
             $product->price = round($productData['proposed_price'], 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
 
