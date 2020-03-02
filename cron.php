@@ -100,7 +100,7 @@ class BdroppyCron
                     }
                 }
             }
-            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && count($api_catalog)>1) {
+            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && strlen($api_catalog)>1) {
                 $fiveago = date('Y-m-d H:i:s', strtotime("-3 minutes"));
                 $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'queued'), "sync_status = 'importing' AND last_sync_date <= '$fiveago'");
 
@@ -215,7 +215,7 @@ class BdroppyCron
             $bdroppy_import_tag_to_title = isset($configurations['BDROPPY_IMPORT_TAG_TO_TITLE']) ? $configurations['BDROPPY_IMPORT_TAG_TO_TITLE'] : '';
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
 
-            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && count($api_catalog)>1) {
+            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && strlen($api_catalog)>1) {
                 if (!$api_limit_count)
                     $api_limit_count = 5;
                 if ($bdroppy_auto_update_prices) {
