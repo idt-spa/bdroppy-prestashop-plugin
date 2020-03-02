@@ -74,7 +74,7 @@ class BdroppyCron
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
             $db = Db::getInstance();
 
-            if($api_catalog == "" || $api_catalog == "0") {
+            if($api_catalog == "-1") {
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                 $delete_products = $db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
@@ -99,7 +99,8 @@ class BdroppyCron
                             break;
                     }
                 }
-            } else {
+            }
+            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && count($api_catalog)>1) {
                 $fiveago = date('Y-m-d H:i:s', strtotime("-3 minutes"));
                 $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'queued'), "sync_status = 'importing' AND last_sync_date <= '$fiveago'");
 
@@ -214,14 +215,16 @@ class BdroppyCron
             $bdroppy_import_tag_to_title = isset($configurations['BDROPPY_IMPORT_TAG_TO_TITLE']) ? $configurations['BDROPPY_IMPORT_TAG_TO_TITLE'] : '';
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
 
-            if (!$api_limit_count)
-                $api_limit_count = 5;
-            if($bdroppy_auto_update_prices) {
-                $yesterday = date('Y-m-d H:i:s', strtotime("-1 day"));
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated' AND last_sync_date <= '$yesterday' LIMIT $api_limit_count;";
-                $items = $db->ExecuteS($sql);
-                foreach ($items as $item) {
-                    BdroppyImportTools::updateProductPrices($item, $default_lang);
+            if($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && count($api_catalog)>1) {
+                if (!$api_limit_count)
+                    $api_limit_count = 5;
+                if ($bdroppy_auto_update_prices) {
+                    $yesterday = date('Y-m-d H:i:s', strtotime("-1 day"));
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated' AND last_sync_date <= '$yesterday' LIMIT $api_limit_count;";
+                    $items = $db->ExecuteS($sql);
+                    foreach ($items as $item) {
+                        BdroppyImportTools::updateProductPrices($item, $default_lang);
+                    }
                 }
             }
         } catch (PrestaShopException $e) {

@@ -181,7 +181,7 @@
 							</select>
 						</div>
 					</div>
-ss					<div class="form-group">
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Product Per Minute' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<input type="text" name="bdroppy_limit_count" value="{Configuration::get('BDROPPY_LIMIT_COUNT')|escape:'htmlall':'UTF-8'}" />
