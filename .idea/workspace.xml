@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="check catalog changes every 5 minutes">
+    <list default="true" id="a412f0d7-a905-4a6d-bddd-005e41f2f297" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bdroppy.php" beforeDir="false" afterPath="$PROJECT_DIR$/bdroppy.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/ImportTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/ImportTools.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/RewixApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/RewixApi.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cron.php" beforeDir="false" afterPath="$PROJECT_DIR$/cron.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/templates/admin/configure.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/views/templates/admin/configure.tpl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +26,38 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand />
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MariaDB - mohsen@192.168.100.7" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MariaDB - mohsen@192.168.100.7" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MariaDB - mohsen@192.168.100.7" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="mohsen: schema" type="76f4a085:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MariaDB - mohsen@192.168.100.7" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="mohsen: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="tables" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MariaDB - mohsen@192.168.100.7" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="mohsen: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="tables" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="tblreceive: table" type="285a2a93:MysqlImplModel$Table" />
+      </path>
+    </expand>
     <select />
   </component>
   <component name="Git.Settings">
@@ -43,6 +70,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mysql&#10;mariadb" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
@@ -50,7 +78,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../brandssync" />
+    <property name="last_opened_file_path" value="C:/wd" />
     <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
   </component>
   <component name="ServiceViewManager">
@@ -96,7 +124,10 @@
       <workItem from="1582299719006" duration="2748000" />
       <workItem from="1582302527153" duration="762000" />
       <workItem from="1582711659370" duration="3958000" />
-      <workItem from="1582732083428" duration="5867000" />
+      <workItem from="1582732083428" duration="6124000" />
+      <workItem from="1583139498806" duration="10640000" />
+      <workItem from="1583167999255" duration="149000" />
+      <workItem from="1583168374857" duration="466000" />
     </task>
     <task id="LOCAL-00001" summary="change project structure">
       <created>1581585791118</created>
@@ -210,7 +241,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582718820655</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="use token instead api key and password in api calls">
+      <created>1582738294978</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1582738294978</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,34 +270,53 @@
     <MESSAGE value="update version" />
     <MESSAGE value="order api call bugfix" />
     <MESSAGE value="check catalog changes every 5 minutes" />
-    <option name="LAST_COMMIT_MESSAGE" value="check catalog changes every 5 minutes" />
+    <MESSAGE value="use token instead api key and password in api calls" />
+    <option name="LAST_COMMIT_MESSAGE" value="use token instead api key and password in api calls" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="278" y="45" width="800" height="687" key="#Deployment" timestamp="1582015696428">
-      <screen x="0" y="0" width="1366" height="768" />
+    <state x="313" y="48" width="800" height="687" key="#Deployment" timestamp="1583159896782">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="278" y="45" width="800" height="687" key="#Deployment/0.0.1366.768@0.0.1366.768" timestamp="1582015696428" />
+    <state x="313" y="48" key="#Deployment/0.0.1536.824@0.0.1536.824" timestamp="1583159896782" />
+    <state x="361" y="70" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583149510415">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="361" y="70" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1583149510415" />
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582016259861">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="381" y="189" width="593" height="399" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.768@0.0.1366.768" timestamp="1582016259861" />
-    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2" timestamp="1582738163333">
+    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2" timestamp="1582738292052">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="294" y="0" width="768" height="768" key="CommitChangelistDialog2/0.0.1366.768@0.0.1366.768" timestamp="1582302662351" />
-    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1582738163333" />
+    <state x="331" y="0" width="1204" height="811" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1582738292052" />
+    <state x="449" y="78" width="638" height="528" key="DUMP_DIALOG_DIMENSION_KEY" timestamp="1583151245882">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="449" y="78" width="638" height="528" key="DUMP_DIALOG_DIMENSION_KEY/0.0.1536.824@0.0.1536.824" timestamp="1583151245882" />
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog" timestamp="1581955974363">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="100" y="100" width="1166" height="568" key="DiffContextDialog/0.0.1366.768@0.0.1366.768" timestamp="1581955974363" />
-    <state x="466" y="142" width="424" height="494" key="FileChooserDialogImpl" timestamp="1581590270453">
-      <screen x="0" y="0" width="1366" height="768" />
+    <state x="524" y="152" width="424" height="494" key="FileChooserDialogImpl" timestamp="1583151612060">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="466" y="142" width="424" height="494" key="FileChooserDialogImpl/0.0.1366.768@0.0.1366.768" timestamp="1581590270453" />
+    <state x="524" y="152" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1583151612060" />
+    <state width="189" height="457" key="HiddenNamespacesPopup" timestamp="1583149529516">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="189" height="457" key="HiddenNamespacesPopup/0.0.1536.824@0.0.1536.824" timestamp="1583149529516" />
     <state x="187" y="19" width="992" height="740" key="SettingsEditor" timestamp="1581590260411">
       <screen x="0" y="0" width="1366" height="768" />
     </state>
     <state x="187" y="19" width="992" height="740" key="SettingsEditor/0.0.1366.768@0.0.1366.768" timestamp="1581590260411" />
+    <state x="361" y="0" key="com.intellij.database.run.actions.ShowCsvFormatsAction" timestamp="1583151266063">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="361" y="0" key="com.intellij.database.run.actions.ShowCsvFormatsAction/0.0.1536.824@0.0.1536.824" timestamp="1583151266063" />
     <state x="390" y="17" width="662" height="745" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1582737684804">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
