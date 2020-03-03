@@ -95,23 +95,46 @@ class Bdroppy extends Module
     }
 
     public function installFeatures() {
+        $flgSize = true;
+        $flgGender = true;
+        $flgColor = true;
+        $flgSeason = true;
         $languages = Language::getLanguages();
-        $feature = new Feature();
-        foreach ($languages as $language)
-            $feature->name[$language['id_lang']] = strval('Size');
-        $feature->add();
-        $feature = new Feature();
-        foreach ($languages as $language)
-            $feature->name[$language['id_lang']] = strval('Gender');
-        $feature->add();
-        $feature = new Feature();
-        foreach ($languages as $language)
-            $feature->name[$language['id_lang']] = strval('Color');
-        $feature->add();
-        $feature = new Feature();
-        foreach ($languages as $language)
-            $feature->name[$language['id_lang']] = strval('Season');
-        $feature->add();
+        $features = Feature::getFeatures($this->context->language->id);
+        foreach ($features as $feature) {
+            if($feature['name'] == 'Size')
+                $flgSize = false;
+            if($feature['name'] == 'Gender')
+                $flgGender = false;
+            if($feature['name'] == 'Color')
+                $flgColor = false;
+            if($feature['name'] == 'Season')
+                $flgSeason = false;
+        }
+        if($flgSize) {
+            $feature = new Feature();
+            foreach ($languages as $language)
+                $feature->name[$language['id_lang']] = strval('Size');
+            $feature->add();
+        }
+        if($flgGender) {
+            $feature = new Feature();
+            foreach ($languages as $language)
+                $feature->name[$language['id_lang']] = strval('Gender');
+            $feature->add();
+        }
+        if($flgColor) {
+            $feature = new Feature();
+            foreach ($languages as $language)
+                $feature->name[$language['id_lang']] = strval('Color');
+            $feature->add();
+        }
+        if($flgSeason) {
+            $feature = new Feature();
+            foreach ($languages as $language)
+                $feature->name[$language['id_lang']] = strval('Season');
+            $feature->add();
+        }
     }
     public function installAttributes() {
         $languages = Language::getLanguages(false);
@@ -193,22 +216,6 @@ class Bdroppy extends Module
         $this->installTabs();
 
         //Init default value:
-        Configuration::updateValue('BDROPPY_API_URL', '');
-        Configuration::updateValue('BDROPPY_API_KEY', '');
-        Configuration::updateValue('BDROPPY_API_PASSWORD', '');
-        Configuration::updateValue('BDROPPY_TOKEN', '');
-        Configuration::updateValue('BDROPPY_CATALOG', '');
-        Configuration::updateValue('BDROPPY_SIZE', '');
-        Configuration::updateValue('BDROPPY_GENDER', '');
-        Configuration::updateValue('BDROPPY_COLOR', '');
-        Configuration::updateValue('BDROPPY_SEASON', '');
-        Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', '');
-        Configuration::updateValue('BDROPPY_IMPORT_IMAGE', '');
-        Configuration::updateValue('BDROPPY_LIMIT_COUNT', '');
-        Configuration::updateValue('BDROPPY_TAX_RULE', '');
-        Configuration::updateValue('BDROPPY_IMPORT_BRAND_TO_TITLE', '');
-        Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', '');
-        Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', '');
 
         include(dirname(__FILE__).'/sql/install.php');
 
@@ -228,25 +235,6 @@ class Bdroppy extends Module
 
     public function uninstall()
     {
-        /*
-        Configuration::deleteByName('BDROPPY_API_URL');
-        Configuration::deleteByName('BDROPPY_API_KEY');
-        Configuration::deleteByName('BDROPPY_API_PASSWORD');
-        Configuration::deleteByName('BDROPPY_TOKEN');
-        Configuration::deleteByName('BDROPPY_CATALOG');
-        Configuration::deleteByName('BDROPPY_SIZE');
-        Configuration::deleteByName('BDROPPY_GENDER');
-        Configuration::deleteByName('BDROPPY_COLOR');
-        Configuration::deleteByName('BDROPPY_SEASON');
-        Configuration::deleteByName('BDROPPY_CATEGORY_STRUCTURE');
-        Configuration::deleteByName('BDROPPY_IMPORT_IMAGE');
-        Configuration::deleteByName('BDROPPY_LIMIT_COUNT');
-        Configuration::deleteByName('BDROPPY_TAX_RULE');
-        Configuration::deleteByName('BDROPPY_IMPORT_BRAND_TO_TITLE');
-        Configuration::deleteByName('BDROPPY_IMPORT_TAG_TO_TITLE');
-        Configuration::deleteByName('BDROPPY_AUTO_UPDATE_PRICES');
-        */
-
         // Uninstall Tabs
         $moduleTabs = Tab::getCollectionFromModule($this->name);
         if (!empty($moduleTabs)) {
