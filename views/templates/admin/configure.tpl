@@ -174,6 +174,14 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Tax Rule' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<select name="bdroppy_tax_rule" id="bdroppy_tax_rule">
+								{html_options options=$tax_rule selected=Configuration::get('BDROPPY_TAX_RULE')}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Product Per Minute' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<input type="text" name="bdroppy_limit_count" value="{Configuration::get('BDROPPY_LIMIT_COUNT')|escape:'htmlall':'UTF-8'}" />

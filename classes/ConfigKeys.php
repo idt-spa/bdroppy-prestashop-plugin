@@ -30,12 +30,7 @@ class BdroppyConfigKeys
     const CATEGORY_STRUCTURE        = 'BDROPPY_CATEGORY_STRUCTURE';
     const VERBOSE_LOG               = 'BDROPPY_VERBOSE_LOG';
 
-    const PRICE_BASE                = 'BDROPPY_PRICE_BASE';
-    const CONVERSION_COEFFICIENT    = 'BDROPPY_CONVERSION_COEFFICIENT';
     const TAX_RULE                  = 'BDROPPY_TAX_RULE';
-    const TAX_RATE                  = 'BDROPPY_TAX_RATE';
-    const MARKUP                    = 'BDROPPY_MARKUP';
-
     const LAST_IMPORT_SYNC          = 'BDROPPY_LAST_IMPORT_SYNC';
     const LAST_QUANTITIES_SYNC      = 'BDROPPY_LAST_QUANTITIES_SYNC';
     const LAST_CART_SYNC            = 'BDROPPY_LAST_CART_SYNC';

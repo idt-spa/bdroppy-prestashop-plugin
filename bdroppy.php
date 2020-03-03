@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.6';
+        $this->version = '1.0.8';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -183,6 +183,11 @@ class Bdroppy extends Module
 
     public function install()
     {
+        // make log folder
+        if (!file_exists(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR . 'log')) {
+            mkdir(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log', 0755, true);
+        }
+
         //$this->installAttributes();
         $this->installFeatures();
         $this->installTabs();
@@ -200,6 +205,7 @@ class Bdroppy extends Module
         Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', '');
         Configuration::updateValue('BDROPPY_IMPORT_IMAGE', '');
         Configuration::updateValue('BDROPPY_LIMIT_COUNT', '');
+        Configuration::updateValue('BDROPPY_TAX_RULE', '');
         Configuration::updateValue('BDROPPY_IMPORT_BRAND_TO_TITLE', '');
         Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', '');
         Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', '');
@@ -234,6 +240,7 @@ class Bdroppy extends Module
         Configuration::deleteByName('BDROPPY_CATEGORY_STRUCTURE');
         Configuration::deleteByName('BDROPPY_IMPORT_IMAGE');
         Configuration::deleteByName('BDROPPY_LIMIT_COUNT');
+        Configuration::deleteByName('BDROPPY_TAX_RULE');
         Configuration::deleteByName('BDROPPY_IMPORT_BRAND_TO_TITLE');
         Configuration::deleteByName('BDROPPY_IMPORT_TAG_TO_TITLE');
         Configuration::deleteByName('BDROPPY_AUTO_UPDATE_PRICES');
@@ -262,9 +269,11 @@ class Bdroppy extends Module
 
     private function getCatalogs() {
         $catalogs = [];
-        $catalogs[0] = 'No Catalog';
+        $catalogs[0] = $this->l('Please Select', 'main');
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getUserCatalogs();
+        if($res['catalogs'])
+            $catalogs[-1] = 'No Catalog';
         foreach ($res['catalogs'] as $r){
             $r = $rewixApi->getCatalogById2($r->_id);
             $catalogs[$r->_id]  = isset($r->name)? $r->name ." ( $r->currency ) ( ".count($r->ids)." products )" : null;
@@ -283,15 +292,14 @@ class Bdroppy extends Module
         if (Tools::isSubmit('submitApiConfig')) {
             $apiUrl = (string)Tools::getValue('bdroppy_api_url');
             $apiKey = (string)Tools::getValue('bdroppy_api_key');
-            $apiPassword = (string)Tools::getValue('bdroppy_api_password');
             $apiToken = (string)Tools::getValue('bdroppy_token');
 
+            if ($apiUrl != Configuration::get('BDROPPY_API_URL') || $apiToken != Configuration::get('BDROPPY_TOEKN')) {
+                Configuration::updateValue('BDROPPY_CATALOG', '');
+            }
             Configuration::updateValue('BDROPPY_API_URL', $apiUrl);
             Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
             Configuration::updateValue('BDROPPY_TOKEN', $apiToken);
-            if ($apiPassword) {
-                Configuration::updateValue('BDROPPY_API_PASSWORD', $apiPassword);
-            }
 
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
@@ -315,6 +323,9 @@ class Bdroppy extends Module
 
             $bdroppy_import_image = (string)Tools::getValue('bdroppy_import_image');
             Configuration::updateValue('BDROPPY_IMPORT_IMAGE', $bdroppy_import_image);
+
+            $bdroppy_tax_rule = (string)Tools::getValue('bdroppy_tax_rule');
+            Configuration::updateValue('BDROPPY_TAX_RULE', $bdroppy_tax_rule);
 
             $bdroppy_limit_count = (string)Tools::getValue('bdroppy_limit_count');
             Configuration::updateValue('BDROPPY_LIMIT_COUNT', $bdroppy_limit_count);
@@ -350,6 +361,11 @@ class Bdroppy extends Module
             $attributes[$feature['id_feature']] = $feature['name'];
         }
 
+        $tax_rules = [];
+        $taxes = TaxRulesGroup::getTaxRulesGroups();
+        foreach ($taxes as $tax) {
+            $tax_rules[$tax['id_tax_rules_group']] = $tax['name'];
+        }
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
 
@@ -379,6 +395,7 @@ class Bdroppy extends Module
             '0' => $this->l('No Tag', 'main'),
             'color' => $this->l('Color', 'main')
         );
+
         $import_image = array(
             '0' => $this->l('No import', 'main'),
             '1' => $this->l('1 Picture', 'main'),
@@ -416,6 +433,7 @@ class Bdroppy extends Module
             'catalogs'                          => $catalogs['catalogs'],
             'attributes'                        => $attributes,
             'import_image'                      => $import_image,
+            'tax_rule'                          => $tax_rules,
             'category_structure'                => $category_structure,
             'stripeBOCssUrl'                    => $stripeBOCssUrl,
             'base_url'                          => $base_url,
