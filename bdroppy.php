@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.8';
+        $this->version = '1.0.9';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -228,6 +228,7 @@ class Bdroppy extends Module
 
     public function uninstall()
     {
+        /*
         Configuration::deleteByName('BDROPPY_API_URL');
         Configuration::deleteByName('BDROPPY_API_KEY');
         Configuration::deleteByName('BDROPPY_API_PASSWORD');
@@ -244,6 +245,7 @@ class Bdroppy extends Module
         Configuration::deleteByName('BDROPPY_IMPORT_BRAND_TO_TITLE');
         Configuration::deleteByName('BDROPPY_IMPORT_TAG_TO_TITLE');
         Configuration::deleteByName('BDROPPY_AUTO_UPDATE_PRICES');
+        */
 
         // Uninstall Tabs
         $moduleTabs = Tab::getCollectionFromModule($this->name);
@@ -253,7 +255,7 @@ class Bdroppy extends Module
             }
         }
 
-        include(dirname(__FILE__).'/sql/uninstall.php');
+        //include(dirname(__FILE__).'/sql/uninstall.php');
 
         if (!parent::uninstall()) {
             return false;
