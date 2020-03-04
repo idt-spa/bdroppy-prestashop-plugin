@@ -12,7 +12,7 @@ include_once dirname(__FILE__) . '/classes/ImportTools.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
 BdroppyCron::importProducts();
-BdroppyCron::updatePrices();
+//BdroppyCron::updatePrices();
 //BdroppyCron::syncProducts();
 //BdroppyCron::syncQuantities();
 //BdroppyCron::syncCarts();
@@ -37,6 +37,8 @@ class BdroppyCron
 
             $context = Context::getContext();
             $default_lang = str_replace('-', '_', $context->language->locale);
+            if ($default_lang == 'en_GB')
+                $default_lang = 'en_US';
 
             $configurations = array(
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
@@ -148,6 +150,14 @@ class BdroppyCron
                             ));
                         }
                     }
+                    if ($bdroppy_auto_update_prices) {
+                        $yesterday = date('Y-m-d H:i:s', strtotime("-1 day"));
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated' AND last_sync_date <= '$yesterday' LIMIT $api_limit_count;";
+                        $items = $db->ExecuteS($sql);
+                        foreach ($items as $item) {
+                            BdroppyImportTools::updateProductPrices($item, $default_lang);
+                        }
+                    }
                 }
 
                 // select 10 products to import
@@ -158,8 +168,6 @@ class BdroppyCron
                 }
                 foreach ($items as $item) {
                     if ($item['sync_status'] == 'queued') {
-                        if ($default_lang == 'en_GB')
-                            $default_lang = 'en_US';
                         $res = BdroppyImportTools::importProduct($item, $default_lang);
                     }
                     if ($item['sync_status'] == 'delete') {
