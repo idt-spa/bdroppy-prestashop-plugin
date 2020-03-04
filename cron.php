@@ -122,23 +122,24 @@ class BdroppyCron
                             return (integer)$item['rewix_product_id'];
                         }, $prds);
                         $add_products = array_diff($ids, $products);
+                        $delete_products = array_diff($products,$ids);
 
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $api_catalog . "';";
-                        $delete_products = $db->ExecuteS($sql);
-
-                        foreach ($delete_products as $item) {
-                            switch ($item['sync_status']) {
+                        foreach ($delete_products as $id) {
+                            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '$id';";
+                            $item = $db->ExecuteS($sql);
+                            switch ($item[0]['sync_status']) {
                                 case 'queued':
                                 case 'delete':
-                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                    $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
                                     break;
                                 case 'updated':
-                                    $product = new Product($item['ps_product_id']);
+                                    $product = new Product($item[0]['ps_product_id']);
                                     $product->delete();
-                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                    $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
                                     break;
                             }
                         }
+
                         foreach ($add_products as $item) {
                             $db->insert('bdroppy_remoteproduct', array(
                                 'rewix_product_id' => pSQL($item),
