@@ -92,8 +92,10 @@ class BdroppyImportTools
             $xmlProduct = json_decode($res['data']);
             $productData = self::populateProduct($xmlProduct);
             $product = new Product($item['ps_product_id']);
-            $product->wholesale_price = $productData['best_taxable'];
-            $product->price = round($productData['proposed_price'], 3);
+            $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
+            $rate = 1+$tax->rate/100;
+            $product->wholesale_price = round($productData['proposed_price']/$rate, 3);
+            $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
             $product->save();
             $refId = (int)$xmlProduct->id;
@@ -626,8 +628,10 @@ class BdroppyImportTools
             $product->active = (int)true;
             $product->weight = (float)$xmlProduct->weight;
 
-            $product->wholesale_price = $productData['best_taxable'];
-            $product->price = round($productData['proposed_price'], 3);
+            $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
+            $rate = 1+$tax->rate/100;
+            $product->wholesale_price = round($productData['proposed_price']/$rate, 3);
+            $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
 
             $languages = Language::getLanguages();
@@ -802,6 +806,10 @@ class BdroppyImportTools
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
 
+                $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
+                $rate = 1+$tax->rate/100;
+                $wholesale_price = round($xmlProduct->sellPrice/$rate, 3);
+
                 $impact_on_price_per_unit = 0;
                 $impact_on_price = 0;
                 $impact_on_weight = $xmlProduct->weight;
@@ -814,7 +822,7 @@ class BdroppyImportTools
                 $minimal_quantity = 1;
                 $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                Db::getInstance()->update('product_attribute', array('wholesale_price'=>(float) $xmlProduct->bestTaxable), 'id_product_attribute = '.(int)$idProductAttribute );
+                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute );
                 $first = false;
             }
 
