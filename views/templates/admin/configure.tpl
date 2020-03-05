@@ -1,5 +1,10 @@
 <script type="text/javascript">
 	$(document).ready(function() {
+		$(".btn_change_token").click(function(){
+			$("#div_status").slideToggle();
+			$("#div_change_token").slideToggle();
+			return false;
+		});
 		$(".stripe-module-wrapper .list-group .list-group-item").click(function(){
 			$(".list-group .list-group-item").removeClass("active");
 			$(this).addClass("active");
@@ -45,22 +50,50 @@
 			<form action="" method="post">
 				<fieldset id="configurations" class="show">
 					<h3 class="tab"> <i class="icon-gear"></i>&nbsp;{l s='Configurations' mod='bdroppy'}</h3>
-					<div class="form-group">
-						<label class="control-label col-lg-3" for="simple_product">{l s='API URL' mod='bdroppy'}:</label>
-						<div class="col-lg-7">
-							<select name="bdroppy_api_url" id="bdroppy_api_url">
-								{html_options options=$urls selected=Configuration::get('BDROPPY_API_URL')}
-							</select>
+					<div class="row">
+						<div class="col-lg-8">
+							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
+							<br>
+							<div id="div_status" style="display: inherit">
+								<p><strong>URL</strong> {$base_url}</p>
+								<p><strong>Status</strong> {$txtStatus}</p>
+								<p><button class="btn_change_token">{l s='Change Token' mod='bdroppy'}</button></p>
+							</div>
+							<div id="div_change_token" style="display: none">
+								<div class="form-group">
+									<label class="control-label col-lg-3" for="simple_product">{l s='API URL' mod='bdroppy'}:</label>
+									<div class="col-lg-7">
+										<select name="bdroppy_api_url" id="bdroppy_api_url">
+											{html_options options=$urls selected=Configuration::get('BDROPPY_API_URL')}
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label col-lg-3" for="simple_product">{l s='Token' mod='bdroppy'}:</label>
+									<div class="col-lg-7">
+										<textarea rows="5" name="bdroppy_token"></textarea>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label col-lg-3" for="simple_product"></label>
+									<div class="col-lg-7">
+										<button type="submit" name="submitApiConfig" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save' mod='bdroppy'}</button>
+										<button class="btn_change_token btn btn-default pull-right"><i class="process-icon-cancel"></i> {l s='Cancel' mod='bdroppy'}</button>
+									</div>
+								</div>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="control-label col-lg-3" for="simple_product">{l s='Token' mod='bdroppy'}:</label>
-						<div class="col-lg-7">
-							<textarea rows="5" name="bdroppy_token">{Configuration::get('BDROPPY_TOKEN')|escape:'htmlall':'UTF-8'}</textarea>
+						<div class="col-lg-4">
+							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0"><img src="{$module_path|escape:'htmlall':'UTF-8'}logo.png" alt="{$module_display_name|escape:'htmlall':'UTF-8'}" style="float: left; padding-right: 1em"/>Bdroppy</p>
+							<br>
+							<p>Version : {$module_version|escape:'htmlall':'UTF-8'}</p>
+							<br>
+							<p style="clear: left;">{l s='Thanks for installing this module on your website.' mod='samdha'}</p>
+							{if $description_big_html}{$description_big_html}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
+							<p>
+								{l s='Made with by' mod='Hamid Isaac'} <a style="color: #7ba45b; text-decoration: underline;" target="_blank" href="{$home_url|escape:'htmlall':'UTF-8'}">Brandsdistribution</a>
+							</p>
 						</div>
-					</div>
-					<div class="panel-footer">
-						<button type="submit" name="submitApiConfig" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save' mod='bdroppy'}</button>
 					</div>
 				</fieldset>
 			</form>
@@ -197,10 +230,11 @@
 				<fieldset id="status" class="">
 					<h3 class="tab"> <i class="icon-question-sign"></i>&nbsp;{l s='Status' mod='bdroppy'}</h3>
 					<div class="card">
-						<h2>API Connection Status</h2>
-						<p><strong>URL</strong> {$base_url}</p>
-						<p><strong>Token</strong> {$api_token}</p>
-						<p><strong>Status</strong> {$txtStatus}</p>
+						<h2>{l s='Import Queue Status' mod='bdroppy'}</h2>
+						<p><strong>{l s='Queued' mod='bdroppy'}</strong> {$queue_queued}</p>
+						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing}</p>
+						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported}</p>
+						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all}</p>
 					</div>
 				</fieldset>
 			</form>
@@ -215,7 +249,7 @@
 					<p style="clear: left;">{l s='Thanks for installing this module on your website.' mod='samdha'}</p>
 					{if $description_big_html}{$description_big_html}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
 					<p>
-						{l s='Made with by' mod='Hamid Isaac'} <a style="color: #7ba45b; text-decoration: underline;" href="{$home_url|escape:'htmlall':'UTF-8'}">Brandsdistribution</a>
+						{l s='Made with by' mod='Hamid Isaac'} <a style="color: #7ba45b; text-decoration: underline;" target="_blank" href="{$home_url|escape:'htmlall':'UTF-8'}">Brandsdistribution</a>
 					</p>
 				</fieldset>
 			</form>

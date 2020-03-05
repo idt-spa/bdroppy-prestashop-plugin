@@ -94,7 +94,8 @@ class BdroppyImportTools
             $product = new Product($item['ps_product_id']);
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
             $rate = 1+$tax->rate/100;
-            $product->wholesale_price = round($productData['proposed_price']/$rate, 3);
+            $user_tax = Configuration::get('BDROPPY_USER_TAX');
+            $product->wholesale_price = round($productData['best_taxable'], 3);
             $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
             $product->save();
@@ -630,7 +631,8 @@ class BdroppyImportTools
 
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
             $rate = 1+$tax->rate/100;
-            $product->wholesale_price = round($productData['proposed_price']/$rate, 3);
+            $user_tax = Configuration::get('BDROPPY_USER_TAX');
+            $product->wholesale_price = round($productData['best_taxable'], 3);
             $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
 
@@ -671,10 +673,22 @@ class BdroppyImportTools
             // updateCategories requires the product to have an id already set
             $product->updateCategories($categories);
 
-            $sizeFeatureId = Configuration::get('BDROPPY_SIZE');
-            $colorFeatureId = Configuration::get('BDROPPY_COLOR');
-            $genderFeatureId = Configuration::get('BDROPPY_GENDER');
-            $seasonFeatureId = Configuration::get('BDROPPY_SEASON');
+            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Size';";
+            $sizeFeature = Db::getInstance()->executeS($sql);
+
+            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Color';";
+            $colorFeature = Db::getInstance()->executeS($sql);
+
+            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Gender';";
+            $genderFeature = Db::getInstance()->executeS($sql);
+
+            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Season';";
+            $seasonFeature = Db::getInstance()->executeS($sql);
+
+            $sizeFeatureId = $sizeFeature[0]['id_feature'];
+            $colorFeatureId = $colorFeature[0]['id_feature'];
+            $genderFeatureId = $genderFeature[0]['id_feature'];
+            $seasonFeatureId = $seasonFeature[0]['id_feature'];
 
             if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($productData['size']) > 0) {
                 $featureValueId = FeatureValue::addFeatureValueImport(
@@ -773,6 +787,7 @@ class BdroppyImportTools
                                 $langCode = 'en_US';
                             $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
                         }
+                        $attribute->color = self::getColor($xmlProduct, $langCode);
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
                         $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
@@ -808,7 +823,8 @@ class BdroppyImportTools
 
                 $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
                 $rate = 1+$tax->rate/100;
-                $wholesale_price = round($xmlProduct->sellPrice/$rate, 3);
+                $user_tax = Configuration::get('BDROPPY_USER_TAX');
+                $wholesale_price = round($xmlProduct->bestTaxable, 3);
 
                 $impact_on_price_per_unit = 0;
                 $impact_on_price = 0;

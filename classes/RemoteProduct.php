@@ -31,6 +31,7 @@ class BdroppyRemoteProduct extends ObjectModel
     const SYNC_STATUS_QUEUED = 'queued';
     const SYNC_STATUS_FAILED = 'failed';
     const SYNC_STATUS_UPDATED = 'updated';
+    const SYNC_STATUS_IMPORTING = 'importing';
 
     public static $definition = array(
         'table'     => 'bdroppy_remoteproduct',
@@ -211,7 +212,8 @@ class BdroppyRemoteProduct extends ObjectModel
         $query = new DbQuery();
         $query->select('COUNT(*)');
         $query->from('bdroppy_remoteproduct');
-        $query->where('`sync_status` = \'' . pSQL($status) . '\'');
+        if($status != '')
+            $query->where('`sync_status` = \'' . pSQL($status) . '\'');
         $result = Db::getInstance()->getValue($query);
         return $result;
     }

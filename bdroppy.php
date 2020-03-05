@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.10';
+        $this->version = '1.0.11';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -114,92 +114,82 @@ class Bdroppy extends Module
         if($flgSize) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $this->l('Size');
+                $feature->name[$language['id_lang']] = $this->l('Size', 'main');
             $feature->add();
         }
         if($flgGender) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $this->l('Gender');
+                $feature->name[$language['id_lang']] = $this->l('Gender', 'main');
             $feature->add();
         }
         if($flgColor) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $this->l('Color');
+                $feature->name[$language['id_lang']] = $this->l('Color', 'main');
             $feature->add();
         }
         if($flgSeason) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $this->l('Season');
+                $feature->name[$language['id_lang']] = $this->l('Season', 'main');
             $feature->add();
         }
     }
     public function installAttributes() {
+        $flgSize = true;
+        $flgGender = true;
+        $flgColor = true;
+        $flgSeason = true;
         $languages = Language::getLanguages(false);
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Size';";
-        $r = Db::getInstance()->executeS($sql);
-        if (!$r) {
+        $attributes = AttributeGroup::getAttributesGroups($this->context->language->id);
+        foreach ($attributes as $attribute) {
+            if($attribute['name'] == 'Size')
+                $flgSize = false;
+            if($attribute['name'] == 'Gender')
+                $flgGender = false;
+            if($attribute['name'] == 'Color')
+                $flgColor = false;
+            if($attribute['name'] == 'Season')
+                $flgSeason = false;
+        }
+        if ($flgSize) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $this->l('Size');
-                $newGroup->public_name[$lang['id_lang']] = $this->l('Size');
+                $newGroup->name[$lang['id_lang']] = $this->l('Size', 'main');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Size', 'main');
             }
-            $newGroup->is_color_group = 1;
-            $newGroup->group_type = 'test';
+            $newGroup->group_type = 'select';
             $newGroup->save();
         }
 
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Gender';";
-        $r = Db::getInstance()->executeS($sql);
-        if (!$r) {
+        if ($flgGender) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $this->l('Gender');
-                $newGroup->public_name[$lang['id_lang']] = $this->l('Gender');
+                $newGroup->name[$lang['id_lang']] = $this->l('Gender', 'main');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Gender', 'main');
             }
-            $newGroup->is_color_group = 1;
-            $newGroup->group_type = 'test';
+            $newGroup->group_type = 'select';
             $newGroup->save();
         }
 
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Color';";
-        $r = Db::getInstance()->executeS($sql);
-        if (!$r) {
+        if ($flgColor) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $this->l('Color');
-                $newGroup->public_name[$lang['id_lang']] = $this->l('Color');
+                $newGroup->name[$lang['id_lang']] = $this->l('Color', 'main');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Color', 'main');
             }
-            $newGroup->is_color_group = 1;
-            $newGroup->group_type = 'test';
+            $newGroup->group_type = 'color';
             $newGroup->save();
         }
 
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Season';";
-        $r = Db::getInstance()->executeS($sql);
-        if (!$r) {
+        if ($flgSeason) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $this->l('Season');
-                $newGroup->public_name[$lang['id_lang']] = $this->l('Season');
+                $newGroup->name[$lang['id_lang']] = $this->l('Season', 'main');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Season', 'main');
             }
-            $newGroup->is_color_group = 1;
-            $newGroup->group_type = 'test';
-            $newGroup->save();
-        }
-
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "attribute_group_lang` WHERE name='Brand';";
-        $r = Db::getInstance()->executeS($sql);
-        if (!$r) {
-            $newGroup = new AttributeGroup();
-            foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $this->l('Brand');
-                $newGroup->public_name[$lang['id_lang']] = $this->l('Brand');
-            }
-            $newGroup->is_color_group = 1;
-            $newGroup->group_type = 'test';
+            $newGroup->group_type = 'select';
             $newGroup->save();
         }
     }
@@ -289,7 +279,8 @@ class Bdroppy extends Module
             }
             Configuration::updateValue('BDROPPY_API_URL', $apiUrl);
             Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
-            Configuration::updateValue('BDROPPY_TOKEN', $apiToken);
+            if($apiToken !='')
+                Configuration::updateValue('BDROPPY_TOKEN', $apiToken);
 
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
@@ -342,13 +333,13 @@ class Bdroppy extends Module
             }
         }
 
-        //$res = AttributeGroup::getAttributesGroups($this->context->language->id);
-        $res = Feature::getFeatures($this->context->language->id);
+        $res = AttributeGroup::getAttributesGroups($this->context->language->id);
+        //$res = Feature::getFeatures($this->context->language->id);
         $attributes = array(
             '0' => $this->l('Select', 'main'),
         );
-        foreach ($res as $feature) {
-            $attributes[$feature['id_feature']] = $feature['name'];
+        foreach ($res as $attribute) {
+            $attributes[$attribute['id_attribute_group']] = $attribute['name'];
         }
 
         $tax_rules = [];
@@ -375,6 +366,11 @@ class Bdroppy extends Module
 
         $txtStatus = '<span style="color: red;">Error Code : ' . $httpCode . '</span>';
         if(count($catalogs['catalogs'])>1) {
+            /*$rewixApi = new BdroppyRewixApi();
+            $userInfo = $rewixApi->getUserInfo();
+            if($userInfo['http_code'] == 200) {
+                Configuration::updateValue('BDROPPY_USER_TAX', $userInfo['data']->tax);
+            }*/
             $txtStatus = '<span style="color: green;">Ok</span>';
         }
         $urls = array(
@@ -405,6 +401,10 @@ class Bdroppy extends Module
         }
         $home_url = sprintf('https://www.brandsdistribution.com', $iso_lang, urlencode($this->name));
 
+        $queue_queued = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED);
+        $queue_importing = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_IMPORTING);
+        $queue_imported = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED);
+        $queue_all = BdroppyRemoteProduct::getCountByStatus('');
         $tplVars = array(
             'module_display_name'               => $this->displayName,
             'module_version'                    => $this->version,
@@ -429,6 +429,10 @@ class Bdroppy extends Module
             'base_url'                          => $base_url,
             'api_key'                           => $api_key,
             'txtStatus'                         => $txtStatus,
+            'queue_queued'                      => $queue_queued,
+            'queue_importing'                   => $queue_importing,
+            'queue_imported'                    => $queue_imported,
+            'queue_all'                         => $queue_all,
             'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
             'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,

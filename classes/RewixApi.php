@@ -80,6 +80,36 @@ class BdroppyRewixApi
         return $ret;
     }
     
+    public function getUserInfo() {
+        $catalogs = [];
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+
+        $url = $base_url . '/api/user/me';
+
+        $header = "Authorization: Bearer " . $api_token;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        $data  = curl_exec($ch);
+        $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+        $curl_error = curl_error( $ch );
+        curl_close( $ch );
+        if($http_code != 200)
+            $this->logger->logDebug( 'getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data );
+        if ($http_code === 200)
+        {
+            $data = json_decode($data);
+        }
+        $ret['http_code'] = $http_code;
+        $ret['data'] = $data;
+        return $ret;
+    }
     public function getUserCatalogs() {
         $catalogs = [];
         $base_url = Configuration::get('BDROPPY_API_URL');
