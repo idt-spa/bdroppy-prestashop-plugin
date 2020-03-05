@@ -114,25 +114,25 @@ class Bdroppy extends Module
         if($flgSize) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = strval('Size');
+                $feature->name[$language['id_lang']] = $this->l('Size');
             $feature->add();
         }
         if($flgGender) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = strval('Gender');
+                $feature->name[$language['id_lang']] = $this->l('Gender');
             $feature->add();
         }
         if($flgColor) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = strval('Color');
+                $feature->name[$language['id_lang']] = $this->l('Color');
             $feature->add();
         }
         if($flgSeason) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = strval('Season');
+                $feature->name[$language['id_lang']] = $this->l('Season');
             $feature->add();
         }
     }
@@ -143,8 +143,8 @@ class Bdroppy extends Module
         if (!$r) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = 'Size';
-                $newGroup->public_name[$lang['id_lang']] = 'Size';
+                $newGroup->name[$lang['id_lang']] = $this->l('Size');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Size');
             }
             $newGroup->is_color_group = 1;
             $newGroup->group_type = 'test';
@@ -156,8 +156,8 @@ class Bdroppy extends Module
         if (!$r) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = 'Gender';
-                $newGroup->public_name[$lang['id_lang']] = 'Gender';
+                $newGroup->name[$lang['id_lang']] = $this->l('Gender');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Gender');
             }
             $newGroup->is_color_group = 1;
             $newGroup->group_type = 'test';
@@ -169,8 +169,8 @@ class Bdroppy extends Module
         if (!$r) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = 'Color';
-                $newGroup->public_name[$lang['id_lang']] = 'Color';
+                $newGroup->name[$lang['id_lang']] = $this->l('Color');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Color');
             }
             $newGroup->is_color_group = 1;
             $newGroup->group_type = 'test';
@@ -182,8 +182,8 @@ class Bdroppy extends Module
         if (!$r) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = 'Season';
-                $newGroup->public_name[$lang['id_lang']] = 'Season';
+                $newGroup->name[$lang['id_lang']] = $this->l('Season');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Season');
             }
             $newGroup->is_color_group = 1;
             $newGroup->group_type = 'test';
@@ -195,8 +195,8 @@ class Bdroppy extends Module
         if (!$r) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = 'Brand';
-                $newGroup->public_name[$lang['id_lang']] = 'Brand';
+                $newGroup->name[$lang['id_lang']] = $this->l('Brand');
+                $newGroup->public_name[$lang['id_lang']] = $this->l('Brand');
             }
             $newGroup->is_color_group = 1;
             $newGroup->group_type = 'test';
@@ -211,7 +211,7 @@ class Bdroppy extends Module
             mkdir(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log', 0755, true);
         }
 
-        //$this->installAttributes();
+        $this->installAttributes();
         $this->installFeatures();
         $this->installTabs();
 
