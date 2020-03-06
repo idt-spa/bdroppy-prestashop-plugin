@@ -11,4 +11,4 @@ backoffice/.~lock*
 size_map.csv
 todo.txt
 query.json
-.idea/
+.idea/*

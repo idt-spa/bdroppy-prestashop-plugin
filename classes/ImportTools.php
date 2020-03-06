@@ -787,7 +787,7 @@ class BdroppyImportTools
                                 $langCode = 'en_US';
                             $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
                         }
-                        $attribute->color = self::getColor($xmlProduct, $langCode);
+                        $attribute->color = self::getColor($xmlProduct, 'en_US');
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
                         $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
