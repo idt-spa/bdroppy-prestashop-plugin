@@ -13,6 +13,8 @@
  * @license   Proprietary
  */
 
+use BDroppy\Includes\WC\Models\ProductModel;
+
 include_once dirname(__FILE__).'/ImportTools.php';
 include_once dirname(__FILE__).'/RemoteOrder.php';
 include_once dirname(__FILE__).'/ConfigKeys.php';
@@ -110,6 +112,7 @@ class BdroppyRewixApi
         $ret['data'] = $data;
         return $ret;
     }
+
     public function getUserCatalogs() {
         $catalogs = [];
         $base_url = Configuration::get('BDROPPY_API_URL');
@@ -246,9 +249,33 @@ class BdroppyRewixApi
                 );
             }
         }
-        // TODO get_pending_quantity_by_rewix_model get_processing_quantity_by_rewix_model
+        foreach ( $operations as $op ) {
+            if ( isset( $growing_order[ $op['model_id'] ] ) ) {
+                $product             = $growingOrder[ $op['model_id'] ];
+                $success             = true;
+                $pending_quantity    = $this->getPendingQtyByRewixModel( (int) $op['model_id'] );
+                $processing_quantity = $this->getProcessingQtyByRewixModel( (int) $op['model_id'] );
 
-        return true;
+                if ( $op['type'] == self::SOLD_API_LOCK_OP && $product['locked'] < ( $pending_quantity + $processing_quantity + $op['qty'] ) ) {
+                    $success = false;
+                } else if ( $op['type'] == self::SOLD_API_UNLOCK_OP && $product['locked'] < ( $pending_quantity + $processing_quantity - $op['qty'] ) ) {
+                    $success = false;
+                } else if ( $op['type'] == self::SOLD_API_SET_OP && $product['locked'] < $op['qty'] ) {
+                    $success = false;
+                }
+
+                if ( ! $success ) {
+                    $this->logger->error( 'bdroppy', 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] . ' : OPERATION FAILED!' );
+                    $errors[ $op['model_id'] ] = $op['qty'];
+                } else {
+                    $this->logger->info( 'bdroppy', 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] );
+                }
+            } else {
+                $errors[ $op['model_id'] ] = $op['qty'];
+            }
+        }
+
+        return $errors;
     }
 
     public function validateOrder($cart)
@@ -277,20 +304,21 @@ class BdroppyRewixApi
         }
 
         $success = true;
-        if (sizeof($operations) > 0) {
+        if (count($operations) > 0) {
             $this->logger->logDebug('Remote locking items');
 
             $errors = '';
             $errors = $this->modifyGrowingOrder($operations);
-            if (! $errors) {
-                $err = 'Remote growing order operation failed';
-                $this->logger->logDebug($err);
-                throw new Exception($err);
+            if (isset($errors['curl_error'])) {
+                throw new Exception('Error while placing order ('. $errors['message'].').', 'error');
+            } else if (count($errors) > 0) {
+                foreach ($errors as $model_id => $qty) {
+                    throw new Exception(sprintf('Error while placing order. Product %s is not available in quantity requested (%d).',
+                        $this->getProductNameFromRewixModelId((int)$model_id),
+                        $qty));
+                }
             }
         }
-
-        $this->logger->logInfo('Growing order operation succeeded');
-
         return $success;
     }
 
@@ -347,7 +375,6 @@ class BdroppyRewixApi
         }
 
         $shippingAddress = new Address($order->id_address_delivery);
-
         $customer = new Customer((int)($shippingAddress->id_customer));
         $recipient_details = $xmlOrder->addChild('recipient_details');
         $email = $recipient_details->addChild( 'email', $customer->email);
@@ -376,8 +403,6 @@ class BdroppyRewixApi
 
         $xmlText = $xml->asXML();
 
-        $username = Configuration::get('BDROPPY_API_KEY');
-        $password = (string)Configuration::get('BDROPPY_API_PASSWORD');
         $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/dropshipping';
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
@@ -399,8 +424,7 @@ class BdroppyRewixApi
         if (!$this->handleCurlError($httpCode)) {
             return false;
         }
-        //TODO I will get all growing order content
-        //may I do something with it??
+        $this->logger->info( 'bdroppy', 'Rewix order key: ' . $rewix_order_key . ' ' . $rewixOrder );
 
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
         $api_token = Configuration::get('BDROPPY_TOKEN');
@@ -416,13 +440,12 @@ class BdroppyRewixApi
         curl_close($ch);
         //echo "url : $url<br>apiKey : $username<br>password : $password<br>httpCode : $httpCode<br>data : $data";die;
         if ($httpCode == 401) {
-            $this->logger->logError('UNAUTHORIZED!!');
+            $this->logger->logError('Send dropshipping order: UNAUTHORIZED!!');
             return false;
         } elseif ($httpCode == 500) {
             $this->logger->logError('Exception: Order #'.$order->id.' does not exists on rewix platform');
             $this->logger->logError('Bdroppy operation for order #'.$order->id.' failed!!');
 
-            //echo "url : $url<br>apiKey : $username<br>password : $password<br>httpCode : $httpCode<br>data : $data<br>id : $id";die;
             $association    = new BdroppyRemoteOrder();
             $association->rewix_order_key = $rewix_order_key;
             $association->rewix_order_id = (int) 0;
@@ -431,7 +454,7 @@ class BdroppyRewixApi
             $association->save();
             return false;
         } elseif ($httpCode != 200) {
-            $this->logger->logError('ERROR ' . $httpCode);
+            $this->logger->logError('Send dropshipping order - Url : ' . $rewix_order_key. ' - ERROR ' . $httpCode);
             return false;
         }
 
@@ -453,6 +476,7 @@ class BdroppyRewixApi
                 $association->ps_order_id = $orderId;
                 $association->status = $status;
                 $association->save();
+                $this->logger->logInfo('Entry (' . $rewixOrderId . ',' . $orderId . ') in association table created' );
                 $this->logger->logInfo('Supplier order ' . $rewixOrderId . ' created successfully');
             }
         }
@@ -493,7 +517,7 @@ class BdroppyRewixApi
             $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
                 'from `'._DB_PREFIX_.'order_detail` od ' .
                 'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_CHEQUE\', \'PS_OS_PAYMENT\', \'PS_OS_BANKWIRE\', \'PS_OS_WS_PAYMENT\', \'PS_OS_COD_VALIDATION\') )) ' .
-                'and od.id_order not in (select x.ps_order_id from `'._DB_PREFIX_.'Bdroppy_remoteorder` x) ' .
+                'and od.id_order not in (select x.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` x) ' .
                 'group by od.product_id ';
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
@@ -509,7 +533,7 @@ class BdroppyRewixApi
     private function getPsModelId($modelId)
     {
         $query = 'select p.ps_product_id ' .
-            'from `'._DB_PREFIX_.'Bdroppy_remoteproduct` p ' .
+            'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
             'where p.rewix_product_id = ' . (int) $modelId;
 
         $rewixProducts = Db::getInstance()->ExecuteS($query);
@@ -524,13 +548,30 @@ class BdroppyRewixApi
     private function getRewixModelId($modelId)
     {
         $query = 'select p.rewix_product_id ' .
-            'from `'._DB_PREFIX_.'Bdroppy_remoteproduct` p ' .
+            'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
             'where p.ps_product_id = ' . (int) $modelId;
 
         $products = Db::getInstance()->ExecuteS($query);
 
         foreach ($products as $product) {
             return $product['rewix_product_id'];
+        }
+
+        $this->logger->logError("Rewix " . $modelId . " not found.");
+    }
+
+    private function getProductNameFromRewixModelId($modelId)
+    {
+        $query = 'select p.rewix_product_id ' .
+            'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
+            'where p.ps_product_id = ' . (int) $modelId;
+
+        $products = Db::getInstance()->ExecuteS($query);
+
+        foreach ($products as $product) {
+            $prd = new Product($product['rewix_product_id']);
+            if($prd)
+                return $prd->name;
         }
 
         $this->logger->logError("Rewix " . $modelId . " not found.");
@@ -547,7 +588,7 @@ class BdroppyRewixApi
             $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
                 'from `'._DB_PREFIX_.'order_detail` od ' .
                 'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') )) ' .
-                'and od.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'Bdroppy_remoteorder` r) ' .
+                'and od.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r) ' .
                 'group by od.product_id ';
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
@@ -609,9 +650,6 @@ class BdroppyRewixApi
 
     public function getGrowingOrderProducts()
     {
-
-        $username = Configuration::get(BdroppyConfigKeys::APIKEY);
-        $password = (string)Configuration::get(BdroppyConfigKeys::PASSWORD);
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/orders/dropshipping/locked/';
         $this->logger->logDebug('Retrieving growing order ' . $url);
         $api_token = Configuration::get('BDROPPY_TOKEN');
