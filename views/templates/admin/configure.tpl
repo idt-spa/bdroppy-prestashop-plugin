@@ -109,6 +109,9 @@
 								<br/><pre>{$cron_url|escape:'htmlall':'UTF-8'}</pre><br/>
 							</li>
 						</ol>
+						<div align="center">
+							<embed width="600" height="300" src="https://www.youtube.com/embed/lwxpr6AA6Wg">
+						</div>
 					</div>
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Catalog' mod='bdroppy'}:</label>
