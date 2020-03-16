@@ -110,7 +110,7 @@
 							</li>
 						</ol>
 						<div align="center">
-							<embed width="600" height="300" src="https://www.youtube.com/embed/lwxpr6AA6Wg">
+							<iframe width="100%" allowfullscreen="allowfullscreen" height="400" src="https://www.youtube.com/embed/lwxpr6AA6Wg?start=18"></iframe>
 						</div>
 					</div>
 					<div class="form-group">
