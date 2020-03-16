@@ -81,7 +81,7 @@ class BdroppyRewixApi
         $ret['data'] = $data;
         return $ret;
     }
-    
+
     public function getUserInfo() {
         $catalogs = [];
         $base_url = Configuration::get('BDROPPY_API_URL');
@@ -208,7 +208,7 @@ class BdroppyRewixApi
                 $model->addAttribute('quantity', $op['qty']);
                 $this->logger->logDebug('Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type']);
             } else {
-                $this->logger->info( 'bdroppy', 'Invalid operation type: ' . $op['type'] );
+                $this->logger->logInfo( 'Invalid operation type: ' . $op['type'] );
             }
         }
         $xmlText = $xml->asXML();
@@ -265,10 +265,10 @@ class BdroppyRewixApi
                 }
 
                 if ( ! $success ) {
-                    $this->logger->error( 'bdroppy', 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] . ' : OPERATION FAILED!' );
+                    $this->logger->logError( 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] . ' : OPERATION FAILED!' );
                     $errors[ $op['model_id'] ] = $op['qty'];
                 } else {
-                    $this->logger->info( 'bdroppy', 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] );
+                    $this->logger->logInfo( 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', processing: ' . $this->getPendingQtyByRewixModel( $stock_id ) . ', operation type: ' . $op['type'] );
                 }
             } else {
                 $errors[ $op['model_id'] ] = $op['qty'];
@@ -370,7 +370,7 @@ class BdroppyRewixApi
             return false;
         }
         if ( $mixed ){
-            $this->logger->error( 'bdroppy', 'Order #' . $order->get_order_number() . ': Mixed Order!!!' );
+            $this->logger->logError( 'Order #' . $order->get_order_number() . ': Mixed Order!!!' );
             return false;
         }
 
@@ -424,7 +424,7 @@ class BdroppyRewixApi
         if (!$this->handleCurlError($httpCode)) {
             return false;
         }
-        $this->logger->info( 'bdroppy', 'Rewix order key: ' . $rewix_order_key . ' ' . $rewixOrder );
+        $this->logger->logInfo('Rewix order key: ' . $rewix_order_key . ' ' . $data );
 
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
         $api_token = Configuration::get('BDROPPY_TOKEN');
