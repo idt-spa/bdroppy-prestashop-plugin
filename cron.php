@@ -91,7 +91,7 @@ class BdroppyCron
                             $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
                             break;
                         case 'importing':
-                            if($item['rewix_product_id'] == 0) {
+                            if($item['ps_product_id'] == 0) {
                                 $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
                             } else {
                                 $product = new Product($item['ps_product_id']);
@@ -109,7 +109,11 @@ class BdroppyCron
                 if (!$api_limit_count)
                     $api_limit_count = 5;
                 $min = date('i') % 5;
-                if($min == 0 || $min == 5 || $_GET['dev'] == 'isaac') {
+                $devFlag = false;
+                if(isset($_GET['dev']))
+                    if($_GET['dev'] == 'isaac')
+                        $devFlag = true;
+                if($min == 0 || $min == 5 || $devFlag) {
                     $rewixApi = new BdroppyRewixApi();
                     $res = $rewixApi->getProductsJson($api_catalog);
                     if ($res['http_code'] === 200 && $res['data'] != "null") {

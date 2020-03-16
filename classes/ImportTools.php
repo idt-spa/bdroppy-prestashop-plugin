@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 /**
  * NOTICE OF LICENSE.
  *
@@ -85,12 +89,12 @@ class BdroppyImportTools
         }
     }
 
-    public static function updateProductPrices($item) {
+    public static function updateProductPrices($item, $default_lang) {
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getProduct($item['rewix_product_id'], $item['rewix_catalog_id']);
         if ($res['http_code'] === 200) {
             $xmlProduct = json_decode($res['data']);
-            $productData = self::populateProduct($xmlProduct);
+            $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product = new Product($item['ps_product_id']);
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
             $rate = 1+$tax->rate/100;
@@ -127,14 +131,14 @@ class BdroppyImportTools
                 self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
 
                 // populate general common fields
-                $product = self::populateProductAttributes($xmlProduct, $product, $default_lang);
+                $product1 = self::populateProductAttributes($xmlProduct, $product, $default_lang);
                 if (self::checkSimpleImport($xmlProduct)) {
                     self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
-                    $product = self::importSimpleProduct($xmlProduct, $product);
+                    $product2 = self::importSimpleProduct($xmlProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
                 } else {
-                    $product = self::importModels($xmlProduct, $product);
+                    $product3 = self::importModels($xmlProduct, $product, $default_lang);
                 }
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
@@ -624,7 +628,7 @@ class BdroppyImportTools
     private static function populateProductAttributes($xmlProduct, Product $product, $default_lang)
     {
         try {
-            $productData = self::populateProduct($xmlProduct, $default_lang);
+            $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
             $product->active = (int)true;
             $product->weight = (float)$xmlProduct->weight;
@@ -690,14 +694,16 @@ class BdroppyImportTools
             $genderFeatureId = $genderFeature[0]['id_feature'];
             $seasonFeatureId = $seasonFeature[0]['id_feature'];
 
-            if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($productData['size']) > 0) {
-                $featureValueId = FeatureValue::addFeatureValueImport(
-                    $sizeFeatureId,
-                    $productData['size'],
-                    $product->id,
-                    Configuration::get('PS_LANG_DEFAULT')
-                );
-                Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
+            if(isset($productData['size'])) {
+                if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($productData['size']) > 0) {
+                    $featureValueId = FeatureValue::addFeatureValueImport(
+                        $sizeFeatureId,
+                        $productData['size'],
+                        $product->id,
+                        Configuration::get('PS_LANG_DEFAULT')
+                    );
+                    Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
+                }
             }
             if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
                 $featureValueId = FeatureValue::addFeatureValueImport(
@@ -756,7 +762,7 @@ class BdroppyImportTools
         return $brandId;
     }
 
-    private static function importModels($xmlProduct, Product $product)
+    private static function importModels($xmlProduct, Product $product, $default_lang)
     {
         try {
             $xmlModels = $xmlProduct->models;
@@ -774,8 +780,9 @@ class BdroppyImportTools
                 }
 
                 $combinationAttributes = array();
+
                 if($model->color) {
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
@@ -790,7 +797,7 @@ class BdroppyImportTools
                         $attribute->color = self::getColor($xmlProduct, 'en_US');
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
-                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . $model->color . "';";
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
                         $r = Db::getInstance()->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];

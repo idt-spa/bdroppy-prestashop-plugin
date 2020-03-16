@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.12';
+        $this->version = '1.0.13';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -207,7 +207,7 @@ class Bdroppy extends Module
 
         //Init default value:
 
-        include(dirname(__FILE__).'/sql/install.php');
+        include(dirname(__FILE__) . '/sql/install.php');
 
         if (!parent::install() ||
             !$this->registerHook('header') &&
