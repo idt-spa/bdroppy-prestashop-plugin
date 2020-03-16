@@ -220,7 +220,9 @@
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Product Per Minute' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
-							<input type="text" name="bdroppy_limit_count" value="{Configuration::get('BDROPPY_LIMIT_COUNT')|escape:'htmlall':'UTF-8'}" />
+							<select name="bdroppy_limit_count" id="bdroppy_limit_count">
+								{html_options options=$limit_counts selected=Configuration::get('BDROPPY_LIMIT_COUNT')}
+							</select>
 						</div>
 					</div>
 					<div class="panel-footer">

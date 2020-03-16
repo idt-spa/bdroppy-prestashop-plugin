@@ -394,6 +394,19 @@ class Bdroppy extends Module
             '1' => $this->l('Category > Subcategory', 'main'),
             '2' => $this->l('Gender > Category > Subcategory', 'main'),
         );
+        $limit_counts = array(
+            '1' => '1',
+            '5' => '5',
+            '10' => '10',
+            '15' => '15',
+            '20' => '20',
+            '25' => '25',
+            '30' => '30',
+            '35' => '35',
+            '40' => '40',
+            '45' => '45',
+            '50' => '50'
+        );
 
         $iso_lang = Language::getIsoById($this->context->cookie->id_lang);
         if (!in_array($iso_lang, array('en', 'fr', 'es', 'de', 'it', 'nl', 'pl', 'pt', 'ru'))) {
@@ -433,6 +446,7 @@ class Bdroppy extends Module
             'queue_importing'                   => $queue_importing,
             'queue_imported'                    => $queue_imported,
             'queue_all'                         => $queue_all,
+            'limit_counts'                      => $limit_counts,
             'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
             'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
