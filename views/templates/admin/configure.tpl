@@ -109,6 +109,10 @@
 								<br/><pre>{$cron_url|escape:'htmlall':'UTF-8'}</pre><br/>
 							</li>
 						</ol>
+						<p style="font-size: 18px;line-height: 30px;color: #000;">
+							You need a cronjob that make operations when people don't use your website; is an external service than Prestashop and you have to setup on your server or taking an external service like cronjob.com Free plan you can set to 10 minutes and reset every Month, payment version is really cheap and you can set cron every 2 minutes at beginning and 5 to 10 after first catalog import
+						</p>
+						<br/>
 						<div align="center">
 							<iframe width="100%" allowfullscreen="allowfullscreen" height="400" src="https://www.youtube.com/embed/lwxpr6AA6Wg?start=18"></iframe>
 						</div>
