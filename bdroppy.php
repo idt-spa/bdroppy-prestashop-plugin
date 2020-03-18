@@ -263,6 +263,45 @@ class Bdroppy extends Module
         return $ret;
     }
 
+    public function getPHPExecutableFromPath()
+    {
+        $paths = explode(PATH_SEPARATOR, getenv('PATH'));
+        try {
+            foreach ($paths as $path) {
+                // we need this for XAMPP (Windows)
+                if (strstr($path, 'php.exe')
+                    && isset($_SERVER['WINDIR'])
+                    && file_exists($path) && is_file($path)
+                ) {
+                    return $path;
+                } else {
+                    $php_executable = $path.DIRECTORY_SEPARATOR.'php'.(isset($_SERVER['WINDIR']) ? '.exe' : '');
+                    if (file_exists($php_executable)
+                        && is_file($php_executable)) {
+                        return $php_executable;
+                    }
+
+                    $php_executable = $path.DIRECTORY_SEPARATOR.'php5'.(isset($_SERVER['WINDIR']) ? '.exe' : '');
+                    if (file_exists($php_executable)
+                        && is_file($php_executable)) {
+                        return $php_executable;
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // not found
+            return '/usr/bin/env php';
+        }
+
+        return '/usr/bin/env php'; // not found
+    }
+
+    public function getCronCommand()
+    {
+        $result = '"'._PS_MODULE_DIR_.$this->name.DIRECTORY_SEPARATOR.'cron.php" ';
+        return $result;
+    }
+
     public function getContent()
     {
         $output = '';
@@ -431,6 +470,8 @@ class Bdroppy extends Module
             'module_path'                       => '/modules/bdroppy/',
             'base_url'                          => $base_url,
             'api_key'                           => $api_key,
+            'php_dir'                           => $this->getPHPExecutableFromPath(),
+            'cron_command'                      => $this->getCronCommand(),
             'api_token'                         => $api_token,
             'cron_url'                          => $this->getCronURL(),
             'catalogs'                          => $catalogs['catalogs'],

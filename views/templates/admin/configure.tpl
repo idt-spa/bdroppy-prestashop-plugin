@@ -105,6 +105,11 @@
 						{l s='Please choose the method used to determine when executing jobs.' mod='cron'}
 						<ol style="margin-top: 1em">
 							<li style="list-style:decimal">
+								{l s='"Server crontab" is the best method but only if your server uses Linux and you have access to crontab. In that case add the line below to your crontab file.' mod='cron'}
+								<br/><pre>* * * * * {$php_dir|escape:'htmlall':'UTF-8'} {$cron_command|escape:'htmlall':'UTF-8'}</pre>
+								<p>"{$php_dir|escape:'htmlall':'UTF-8'}" {l s='is the PHP path on your server. It has been automatically detected and may be wrong. If it doesn\'t work, contact your host.' mod='cron'}</p>
+							</li>
+							<li style="list-style:decimal">
 								{l s='"Webcron service" is a good alternative to crontab but is often not free. Register to a webcron service and configure it to visit the URL below every minutes or the nearest.' mod='cron'}
 								<br/><pre>{$cron_url|escape:'htmlall':'UTF-8'}</pre><br/>
 							</li>
