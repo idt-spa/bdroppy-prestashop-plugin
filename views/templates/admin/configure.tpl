@@ -60,14 +60,7 @@
 								<p><button class="btn_change_token">{l s='Change Token' mod='bdroppy'}</button></p>
 							</div>
 							<div id="div_change_token" style="display: none">
-								<div class="form-group">
-									<label class="control-label col-lg-3" for="simple_product">{l s='API URL' mod='bdroppy'}:</label>
-									<div class="col-lg-7">
-										<select name="bdroppy_api_url" id="bdroppy_api_url">
-											{html_options options=$urls selected=Configuration::get('BDROPPY_API_URL')}
-										</select>
-									</div>
-								</div>
+								<input type="hidden" name="bdroppy_api_url" value="https://prod.bdroppy.com" />
 								<div class="form-group">
 									<label class="control-label col-lg-3" for="simple_product">{l s='Token' mod='bdroppy'}:</label>
 									<div class="col-lg-7">
