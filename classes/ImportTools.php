@@ -648,8 +648,8 @@ class BdroppyImportTools
                     $name = $productData['name'];
                 }
                 $pname_tag = Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE');
-                if($pname_tag) {
-                    $tag = $productData[$pname_tag];
+                if($pname_tag == 'color') {
+                    $tag = self::getColor($xmlProduct, $langCode);
                     if (!empty($tag)) {
                         $name .= ' - ' . $tag;
                     }
@@ -673,60 +673,141 @@ class BdroppyImportTools
             // updateCategories requires the product to have an id already set
             $product->updateCategories($categories);
 
-            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Size';";
-            $sizeFeature = Db::getInstance()->executeS($sql);
+            $lngSize = [];
+            $lngSize['it-IT'] = 'Taglia';
+            $lngSize['en-GB'] = 'Size';
+            $lngSize['en-US'] = 'Size';
+            $lngSize['fr-FR'] = 'Taille';
+            $lngSize['pl-PL'] = 'Rozmiar';
+            $lngSize['es-ES'] = 'Talla';
+            $lngSize['de-DE'] = 'Größe';
+            $lngSize['ru-RU'] = 'Размер';
+            $lngSize['nl-NL'] = 'Grootte';
+            $lngSize['ro-RO'] = 'Mărimea';
+            $lngSize['et-EE'] = 'Suurus';
+            $lngSize['hu-HU'] = 'Méret';
+            $lngSize['sv-SE'] = 'Storlek';
+            $lngSize['sk-SK'] = 'veľkosť';
+            $lngSize['cs-CZ'] = 'Velikost';
+            $lngSize['pt-PT'] = 'Tamanho';
 
-            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Color';";
-            $colorFeature = Db::getInstance()->executeS($sql);
+            $lngGender = [];
+            $lngGender['it-IT'] = 'Genere';
+            $lngGender['en-GB'] = 'Gender';
+            $lngGender['en-US'] = 'Gender';
+            $lngGender['fr-FR'] = 'Le sexe';
+            $lngGender['pl-PL'] = 'Płeć';
+            $lngGender['es-ES'] = 'Género';
+            $lngGender['de-DE'] = 'Geschlecht';
+            $lngGender['ru-RU'] = 'Пол';
+            $lngGender['nl-NL'] = 'Geslacht';
+            $lngGender['ro-RO'] = 'Sex';
+            $lngGender['et-EE'] = 'Sugu';
+            $lngGender['hu-HU'] = 'Nem';
+            $lngGender['sv-SE'] = 'Kön';
+            $lngGender['sk-SK'] = 'Rod';
+            $lngGender['cs-CZ'] = 'Rod';
+            $lngGender['pt-PT'] = 'Gênero';
 
-            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Gender';";
-            $genderFeature = Db::getInstance()->executeS($sql);
+            $lngColor = [];
+            $lngColor['it-IT'] = 'Colore';
+            $lngColor['en-GB'] = 'Color';
+            $lngColor['en-US'] = 'Color';
+            $lngColor['fr-FR'] = 'Couleur';
+            $lngColor['pl-PL'] = 'Kolor';
+            $lngColor['es-ES'] = 'Color';
+            $lngColor['de-DE'] = 'Farbe';
+            $lngColor['ru-RU'] = 'цвет';
+            $lngColor['nl-NL'] = 'Kleur';
+            $lngColor['ro-RO'] = 'Culoare';
+            $lngColor['et-EE'] = 'Värv';
+            $lngColor['hu-HU'] = 'Szín';
+            $lngColor['sv-SE'] = 'Färg';
+            $lngColor['sk-SK'] = 'Farba';
+            $lngColor['cs-CZ'] = 'Barva';
+            $lngColor['pt-PT'] = 'Cor';
 
-            $sql = "SELECT * FROM `"._DB_PREFIX_."feature` f LEFT JOIN `"._DB_PREFIX_."feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = ".Configuration::get('PS_LANG_DEFAULT').") WHERE fl.name = 'Season';";
-            $seasonFeature = Db::getInstance()->executeS($sql);
+            $lngSeason = [];
+            $lngSeason['it-IT'] = 'Stagione';
+            $lngSeason['en-GB'] = 'Season';
+            $lngSeason['en-US'] = 'Season';
+            $lngSeason['fr-FR'] = 'Saison';
+            $lngSeason['pl-PL'] = 'Pora roku';
+            $lngSeason['es-ES'] = 'Temporada';
+            $lngSeason['de-DE'] = 'Jahreszeit';
+            $lngSeason['ru-RU'] = 'Время года';
+            $lngSeason['nl-NL'] = 'Seizoen';
+            $lngSeason['ro-RO'] = 'Sezon';
+            $lngSeason['et-EE'] = 'Hooaeg';
+            $lngSeason['hu-HU'] = 'Évszak';
+            $lngSeason['sv-SE'] = 'Säsong';
+            $lngSeason['sk-SK'] = 'Sezóna';
+            $lngSeason['cs-CZ'] = 'Sezóna';
+            $lngSeason['pt-PT'] = 'Estação';
 
-            $sizeFeatureId = $sizeFeature[0]['id_feature'];
-            $colorFeatureId = $colorFeature[0]['id_feature'];
-            $genderFeatureId = $genderFeature[0]['id_feature'];
-            $seasonFeatureId = $seasonFeature[0]['id_feature'];
+            foreach ($languages as $lang) {
+                $langCode = str_replace('-', '_', $lang['locale']);
+                if ($langCode == 'en_GB')
+                    $langCode = 'en_US';
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSize[$lang['locale']]."';";
+                $sizeFeature = Db::getInstance()->executeS($sql);
 
-            if(isset($productData['size'])) {
-                if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($productData['size']) > 0) {
-                    $featureValueId = FeatureValue::addFeatureValueImport(
-                        $sizeFeatureId,
-                        $productData['size'],
-                        $product->id,
-                        Configuration::get('PS_LANG_DEFAULT')
-                    );
-                    Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngColor[$lang['locale']]."';";
+                $colorFeature = Db::getInstance()->executeS($sql);
+
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngGender[$lang['locale']]."';";
+                $genderFeature = Db::getInstance()->executeS($sql);
+
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['locale']]."';";
+                $seasonFeature = Db::getInstance()->executeS($sql);
+
+                $sizeFeatureId = $sizeFeature[0]['id_feature'];
+                $colorFeatureId = $colorFeature[0]['id_feature'];
+                $genderFeatureId = $genderFeature[0]['id_feature'];
+                $seasonFeatureId = $seasonFeature[0]['id_feature'];
+
+                if (isset($productData['size'])) {
+                    if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($xmlProduct['size']) > 0) {
+                        $featureValueId = FeatureValue::addFeatureValueImport(
+                            $sizeFeatureId,
+                            $productData['size'],
+                            $product->id,
+                            $lang['id_lang'],
+                            true
+                        );
+                        Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
+                    }
                 }
-            }
-            if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($productData['color']) > 0) {
-                $featureValueId = FeatureValue::addFeatureValueImport(
-                    $colorFeatureId,
-                    $productData['color'],
-                    $product->id,
-                    Configuration::get('PS_LANG_DEFAULT')
-                );
-                Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
-            }
-            if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen($productData['gender']) > 0) {
-                $featureValueId = FeatureValue::addFeatureValueImport(
-                    $genderFeatureId,
-                    $productData['gender'],
-                    $product->id,
-                    Configuration::get('PS_LANG_DEFAULT')
-                );
-                Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
-            }
-            if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen($productData['season']) > 0) {
-                $featureValueId = FeatureValue::addFeatureValueImport(
-                    $seasonFeatureId,
-                    $productData['season'],
-                    $product->id,
-                    Configuration::get('PS_LANG_DEFAULT')
-                );
-                Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
+                if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen(self::getColor($xmlProduct, $langCode)) > 0) {
+                    $featureValueId = FeatureValue::addFeatureValueImport(
+                        $colorFeatureId,
+                        self::getColor($xmlProduct, $langCode),
+                        $product->id,
+                        $lang['id_lang'],
+                        true
+                    );
+                    Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
+                }
+                if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen(self::getGender($xmlProduct, $langCode)) > 0) {
+                    $featureValueId = FeatureValue::addFeatureValueImport(
+                        $genderFeatureId,
+                        self::getGender($xmlProduct, $langCode),
+                        $product->id,
+                        $lang['id_lang'],
+                        true
+                    );
+                    Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
+                }
+                if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen(self::getSeason($xmlProduct, $langCode)) > 0) {
+                    $featureValueId = FeatureValue::addFeatureValueImport(
+                        $seasonFeatureId,
+                        self::getSeason($xmlProduct, $langCode),
+                        $product->id,
+                        $lang['id_lang'],
+                        true
+                    );
+                    Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
+                }
             }
 
             return $product;
