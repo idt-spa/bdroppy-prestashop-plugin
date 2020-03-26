@@ -140,7 +140,13 @@ class BdroppyRemoteCategory extends ObjectModel
                 $langCode = str_replace('-', '_', $lang['locale']);
                 if($langCode == 'en_GB')
                     $langCode = 'en_US';
-                $catTxt = self::getTagValue($xmlProduct, 'category', $langCode);
+                $catTxt = '';
+                if($tagId == self::REWIX_GENDER_ID)
+                    $catTxt = self::getTagValue($xmlProduct, 'gender', $langCode);
+                if($tagId == self::REWIX_CATEGORY_ID)
+                    $catTxt = self::getTagValue($xmlProduct, 'category', $langCode);
+                if($tagId == self::REWIX_SUBCATEGORY_ID)
+                    $catTxt = self::getTagValue($xmlProduct, 'subcategory', $langCode);
                 $category->name[$lang['id_lang']] = $catTxt;
                 $category->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($catTxt);
             }
