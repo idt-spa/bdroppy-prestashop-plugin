@@ -109,44 +109,49 @@ class BdroppyCron
                 if (!$api_limit_count)
                     $api_limit_count = 5;
                 $api_limit_count = $api_limit_count * 7;
-                $rewixApi = new BdroppyRewixApi();
-                $res = $rewixApi->getProductsJson($api_catalog);
-                if ($res['http_code'] === 200 && $res['data'] != "null") {
-                    $ids = [];
-                    $catalog = json_decode($res['data']);
-                    $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
-                    $prds = $db->ExecuteS($sql);
-                    foreach ($catalog->items as $item) {
-                        $ids[] = $item->refId;
-                    }
-                    $products = array_map(function ($item) {
-                        return (integer)$item['rewix_product_id'];
-                    }, $prds);
-                    $add_products = array_diff($ids, $products);
-                    $delete_products = array_diff($products,$ids);
-
-                    foreach ($delete_products as $id) {
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '$id';";
-                        $item = $db->ExecuteS($sql);
-                        switch ($item[0]['sync_status']) {
-                            case 'queued':
-                            case 'delete':
-                                $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
-                                break;
-                            case 'updated':
-                                $product = new Product($item[0]['ps_product_id']);
-                                $product->delete();
-                                $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
-                                break;
+                $min = date('i');
+                $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
+                $count_products = $db->ExecuteS($sql);
+                if($min % 5 == 0 || $count_products[0]['total'] == 0) {
+                    $rewixApi = new BdroppyRewixApi();
+                    $res = $rewixApi->getProductsJson($api_catalog);
+                    if ($res['http_code'] === 200 && $res['data'] != "null") {
+                        $ids = [];
+                        $catalog = json_decode($res['data']);
+                        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
+                        $prds = $db->ExecuteS($sql);
+                        foreach ($catalog->items as $item) {
+                            $ids[] = $item->refId;
                         }
-                    }
+                        $products = array_map(function ($item) {
+                            return (integer)$item['rewix_product_id'];
+                        }, $prds);
+                        $add_products = array_diff($ids, $products);
+                        $delete_products = array_diff($products, $ids);
 
-                    foreach ($add_products as $item) {
-                        $db->insert('bdroppy_remoteproduct', array(
-                            'rewix_product_id' => pSQL($item),
-                            'rewix_catalog_id' => pSQL($api_catalog),
-                            'sync_status' => pSQL('queued'),
-                        ));
+                        foreach ($delete_products as $id) {
+                            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '$id';";
+                            $item = $db->ExecuteS($sql);
+                            switch ($item[0]['sync_status']) {
+                                case 'queued':
+                                case 'delete':
+                                    $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
+                                    break;
+                                case 'updated':
+                                    $product = new Product($item[0]['ps_product_id']);
+                                    $product->delete();
+                                    $res = $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item[0]['rewix_product_id'] . "'");
+                                    break;
+                            }
+                        }
+
+                        foreach ($add_products as $item) {
+                            $db->insert('bdroppy_remoteproduct', array(
+                                'rewix_product_id' => pSQL($item),
+                                'rewix_catalog_id' => pSQL($api_catalog),
+                                'sync_status' => pSQL('queued'),
+                            ));
+                        }
                     }
                 }
                 if ($bdroppy_auto_update_prices) {

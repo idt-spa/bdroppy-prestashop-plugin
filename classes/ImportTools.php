@@ -362,7 +362,7 @@ class BdroppyImportTools
      *
      * @return array
      */
-    private static function getCategoryIds($tags)
+    private static function getCategoryIds($tags, $xmlProduct)
     {
         $rootCategory = Category::getRootCategory();
         $categoryIds = array($rootCategory->id);
@@ -393,7 +393,7 @@ class BdroppyImportTools
                     $category,
                     $id,
                     $tags[$id]['value'],
-                    $tags[$id]['translation']
+                    $xmlProduct
                 );
                 $categoryIds[] = $category->id;
                 if ($currentDeepness > $maxDeepness) {
@@ -666,7 +666,7 @@ class BdroppyImportTools
             $product->date_upd = date('Y-m-d H:i:s');
 
             $product->id_manufacturer = self::getManufacturer($productData['brand']);
-            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags']);
+            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $xmlProduct);
             $product->id_category_default = $categoryDefaultId;
             $product->save();
 

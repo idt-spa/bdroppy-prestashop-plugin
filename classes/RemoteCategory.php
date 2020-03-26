@@ -106,7 +106,22 @@ class BdroppyRemoteCategory extends ObjectModel
      *
      * @return Category
      */
-    public static function getCategory($parent, $tagId, $value, $translation)
+    private static function getTagValue($product, $name, $lang)
+    {
+        foreach ($product->tags as $tag)
+        {
+            if($tag->name === $name)
+            {
+                if (isset($tag->value->translations->{$lang})){
+                    return $tag->value->translations->{$lang};
+                }else{
+                    return $tag->value->value;
+                }
+            }
+        }
+    }
+
+    public static function getCategory($parent, $tagId, $value, $xmlProduct)
     {
         $tag = $tagId.'-'.$value;
         $parentTag = new self(self::getIdByPsId($parent->id));
@@ -120,8 +135,15 @@ class BdroppyRemoteCategory extends ObjectModel
 
         if ($category->id < 1) {
             $category->id_parent = $parent->id;
-            $category->name = array_fill_keys(Language::getIDs(), (string) $translation);
-            $category->link_rewrite = array_fill_keys(Language::getIDs(), Tools::link_rewrite($tag));
+            $languages = Language::getLanguages();
+            foreach ($languages as $lang) {
+                $langCode = str_replace('-', '_', $lang['locale']);
+                if($langCode == 'en_GB')
+                    $langCode = 'en_US';
+                $catTxt = self::getTagValue($xmlProduct, 'category', $langCode);
+                $category->name[$lang['id_lang']] = $catTxt;
+                $category->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($catTxt);
+            }
             $category->save();
 
             $remoteCategory->ps_category_id = $category->id;
