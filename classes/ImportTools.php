@@ -1024,11 +1024,7 @@ class BdroppyImportTools
                     BdroppyRemoteCategory::REWIX_GENDER_ID,
                     BdroppyRemoteCategory::REWIX_CATEGORY_ID,
                     BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID,
-                ),
-                array(
-                    BdroppyRemoteCategory::REWIX_CATEGORY_ID,
-                    BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID,
-                ),
+                )
             );
         } else {
             self::$categoryStructure = array(
