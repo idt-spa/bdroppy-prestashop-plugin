@@ -35,8 +35,8 @@ class BdroppyCron
             header('Access-Control-Allow-Origin: *');
             @ini_set('max_execution_time', 100000);
 
-            $context = Context::getContext();
-            $default_lang = str_replace('-', '_', $context->language->locale);
+            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+            $default_lang = str_replace('-', '_', $default_language['locale']);
             if ($default_lang == 'en_GB')
                 $default_lang = 'en_US';
 
@@ -184,8 +184,10 @@ class BdroppyCron
             header('Access-Control-Allow-Origin: *');
             @ini_set('max_execution_time', 100000);
 
-            $context = Context::getContext();
-            $default_lang = str_replace('-', '_', $context->language->locale);
+            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+            $default_lang = str_replace('-', '_', $default_language['locale']);
+            if ($default_lang == 'en_GB')
+                $default_lang = 'en_US';
 
             $configurations = array(
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),

@@ -526,7 +526,6 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             //var_dump($product_id, $catalog_id, $http_code, $data);die;
             if ($http_code === 200) {
                 $this->product = json_decode($data);
-                echo "<pre>";
                 $languages = Language::getLanguages(false);
                 $this->color = $this->getColor($this->default_lang);
                 $this->brand = $this->getBrand($this->default_lang);
