@@ -135,11 +135,26 @@ class BdroppyRemoteCategory extends ObjectModel
 
         if ($category->id < 1) {
             $category->id_parent = $parent->id;
+            $langs = [];
+            $langs['en'] = 'en_US';
+            $langs['gb'] = 'en_US';
+            $langs['it'] = 'it_IT';
+            $langs['fr'] = 'fr_FR';
+            $langs['pl'] = 'pl_PL';
+            $langs['es'] = 'es_ES';
+            $langs['de'] = 'de_DE';
+            $langs['ru'] = 'ru_RU';
+            $langs['nl'] = 'nl_NL';
+            $langs['ro'] = 'ro_RO';
+            $langs['et'] = 'et_EE';
+            $langs['hu'] = 'hu_HU';
+            $langs['sv'] = 'sv_SE';
+            $langs['sk'] = 'sk_SK';
+            $langs['cs'] = 'cs_CZ';
+            $langs['pt'] = 'pt_PT';
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                $langCode = str_replace('-', '_', $lang['locale']);
-                if($langCode == 'en_GB')
-                    $langCode = 'en_US';
+                $langCode = $langs[$lang['iso_code']];
                 $catTxt = '';
                 if($tagId == self::REWIX_GENDER_ID)
                     $catTxt = self::getTagValue($xmlProduct, 'gender', $langCode);

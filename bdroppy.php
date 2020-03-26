@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.16';
+        $this->version = '1.0.17';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -96,76 +96,76 @@ class Bdroppy extends Module
 
     public function installFeatures() {
         $lngSize = [];
-        $lngSize['it-IT'] = 'Taglia';
-        $lngSize['en-GB'] = 'Size';
-        $lngSize['en-US'] = 'Size';
-        $lngSize['fr-FR'] = 'Taille';
-        $lngSize['pl-PL'] = 'Rozmiar';
-        $lngSize['es-ES'] = 'Talla';
-        $lngSize['de-DE'] = 'Größe';
-        $lngSize['ru-RU'] = 'Размер';
-        $lngSize['nl-NL'] = 'Grootte';
-        $lngSize['ro-RO'] = 'Mărimea';
-        $lngSize['et-EE'] = 'Suurus';
-        $lngSize['hu-HU'] = 'Méret';
-        $lngSize['sv-SE'] = 'Storlek';
-        $lngSize['sk-SK'] = 'veľkosť';
-        $lngSize['cs-CZ'] = 'Velikost';
-        $lngSize['pt-PT'] = 'Tamanho';
+        $lngSize['it'] = 'Taglia';
+        $lngSize['en'] = 'Size';
+        $lngSize['gb'] = 'Size';
+        $lngSize['fr'] = 'Taille';
+        $lngSize['pl'] = 'Rozmiar';
+        $lngSize['es'] = 'Talla';
+        $lngSize['de'] = 'Größe';
+        $lngSize['ru'] = 'Размер';
+        $lngSize['nl'] = 'Grootte';
+        $lngSize['ro'] = 'Mărimea';
+        $lngSize['et'] = 'Suurus';
+        $lngSize['hu'] = 'Méret';
+        $lngSize['sv'] = 'Storlek';
+        $lngSize['sk'] = 'veľkosť';
+        $lngSize['cs'] = 'Velikost';
+        $lngSize['pt'] = 'Tamanho';
 
         $lngGender = [];
-        $lngGender['it-IT'] = 'Genere';
-        $lngGender['en-GB'] = 'Gender';
-        $lngGender['en-US'] = 'Gender';
-        $lngGender['fr-FR'] = 'Le sexe';
-        $lngGender['pl-PL'] = 'Płeć';
-        $lngGender['es-ES'] = 'Género';
-        $lngGender['de-DE'] = 'Geschlecht';
-        $lngGender['ru-RU'] = 'Пол';
-        $lngGender['nl-NL'] = 'Geslacht';
-        $lngGender['ro-RO'] = 'Sex';
-        $lngGender['et-EE'] = 'Sugu';
-        $lngGender['hu-HU'] = 'Nem';
-        $lngGender['sv-SE'] = 'Kön';
-        $lngGender['sk-SK'] = 'Rod';
-        $lngGender['cs-CZ'] = 'Rod';
-        $lngGender['pt-PT'] = 'Gênero';
+        $lngGender['it'] = 'Genere';
+        $lngGender['en'] = 'Gender';
+        $lngGender['gb'] = 'Gender';
+        $lngGender['fr'] = 'Le sexe';
+        $lngGender['pl'] = 'Płeć';
+        $lngGender['es'] = 'Género';
+        $lngGender['de'] = 'Geschlecht';
+        $lngGender['ru'] = 'Пол';
+        $lngGender['nl'] = 'Geslacht';
+        $lngGender['ro'] = 'Sex';
+        $lngGender['et'] = 'Sugu';
+        $lngGender['hu'] = 'Nem';
+        $lngGender['sv'] = 'Kön';
+        $lngGender['sk'] = 'Rod';
+        $lngGender['cs'] = 'Rod';
+        $lngGender['pt'] = 'Gênero';
 
         $lngColor = [];
-        $lngColor['it-IT'] = 'Colore';
-        $lngColor['en-GB'] = 'Color';
-        $lngColor['en-US'] = 'Color';
-        $lngColor['fr-FR'] = 'Couleur';
-        $lngColor['pl-PL'] = 'Kolor';
-        $lngColor['es-ES'] = 'Color';
-        $lngColor['de-DE'] = 'Farbe';
-        $lngColor['ru-RU'] = 'цвет';
-        $lngColor['nl-NL'] = 'Kleur';
-        $lngColor['ro-RO'] = 'Culoare';
-        $lngColor['et-EE'] = 'Värv';
-        $lngColor['hu-HU'] = 'Szín';
-        $lngColor['sv-SE'] = 'Färg';
-        $lngColor['sk-SK'] = 'Farba';
-        $lngColor['cs-CZ'] = 'Barva';
-        $lngColor['pt-PT'] = 'Cor';
+        $lngColor['it'] = 'Colore';
+        $lngColor['en'] = 'Color';
+        $lngColor['gb'] = 'Color';
+        $lngColor['fr'] = 'Couleur';
+        $lngColor['pl'] = 'Kolor';
+        $lngColor['es'] = 'Color';
+        $lngColor['de'] = 'Farbe';
+        $lngColor['ru'] = 'цвет';
+        $lngColor['nl'] = 'Kleur';
+        $lngColor['ro'] = 'Culoare';
+        $lngColor['et'] = 'Värv';
+        $lngColor['hu'] = 'Szín';
+        $lngColor['sv'] = 'Färg';
+        $lngColor['sk'] = 'Farba';
+        $lngColor['cs'] = 'Barva';
+        $lngColor['pt'] = 'Cor';
 
         $lngSeason = [];
-        $lngSeason['it-IT'] = 'Stagione';
-        $lngSeason['en-GB'] = 'Season';
-        $lngSeason['en-US'] = 'Season';
-        $lngSeason['fr-FR'] = 'Saison';
-        $lngSeason['pl-PL'] = 'Pora roku';
-        $lngSeason['es-ES'] = 'Temporada';
-        $lngSeason['de-DE'] = 'Jahreszeit';
-        $lngSeason['ru-RU'] = 'Время года';
-        $lngSeason['nl-NL'] = 'Seizoen';
-        $lngSeason['ro-RO'] = 'Sezon';
-        $lngSeason['et-EE'] = 'Hooaeg';
-        $lngSeason['hu-HU'] = 'Évszak';
-        $lngSeason['sv-SE'] = 'Säsong';
-        $lngSeason['sk-SK'] = 'Sezóna';
-        $lngSeason['cs-CZ'] = 'Sezóna';
-        $lngSeason['pt-PT'] = 'Estação';
+        $lngSeason['it'] = 'Stagione';
+        $lngSeason['en'] = 'Season';
+        $lngSeason['gb'] = 'Season';
+        $lngSeason['fr'] = 'Saison';
+        $lngSeason['pl'] = 'Pora roku';
+        $lngSeason['es'] = 'Temporada';
+        $lngSeason['de'] = 'Jahreszeit';
+        $lngSeason['ru'] = 'Время года';
+        $lngSeason['nl'] = 'Seizoen';
+        $lngSeason['ro'] = 'Sezon';
+        $lngSeason['et'] = 'Hooaeg';
+        $lngSeason['hu'] = 'Évszak';
+        $lngSeason['sv'] = 'Säsong';
+        $lngSeason['sk'] = 'Sezóna';
+        $lngSeason['cs'] = 'Sezóna';
+        $lngSeason['pt'] = 'Estação';
 
         $flgSize = true;
         $flgGender = true;
@@ -175,112 +175,112 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $features = Feature::getFeatures($default_language['id_lang']);
         foreach ($features as $feature) {
-            if($feature['name'] == $lngSize[$default_language['locale']])
+            if($feature['name'] == $lngSize[$default_language['iso_code']])
                 $flgSize = false;
-            if($feature['name'] == $lngGender[$default_language['locale']])
+            if($feature['name'] == $lngGender[$default_language['iso_code']])
                 $flgGender = false;
-            if($feature['name'] == $lngColor[$default_language['locale']])
+            if($feature['name'] == $lngColor[$default_language['iso_code']])
                 $flgColor = false;
-            if($feature['name'] == $lngSeason[$default_language['locale']])
+            if($feature['name'] == $lngSeason[$default_language['iso_code']])
                 $flgSeason = false;
         }
         if($flgSize) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $lngSize[$language['locale']];
+                $feature->name[$language['id_lang']] = $lngSize[$language['iso_code']];
             $feature->add();
         }
         if($flgGender) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $lngGender[$language['locale']];
+                $feature->name[$language['id_lang']] = $lngGender[$language['iso_code']];
             $feature->add();
         }
         if($flgColor) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $lngColor[$language['locale']];
+                $feature->name[$language['id_lang']] = $lngColor[$language['iso_code']];
             $feature->add();
         }
         if($flgSeason) {
             $feature = new Feature();
             foreach ($languages as $language)
-                $feature->name[$language['id_lang']] = $lngSeason[$language['locale']];
+                $feature->name[$language['id_lang']] = $lngSeason[$language['iso_code']];
             $feature->add();
         }
     }
     public function installAttributes() {
         $lngSize = [];
-        $lngSize['it-IT'] = 'Taglia';
-        $lngSize['en-GB'] = 'Size';
-        $lngSize['en-US'] = 'Size';
-        $lngSize['fr-FR'] = 'Taille';
-        $lngSize['pl-PL'] = 'Rozmiar';
-        $lngSize['es-ES'] = 'Talla';
-        $lngSize['de-DE'] = 'Größe';
-        $lngSize['ru-RU'] = 'Размер';
-        $lngSize['nl-NL'] = 'Grootte';
-        $lngSize['ro-RO'] = 'Mărimea';
-        $lngSize['et-EE'] = 'Suurus';
-        $lngSize['hu-HU'] = 'Méret';
-        $lngSize['sv-SE'] = 'Storlek';
-        $lngSize['sk-SK'] = 'veľkosť';
-        $lngSize['cs-CZ'] = 'Velikost';
-        $lngSize['pt-PT'] = 'Tamanho';
+        $lngSize['it'] = 'Taglia';
+        $lngSize['en'] = 'Size';
+        $lngSize['gb'] = 'Size';
+        $lngSize['fr'] = 'Taille';
+        $lngSize['pl'] = 'Rozmiar';
+        $lngSize['es'] = 'Talla';
+        $lngSize['de'] = 'Größe';
+        $lngSize['ru'] = 'Размер';
+        $lngSize['nl'] = 'Grootte';
+        $lngSize['ro'] = 'Mărimea';
+        $lngSize['et'] = 'Suurus';
+        $lngSize['hu'] = 'Méret';
+        $lngSize['sv'] = 'Storlek';
+        $lngSize['sk'] = 'veľkosť';
+        $lngSize['cs'] = 'Velikost';
+        $lngSize['pt'] = 'Tamanho';
 
         $lngGender = [];
-        $lngGender['it-IT'] = 'Genere';
-        $lngGender['en-GB'] = 'Gender';
-        $lngGender['en-US'] = 'Gender';
-        $lngGender['fr-FR'] = 'Le sexe';
-        $lngGender['pl-PL'] = 'Płeć';
-        $lngGender['es-ES'] = 'Género';
-        $lngGender['de-DE'] = 'Geschlecht';
-        $lngGender['ru-RU'] = 'Пол';
-        $lngGender['nl-NL'] = 'Geslacht';
-        $lngGender['ro-RO'] = 'Sex';
-        $lngGender['et-EE'] = 'Sugu';
-        $lngGender['hu-HU'] = 'Nem';
-        $lngGender['sv-SE'] = 'Kön';
-        $lngGender['sk-SK'] = 'Rod';
-        $lngGender['cs-CZ'] = 'Rod';
-        $lngGender['pt-PT'] = 'Gênero';
+        $lngGender['it'] = 'Genere';
+        $lngGender['en'] = 'Gender';
+        $lngGender['gb'] = 'Gender';
+        $lngGender['fr'] = 'Le sexe';
+        $lngGender['pl'] = 'Płeć';
+        $lngGender['es'] = 'Género';
+        $lngGender['de'] = 'Geschlecht';
+        $lngGender['ru'] = 'Пол';
+        $lngGender['nl'] = 'Geslacht';
+        $lngGender['ro'] = 'Sex';
+        $lngGender['et'] = 'Sugu';
+        $lngGender['hu'] = 'Nem';
+        $lngGender['sv'] = 'Kön';
+        $lngGender['sk'] = 'Rod';
+        $lngGender['cs'] = 'Rod';
+        $lngGender['pt'] = 'Gênero';
 
         $lngColor = [];
-        $lngColor['it-IT'] = 'Colore';
-        $lngColor['en-GB'] = 'Color';
-        $lngColor['en-US'] = 'Color';
-        $lngColor['fr-FR'] = 'Couleur';
-        $lngColor['pl-PL'] = 'Kolor';
-        $lngColor['es-ES'] = 'Color';
-        $lngColor['de-DE'] = 'Farbe';
-        $lngColor['ru-RU'] = 'цвет';
-        $lngColor['nl-NL'] = 'Kleur';
-        $lngColor['ro-RO'] = 'Culoare';
-        $lngColor['et-EE'] = 'Värv';
-        $lngColor['hu-HU'] = 'Szín';
-        $lngColor['sv-SE'] = 'Färg';
-        $lngColor['sk-SK'] = 'Farba';
-        $lngColor['cs-CZ'] = 'Barva';
-        $lngColor['pt-PT'] = 'Cor';
+        $lngColor['it'] = 'Colore';
+        $lngColor['en'] = 'Color';
+        $lngColor['gb'] = 'Color';
+        $lngColor['fr'] = 'Couleur';
+        $lngColor['pl'] = 'Kolor';
+        $lngColor['es'] = 'Color';
+        $lngColor['de'] = 'Farbe';
+        $lngColor['ru'] = 'цвет';
+        $lngColor['nl'] = 'Kleur';
+        $lngColor['ro'] = 'Culoare';
+        $lngColor['et'] = 'Värv';
+        $lngColor['hu'] = 'Szín';
+        $lngColor['sv'] = 'Färg';
+        $lngColor['sk'] = 'Farba';
+        $lngColor['cs'] = 'Barva';
+        $lngColor['pt'] = 'Cor';
 
         $lngSeason = [];
-        $lngSeason['it-IT'] = 'Stagione';
-        $lngSeason['en-GB'] = 'Season';
-        $lngSeason['en-US'] = 'Season';
-        $lngSeason['fr-FR'] = 'Saison';
-        $lngSeason['pl-PL'] = 'Pora roku';
-        $lngSeason['es-ES'] = 'Temporada';
-        $lngSeason['de-DE'] = 'Jahreszeit';
-        $lngSeason['ru-RU'] = 'Время года';
-        $lngSeason['nl-NL'] = 'Seizoen';
-        $lngSeason['ro-RO'] = 'Sezon';
-        $lngSeason['et-EE'] = 'Hooaeg';
-        $lngSeason['hu-HU'] = 'Évszak';
-        $lngSeason['sv-SE'] = 'Säsong';
-        $lngSeason['sk-SK'] = 'Sezóna';
-        $lngSeason['cs-CZ'] = 'Sezóna';
-        $lngSeason['pt-PT'] = 'Estação';
+        $lngSeason['it'] = 'Stagione';
+        $lngSeason['en'] = 'Season';
+        $lngSeason['gb'] = 'Season';
+        $lngSeason['fr'] = 'Saison';
+        $lngSeason['pl'] = 'Pora roku';
+        $lngSeason['es'] = 'Temporada';
+        $lngSeason['de'] = 'Jahreszeit';
+        $lngSeason['ru'] = 'Время года';
+        $lngSeason['nl'] = 'Seizoen';
+        $lngSeason['ro'] = 'Sezon';
+        $lngSeason['et'] = 'Hooaeg';
+        $lngSeason['hu'] = 'Évszak';
+        $lngSeason['sv'] = 'Säsong';
+        $lngSeason['sk'] = 'Sezóna';
+        $lngSeason['cs'] = 'Sezóna';
+        $lngSeason['pt'] = 'Estação';
 
         $flgSize = true;
         $flgGender = true;
@@ -290,20 +290,20 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
         foreach ($attributes as $attribute) {
-            if($attribute['name'] == $lngSize[$default_language['locale']])
+            if($attribute['name'] == $lngSize[$default_language['iso_code']])
                 $flgSize = false;
-            if($attribute['name'] == $lngGender[$default_language['locale']])
+            if($attribute['name'] == $lngGender[$default_language['iso_code']])
                 $flgGender = false;
-            if($attribute['name'] == $lngColor[$default_language['locale']])
+            if($attribute['name'] == $lngColor[$default_language['iso_code']])
                 $flgColor = false;
-            if($attribute['name'] == $lngSeason[$default_language['locale']])
+            if($attribute['name'] == $lngSeason[$default_language['iso_code']])
                 $flgSeason = false;
         }
         if ($flgSize) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngSize[$lang['locale']];
-                $newGroup->public_name[$lang['id_lang']] = $lngSize[$lang['locale']];
+                $newGroup->name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
+                $newGroup->public_name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
             }
             $newGroup->group_type = 'select';
             $newGroup->save();
@@ -312,8 +312,8 @@ class Bdroppy extends Module
         if ($flgGender) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngGender[$lang['locale']];
-                $newGroup->public_name[$lang['id_lang']] = $lngGender[$lang['locale']];
+                $newGroup->name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
+                $newGroup->public_name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
             }
             $newGroup->group_type = 'select';
             $newGroup->save();
@@ -322,8 +322,8 @@ class Bdroppy extends Module
         if ($flgColor) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngColor[$lang['locale']];
-                $newGroup->public_name[$lang['id_lang']] = $lngColor[$lang['locale']];
+                $newGroup->name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
+                $newGroup->public_name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
             }
             $newGroup->group_type = 'color';
             $newGroup->save();
@@ -332,8 +332,8 @@ class Bdroppy extends Module
         if ($flgSeason) {
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngSeason[$lang['locale']];
-                $newGroup->public_name[$lang['id_lang']] = $lngSeason[$lang['locale']];
+                $newGroup->name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
+                $newGroup->public_name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
             }
             $newGroup->group_type = 'select';
             $newGroup->save();

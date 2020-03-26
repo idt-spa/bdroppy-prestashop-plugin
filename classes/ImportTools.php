@@ -636,11 +636,27 @@ class BdroppyImportTools
             $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
 
+            $langs = [];
+            $langs['en'] = 'en_US';
+            $langs['gb'] = 'en_US';
+            $langs['it'] = 'it_IT';
+            $langs['fr'] = 'fr_FR';
+            $langs['pl'] = 'pl_PL';
+            $langs['es'] = 'es_ES';
+            $langs['de'] = 'de_DE';
+            $langs['ru'] = 'ru_RU';
+            $langs['nl'] = 'nl_NL';
+            $langs['ro'] = 'ro_RO';
+            $langs['et'] = 'et_EE';
+            $langs['hu'] = 'hu_HU';
+            $langs['sv'] = 'sv_SE';
+            $langs['sk'] = 'sk_SK';
+            $langs['cs'] = 'cs_CZ';
+            $langs['pt'] = 'pt_PT';
+
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                $langCode = str_replace('-', '_', $lang['locale']);
-                if($langCode == 'en_GB')
-                    $langCode = 'en_US';
+                $langCode = $langs[$lang['iso_code']];
                 $name = '';
                 if(Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
                     $name = $productData['brand'] . ' - ' . $productData['name'];
@@ -674,91 +690,89 @@ class BdroppyImportTools
             $product->updateCategories($categories);
 
             $lngSize = [];
-            $lngSize['it-IT'] = 'Taglia';
-            $lngSize['en-GB'] = 'Size';
-            $lngSize['en-US'] = 'Size';
-            $lngSize['fr-FR'] = 'Taille';
-            $lngSize['pl-PL'] = 'Rozmiar';
-            $lngSize['es-ES'] = 'Talla';
-            $lngSize['de-DE'] = 'Größe';
-            $lngSize['ru-RU'] = 'Размер';
-            $lngSize['nl-NL'] = 'Grootte';
-            $lngSize['ro-RO'] = 'Mărimea';
-            $lngSize['et-EE'] = 'Suurus';
-            $lngSize['hu-HU'] = 'Méret';
-            $lngSize['sv-SE'] = 'Storlek';
-            $lngSize['sk-SK'] = 'veľkosť';
-            $lngSize['cs-CZ'] = 'Velikost';
-            $lngSize['pt-PT'] = 'Tamanho';
+            $lngSize['it'] = 'Taglia';
+            $lngSize['en'] = 'Size';
+            $lngSize['gb'] = 'Size';
+            $lngSize['fr'] = 'Taille';
+            $lngSize['pl'] = 'Rozmiar';
+            $lngSize['es'] = 'Talla';
+            $lngSize['de'] = 'Größe';
+            $lngSize['ru'] = 'Размер';
+            $lngSize['nl'] = 'Grootte';
+            $lngSize['ro'] = 'Mărimea';
+            $lngSize['et'] = 'Suurus';
+            $lngSize['hu'] = 'Méret';
+            $lngSize['sv'] = 'Storlek';
+            $lngSize['sk'] = 'veľkosť';
+            $lngSize['cs'] = 'Velikost';
+            $lngSize['pt'] = 'Tamanho';
 
             $lngGender = [];
-            $lngGender['it-IT'] = 'Genere';
-            $lngGender['en-GB'] = 'Gender';
-            $lngGender['en-US'] = 'Gender';
-            $lngGender['fr-FR'] = 'Le sexe';
-            $lngGender['pl-PL'] = 'Płeć';
-            $lngGender['es-ES'] = 'Género';
-            $lngGender['de-DE'] = 'Geschlecht';
-            $lngGender['ru-RU'] = 'Пол';
-            $lngGender['nl-NL'] = 'Geslacht';
-            $lngGender['ro-RO'] = 'Sex';
-            $lngGender['et-EE'] = 'Sugu';
-            $lngGender['hu-HU'] = 'Nem';
-            $lngGender['sv-SE'] = 'Kön';
-            $lngGender['sk-SK'] = 'Rod';
-            $lngGender['cs-CZ'] = 'Rod';
-            $lngGender['pt-PT'] = 'Gênero';
+            $lngGender['it'] = 'Genere';
+            $lngGender['en'] = 'Gender';
+            $lngGender['gb'] = 'Gender';
+            $lngGender['fr'] = 'Le sexe';
+            $lngGender['pl'] = 'Płeć';
+            $lngGender['es'] = 'Género';
+            $lngGender['de'] = 'Geschlecht';
+            $lngGender['ru'] = 'Пол';
+            $lngGender['nl'] = 'Geslacht';
+            $lngGender['ro'] = 'Sex';
+            $lngGender['et'] = 'Sugu';
+            $lngGender['hu'] = 'Nem';
+            $lngGender['sv'] = 'Kön';
+            $lngGender['sk'] = 'Rod';
+            $lngGender['cs'] = 'Rod';
+            $lngGender['pt'] = 'Gênero';
 
             $lngColor = [];
-            $lngColor['it-IT'] = 'Colore';
-            $lngColor['en-GB'] = 'Color';
-            $lngColor['en-US'] = 'Color';
-            $lngColor['fr-FR'] = 'Couleur';
-            $lngColor['pl-PL'] = 'Kolor';
-            $lngColor['es-ES'] = 'Color';
-            $lngColor['de-DE'] = 'Farbe';
-            $lngColor['ru-RU'] = 'цвет';
-            $lngColor['nl-NL'] = 'Kleur';
-            $lngColor['ro-RO'] = 'Culoare';
-            $lngColor['et-EE'] = 'Värv';
-            $lngColor['hu-HU'] = 'Szín';
-            $lngColor['sv-SE'] = 'Färg';
-            $lngColor['sk-SK'] = 'Farba';
-            $lngColor['cs-CZ'] = 'Barva';
-            $lngColor['pt-PT'] = 'Cor';
+            $lngColor['it'] = 'Colore';
+            $lngColor['en'] = 'Color';
+            $lngColor['gb'] = 'Color';
+            $lngColor['fr'] = 'Couleur';
+            $lngColor['pl'] = 'Kolor';
+            $lngColor['es'] = 'Color';
+            $lngColor['de'] = 'Farbe';
+            $lngColor['ru'] = 'цвет';
+            $lngColor['nl'] = 'Kleur';
+            $lngColor['ro'] = 'Culoare';
+            $lngColor['et'] = 'Värv';
+            $lngColor['hu'] = 'Szín';
+            $lngColor['sv'] = 'Färg';
+            $lngColor['sk'] = 'Farba';
+            $lngColor['cs'] = 'Barva';
+            $lngColor['pt'] = 'Cor';
 
             $lngSeason = [];
-            $lngSeason['it-IT'] = 'Stagione';
-            $lngSeason['en-GB'] = 'Season';
-            $lngSeason['en-US'] = 'Season';
-            $lngSeason['fr-FR'] = 'Saison';
-            $lngSeason['pl-PL'] = 'Pora roku';
-            $lngSeason['es-ES'] = 'Temporada';
-            $lngSeason['de-DE'] = 'Jahreszeit';
-            $lngSeason['ru-RU'] = 'Время года';
-            $lngSeason['nl-NL'] = 'Seizoen';
-            $lngSeason['ro-RO'] = 'Sezon';
-            $lngSeason['et-EE'] = 'Hooaeg';
-            $lngSeason['hu-HU'] = 'Évszak';
-            $lngSeason['sv-SE'] = 'Säsong';
-            $lngSeason['sk-SK'] = 'Sezóna';
-            $lngSeason['cs-CZ'] = 'Sezóna';
-            $lngSeason['pt-PT'] = 'Estação';
+            $lngSeason['it'] = 'Stagione';
+            $lngSeason['en'] = 'Season';
+            $lngSeason['gb'] = 'Season';
+            $lngSeason['fr'] = 'Saison';
+            $lngSeason['pl'] = 'Pora roku';
+            $lngSeason['es'] = 'Temporada';
+            $lngSeason['de'] = 'Jahreszeit';
+            $lngSeason['ru'] = 'Время года';
+            $lngSeason['nl'] = 'Seizoen';
+            $lngSeason['ro'] = 'Sezon';
+            $lngSeason['et'] = 'Hooaeg';
+            $lngSeason['hu'] = 'Évszak';
+            $lngSeason['sv'] = 'Säsong';
+            $lngSeason['sk'] = 'Sezóna';
+            $lngSeason['cs'] = 'Sezóna';
+            $lngSeason['pt'] = 'Estação';
 
             foreach ($languages as $lang) {
-                $langCode = str_replace('-', '_', $lang['locale']);
-                if ($langCode == 'en_GB')
-                    $langCode = 'en_US';
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSize[$lang['locale']]."';";
+                $langCode = $langs[$lang['iso_code']];
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
                 $sizeFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngColor[$lang['locale']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngColor[$lang['iso_code']]."';";
                 $colorFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngGender[$lang['locale']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngGender[$lang['iso_code']]."';";
                 $genderFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['locale']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
                 $sizeFeatureId = $sizeFeature[0]['id_feature'];
@@ -845,6 +859,23 @@ class BdroppyImportTools
             $xmlModels = $xmlProduct->models;
             $modelCount = 0;
 
+            $langs = [];
+            $langs['en'] = 'en_US';
+            $langs['gb'] = 'en_US';
+            $langs['it'] = 'it_IT';
+            $langs['fr'] = 'fr_FR';
+            $langs['pl'] = 'pl_PL';
+            $langs['es'] = 'es_ES';
+            $langs['de'] = 'de_DE';
+            $langs['ru'] = 'ru_RU';
+            $langs['nl'] = 'nl_NL';
+            $langs['ro'] = 'ro_RO';
+            $langs['et'] = 'et_EE';
+            $langs['hu'] = 'hu_HU';
+            $langs['sv'] = 'sv_SE';
+            $langs['sk'] = 'sk_SK';
+            $langs['cs'] = 'cs_CZ';
+            $langs['pt'] = 'pt_PT';
             $languages = Language::getLanguages(false);
             $first = true;
             foreach ($xmlModels as $model) {
@@ -866,9 +897,7 @@ class BdroppyImportTools
                     } else {
                         $attribute = new Attribute();
                         foreach ($languages as $lang) {
-                            $langCode = str_replace('-', '_', $lang['locale']);
-                            if($langCode == 'en_GB')
-                                $langCode = 'en_US';
+                            $langCode = $langs[$lang['iso_code']];
                             $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
                         }
                         $attribute->color = self::getColor($xmlProduct, 'en_US');

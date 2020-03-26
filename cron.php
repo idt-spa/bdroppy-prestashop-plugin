@@ -35,10 +35,26 @@ class BdroppyCron
             header('Access-Control-Allow-Origin: *');
             @ini_set('max_execution_time', 100000);
 
+            $langs = [];
+            $langs['en'] = 'en_US';
+            $langs['gb'] = 'en_US';
+            $langs['it'] = 'it_IT';
+            $langs['fr'] = 'fr_FR';
+            $langs['pl'] = 'pl_PL';
+            $langs['es'] = 'es_ES';
+            $langs['de'] = 'de_DE';
+            $langs['ru'] = 'ru_RU';
+            $langs['nl'] = 'nl_NL';
+            $langs['ro'] = 'ro_RO';
+            $langs['et'] = 'et_EE';
+            $langs['hu'] = 'hu_HU';
+            $langs['sv'] = 'sv_SE';
+            $langs['sk'] = 'sk_SK';
+            $langs['cs'] = 'cs_CZ';
+            $langs['pt'] = 'pt_PT';
+
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-            $default_lang = str_replace('-', '_', $default_language['locale']);
-            if ($default_lang == 'en_GB')
-                $default_lang = 'en_US';
+            $default_lang = $langs[$default_language['iso_code']];
 
             $configurations = array(
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
@@ -189,10 +205,26 @@ class BdroppyCron
             header('Access-Control-Allow-Origin: *');
             @ini_set('max_execution_time', 100000);
 
+            $langs = [];
+            $langs['en'] = 'en_US';
+            $langs['gb'] = 'en_US';
+            $langs['it'] = 'it_IT';
+            $langs['fr'] = 'fr_FR';
+            $langs['pl'] = 'pl_PL';
+            $langs['es'] = 'es_ES';
+            $langs['de'] = 'de_DE';
+            $langs['ru'] = 'ru_RU';
+            $langs['nl'] = 'nl_NL';
+            $langs['ro'] = 'ro_RO';
+            $langs['et'] = 'et_EE';
+            $langs['hu'] = 'hu_HU';
+            $langs['sv'] = 'sv_SE';
+            $langs['sk'] = 'sk_SK';
+            $langs['cs'] = 'cs_CZ';
+            $langs['pt'] = 'pt_PT';
+
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-            $default_lang = str_replace('-', '_', $default_language['locale']);
-            if ($default_lang == 'en_GB')
-                $default_lang = 'en_US';
+            $default_lang = $langs[$default_language['iso_code']];
 
             $configurations = array(
                 'BDROPPY_API_URL' => Configuration::get('BDROPPY_API_URL', true),
