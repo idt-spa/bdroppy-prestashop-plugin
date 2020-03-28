@@ -52,6 +52,7 @@ class BdroppyCron
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['fi'] = 'fi_FI';
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
@@ -234,6 +235,7 @@ class BdroppyCron
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['fi'] = 'fi_FI';
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';

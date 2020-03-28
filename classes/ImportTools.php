@@ -654,6 +654,7 @@ class BdroppyImportTools
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['fi'] = 'fi_FI';
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
@@ -710,7 +711,7 @@ class BdroppyImportTools
             $lngSize['sk'] = 'veľkosť';
             $lngSize['cs'] = 'Velikost';
             $lngSize['pt'] = 'Tamanho';
-            $lngSize['en'] = 'Size';
+            $lngSize['fi'] = 'Koko';
             $lngSize['bg'] = 'размер';
             $lngSize['da'] = 'Størrelse';
             $lngSize['lt'] = 'Dydis';
@@ -732,6 +733,7 @@ class BdroppyImportTools
             $lngGender['sk'] = 'Rod';
             $lngGender['cs'] = 'Rod';
             $lngGender['pt'] = 'Gênero';
+            $lngGender['fi'] = 'sukupuoli';
             $lngGender['bg'] = 'пол';
             $lngGender['da'] = 'Køn';
             $lngGender['lt'] = 'Lytis';
@@ -753,6 +755,7 @@ class BdroppyImportTools
             $lngColor['sk'] = 'Farba';
             $lngColor['cs'] = 'Barva';
             $lngColor['pt'] = 'Cor';
+            $lngColor['fi'] = 'Väri';
             $lngColor['bg'] = 'цвят';
             $lngColor['da'] = 'Farve';
             $lngColor['lt'] = 'Spalva';
@@ -774,6 +777,7 @@ class BdroppyImportTools
             $lngSeason['sk'] = 'Sezóna';
             $lngSeason['cs'] = 'Sezóna';
             $lngSeason['pt'] = 'Estação';
+            $lngSeason['fi'] = 'Kausi';
             $lngSeason['bg'] = 'сезон';
             $lngSeason['da'] = 'Sæson';
             $lngSeason['lt'] = 'Sezonas';
@@ -893,6 +897,7 @@ class BdroppyImportTools
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['fi'] = 'fi_FI';
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
