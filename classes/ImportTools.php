@@ -136,6 +136,7 @@ class BdroppyImportTools
                 } else {
                     $product3 = self::importModels($xmlProduct, $product, $default_lang);
                 }
+                $product->unity = Configuration::get('BDROPPY_CATALOG');
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
@@ -653,6 +654,9 @@ class BdroppyImportTools
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['bg'] = 'bg_BG';
+            $langs['da'] = 'da_DK';
+            $langs['lt'] = 'lt_LT';
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
@@ -706,6 +710,10 @@ class BdroppyImportTools
             $lngSize['sk'] = 'veľkosť';
             $lngSize['cs'] = 'Velikost';
             $lngSize['pt'] = 'Tamanho';
+            $lngSize['en'] = 'Size';
+            $lngSize['bg'] = 'размер';
+            $lngSize['da'] = 'Størrelse';
+            $lngSize['lt'] = 'Dydis';
 
             $lngGender = [];
             $lngGender['it'] = 'Genere';
@@ -724,6 +732,9 @@ class BdroppyImportTools
             $lngGender['sk'] = 'Rod';
             $lngGender['cs'] = 'Rod';
             $lngGender['pt'] = 'Gênero';
+            $lngGender['bg'] = 'пол';
+            $lngGender['da'] = 'Køn';
+            $lngGender['lt'] = 'Lytis';
 
             $lngColor = [];
             $lngColor['it'] = 'Colore';
@@ -742,6 +753,9 @@ class BdroppyImportTools
             $lngColor['sk'] = 'Farba';
             $lngColor['cs'] = 'Barva';
             $lngColor['pt'] = 'Cor';
+            $lngColor['bg'] = 'цвят';
+            $lngColor['da'] = 'Farve';
+            $lngColor['lt'] = 'Spalva';
 
             $lngSeason = [];
             $lngSeason['it'] = 'Stagione';
@@ -760,6 +774,9 @@ class BdroppyImportTools
             $lngSeason['sk'] = 'Sezóna';
             $lngSeason['cs'] = 'Sezóna';
             $lngSeason['pt'] = 'Estação';
+            $lngSeason['bg'] = 'сезон';
+            $lngSeason['da'] = 'Sæson';
+            $lngSeason['lt'] = 'Sezonas';
 
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
@@ -876,6 +893,10 @@ class BdroppyImportTools
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['bg'] = 'bg_BG';
+            $langs['da'] = 'da_DK';
+            $langs['lt'] = 'lt_LT';
+
             $languages = Language::getLanguages(false);
             $first = true;
             foreach ($xmlModels as $model) {

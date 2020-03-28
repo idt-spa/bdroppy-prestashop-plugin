@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.17';
+        $this->version = '1.0.18';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -112,6 +112,9 @@ class Bdroppy extends Module
         $lngSize['sk'] = 'veľkosť';
         $lngSize['cs'] = 'Velikost';
         $lngSize['pt'] = 'Tamanho';
+        $lngSize['bg'] = 'размер';
+        $lngSize['da'] = 'Størrelse';
+        $lngSize['lt'] = 'Dydis';
 
         $lngGender = [];
         $lngGender['it'] = 'Genere';
@@ -130,6 +133,9 @@ class Bdroppy extends Module
         $lngGender['sk'] = 'Rod';
         $lngGender['cs'] = 'Rod';
         $lngGender['pt'] = 'Gênero';
+        $lngGender['bg'] = 'пол';
+        $lngGender['da'] = 'Køn';
+        $lngGender['lt'] = 'Lytis';
 
         $lngColor = [];
         $lngColor['it'] = 'Colore';
@@ -148,6 +154,9 @@ class Bdroppy extends Module
         $lngColor['sk'] = 'Farba';
         $lngColor['cs'] = 'Barva';
         $lngColor['pt'] = 'Cor';
+        $lngColor['bg'] = 'цвят';
+        $lngColor['da'] = 'Farve';
+        $lngColor['lt'] = 'Spalva';
 
         $lngSeason = [];
         $lngSeason['it'] = 'Stagione';
@@ -166,6 +175,9 @@ class Bdroppy extends Module
         $lngSeason['sk'] = 'Sezóna';
         $lngSeason['cs'] = 'Sezóna';
         $lngSeason['pt'] = 'Estação';
+        $lngSeason['bg'] = 'сезон';
+        $lngSeason['da'] = 'Sæson';
+        $lngSeason['lt'] = 'Sezonas';
 
         $flgSize = true;
         $flgGender = true;
@@ -227,6 +239,10 @@ class Bdroppy extends Module
         $lngSize['sk'] = 'veľkosť';
         $lngSize['cs'] = 'Velikost';
         $lngSize['pt'] = 'Tamanho';
+        $lngSize['en'] = 'Size';
+        $lngSize['bg'] = 'размер';
+        $lngSize['da'] = 'Størrelse';
+        $lngSize['lt'] = 'Dydis';
 
         $lngGender = [];
         $lngGender['it'] = 'Genere';
@@ -245,6 +261,9 @@ class Bdroppy extends Module
         $lngGender['sk'] = 'Rod';
         $lngGender['cs'] = 'Rod';
         $lngGender['pt'] = 'Gênero';
+        $lngGender['bg'] = 'пол';
+        $lngGender['da'] = 'Køn';
+        $lngGender['lt'] = 'Lytis';
 
         $lngColor = [];
         $lngColor['it'] = 'Colore';
@@ -263,6 +282,9 @@ class Bdroppy extends Module
         $lngColor['sk'] = 'Farba';
         $lngColor['cs'] = 'Barva';
         $lngColor['pt'] = 'Cor';
+        $lngColor['bg'] = 'цвят';
+        $lngColor['da'] = 'Farve';
+        $lngColor['lt'] = 'Spalva';
 
         $lngSeason = [];
         $lngSeason['it'] = 'Stagione';
@@ -281,6 +303,9 @@ class Bdroppy extends Module
         $lngSeason['sk'] = 'Sezóna';
         $lngSeason['cs'] = 'Sezóna';
         $lngSeason['pt'] = 'Estação';
+        $lngSeason['bg'] = 'сезон';
+        $lngSeason['da'] = 'Sæson';
+        $lngSeason['lt'] = 'Sezonas';
 
         $flgSize = true;
         $flgGender = true;

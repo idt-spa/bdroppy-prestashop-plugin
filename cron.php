@@ -52,6 +52,9 @@ class BdroppyCron
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['bg'] = 'bg_BG';
+            $langs['da'] = 'da_DK';
+            $langs['lt'] = 'lt_LT';
 
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
             $default_lang = $langs[$default_language['iso_code']];
@@ -95,26 +98,35 @@ class BdroppyCron
             if($api_catalog == "-1") {
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                 $delete_products = $db->ExecuteS($sql);
-                foreach ($delete_products as $item) {
-                    switch ($item['sync_status']) {
-                        case 'queued':
-                        case 'delete':
-                            $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                            break;
-                        case 'updated':
-                            $product = new Product($item['ps_product_id']);
-                            $product->delete();
-                            $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                            break;
-                        case 'importing':
-                            if($item['ps_product_id'] == 0) {
+                if($delete_products) {
+                    foreach ($delete_products as $item) {
+                        switch ($item['sync_status']) {
+                            case 'queued':
+                            case 'delete':
                                 $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                            } else {
+                                break;
+                            case 'updated':
                                 $product = new Product($item['ps_product_id']);
                                 $product->delete();
                                 $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
-                            }
-                            break;
+                                break;
+                            case 'importing':
+                                if ($item['ps_product_id'] == 0) {
+                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                } else {
+                                    $product = new Product($item['ps_product_id']);
+                                    $product->delete();
+                                    $db->delete('bdroppy_remoteproduct', "rewix_product_id = '" . $item['rewix_product_id'] . "'");
+                                }
+                                break;
+                        }
+                    }
+                } else {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity='$api_catalog';";
+                    $delete_products = $db->ExecuteS($sql);
+                    foreach ($delete_products as $item) {
+                        $product = new Product($item['id_product']);
+                        $product->delete();
                     }
                 }
             }
@@ -222,6 +234,9 @@ class BdroppyCron
             $langs['sk'] = 'sk_SK';
             $langs['cs'] = 'cs_CZ';
             $langs['pt'] = 'pt_PT';
+            $langs['bg'] = 'bg_BG';
+            $langs['da'] = 'da_DK';
+            $langs['lt'] = 'lt_LT';
 
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
             $default_lang = $langs[$default_language['iso_code']];
