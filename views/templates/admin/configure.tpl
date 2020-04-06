@@ -54,24 +54,28 @@
 						<div class="col-lg-8">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
 							<br>
-							<div id="div_status" style="display: inherit">
+							<div id="div_status">
 								<p><strong>URL</strong> {$base_url}</p>
 								<p><strong>Status</strong> {$txtStatus}</p>
-								<p><button class="btn_change_token">{l s='Change Token' mod='bdroppy'}</button></p>
 							</div>
-							<div id="div_change_token" style="display: none">
+							<div id="div_change_token">
 								<input type="hidden" name="bdroppy_api_url" value="https://prod.bdroppy.com" />
 								<div class="form-group">
-									<label class="control-label col-lg-3" for="simple_product">{l s='Token' mod='bdroppy'}:</label>
+									<label class="control-label col-lg-3" for="simple_product">{l s='Email' mod='bdroppy'}:</label>
 									<div class="col-lg-7">
-										<textarea rows="5" name="bdroppy_token"></textarea>
+										<input type="text" name="bdroppy_api_key" value="{Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label col-lg-3" for="simple_product">{l s='Password' mod='bdroppy'}:</label>
+									<div class="col-lg-7">
+										<input type="password" name="bdroppy_api_password" value="{Configuration::get('BDROPPY_API_PASSWORD')|escape:'htmlall':'UTF-8'}" />
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="control-label col-lg-3" for="simple_product"></label>
 									<div class="col-lg-7">
-										<button type="submit" name="submitApiConfig" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save' mod='bdroppy'}</button>
-										<button class="btn_change_token btn btn-default pull-right"><i class="process-icon-cancel"></i> {l s='Cancel' mod='bdroppy'}</button>
+										<button type="submit" name="submitApiConfig" class="btn btn-default pull-right"><i class="icon-signin"></i> {l s='Login' mod='bdroppy'}</button>
 									</div>
 								</div>
 							</div>
@@ -228,7 +232,7 @@
 						</div>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submitCatalogConfig" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save' mod='bdroppy'}</button>
+						<button type="submit" name="submitCatalogConfig" class="btn btn-default pull-right"><i class="icon-link"></i> {l s='Connect' mod='bdroppy'}</button>
 					</div>
 				</fieldset>
 			</form>

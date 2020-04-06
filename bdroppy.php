@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.18';
+        $this->version = '1.0.19';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -484,21 +484,30 @@ class Bdroppy extends Module
     {
         $output = '';
         $saved = false;
+        $connectCatalog = false;
+        $connectCronTxt = '';
+        $cron_url = $this->getCronURL();
 
         // check if a FORM was submitted using the 'Save Config' button
         if (Tools::isSubmit('submitApiConfig')) {
+            $apiToken = '';
             $apiUrl = (string)Tools::getValue('bdroppy_api_url');
             $apiKey = (string)Tools::getValue('bdroppy_api_key');
-            $apiToken = (string)Tools::getValue('bdroppy_token');
+            $apiPassword = (string)Tools::getValue('bdroppy_api_password');
+            //$apiToken = (string)Tools::getValue('bdroppy_token');
 
-            if ($apiUrl != Configuration::get('BDROPPY_API_URL') || $apiToken != Configuration::get('BDROPPY_TOEKN')) {
-                Configuration::updateValue('BDROPPY_CATALOG', '');
-            }
             Configuration::updateValue('BDROPPY_API_URL', $apiUrl);
             Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
-            if($apiToken !='')
-                Configuration::updateValue('BDROPPY_TOKEN', $apiToken);
-
+            Configuration::updateValue('BDROPPY_API_PASSWORD', $apiPassword);
+            Configuration::updateValue('BDROPPY_TOKEN', '');
+            if ($apiKey != Configuration::get('BDROPPY_API_KEY') || $apiPassword != Configuration::get('BDROPPY_API_PASSWORD') || Configuration::get('BDROPPY_TOKEN') == '') {
+                Configuration::updateValue('BDROPPY_CATALOG', '');
+                $rewixApi = new BdroppyRewixApi();
+                $res = $rewixApi->loginUser();
+                if($res['http_code'] == 200) {
+                    Configuration::updateValue('BDROPPY_TOKEN', $res['data']->token);
+                }
+            }
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
@@ -537,6 +546,16 @@ class Bdroppy extends Module
             $bdroppy_auto_update_prices = (int)Tools::getValue('bdroppy_auto_update_prices');
             Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', $bdroppy_auto_update_prices);
 
+            $rewixApi = new BdroppyRewixApi();
+            $res = $rewixApi->connectUserCatalog();
+            if($res['http_code'] == 200)
+                $connectCatalog = true;
+            $cron = $rewixApi->setCronJob($cron_url);
+            if($cron['http_code'] == 200)
+                if($cron['data'] == 'url_already_exists')
+                    $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
+                else
+                    $connectCronTxt = 'CronJob Added ('. $cron_url. ')';
             $saved = true;
         }
         $errors = "";
@@ -548,7 +567,12 @@ class Bdroppy extends Module
             if ($saved) {
                 $confirmations = $this->displayConfirmation($this->l('Settings updated'));
             }
+            if ($connectCatalog) {
+                $confirmations .= $this->displayConfirmation($this->l('Catalog Connected'));
+            }
         }
+        if($connectCronTxt != '')
+            $confirmations .= $this->displayConfirmation($this->l($connectCronTxt));
 
         $res = AttributeGroup::getAttributesGroups($this->context->language->id);
         //$res = Feature::getFeatures($this->context->language->id);
@@ -578,10 +602,7 @@ class Bdroppy extends Module
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
-        $httpCode = $catalogs['http_code'];
-        $cron_url = "";
-
-        $txtStatus = '<span style="color: red;">Error Code : ' . $httpCode . '</span>';
+        $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs['http_code'] . '</span>';
         if(count($catalogs['catalogs'])>1) {
             /*$rewixApi = new BdroppyRewixApi();
             $userInfo = $rewixApi->getUserInfo();
@@ -652,7 +673,7 @@ class Bdroppy extends Module
             'php_dir'                           => $this->getPHPExecutableFromPath(),
             'cron_command'                      => $this->getCronCommand(),
             'api_token'                         => $api_token,
-            'cron_url'                          => $this->getCronURL(),
+            'cron_url'                          => $cron_url,
             'catalogs'                          => $catalogs['catalogs'],
             'attributes'                        => $attributes,
             'import_image'                      => $import_image,

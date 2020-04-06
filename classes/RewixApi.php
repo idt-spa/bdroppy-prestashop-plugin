@@ -1,18 +1,4 @@
 <?php
-/**
- * NOTICE OF LICENSE.
- *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
- *
- * You must not modify, adapt or create derivative works of this source code
- *
- * @author    Zero11
- * @copyright 2015-2018 Zero11 S.r.l.
- * @license   Proprietary
- */
-
 use BDroppy\Includes\WC\Models\ProductModel;
 
 include_once dirname(__FILE__).'/ImportTools.php';
@@ -104,6 +90,117 @@ class BdroppyRewixApi
         curl_close( $ch );
         if($http_code != 200)
             $this->logger->logDebug( 'getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data );
+        if ($http_code === 200)
+        {
+            $data = json_decode($data);
+        }
+        $ret['http_code'] = $http_code;
+        $ret['data'] = $data;
+        return $ret;
+    }
+
+    public function setCronJob($cron_url) {
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+
+        $header = "Authorization: Bearer " . $api_token;
+        $url = $base_url . '/restful/user_cron';
+        $data = array(
+            'name' => Configuration::get('PS_SHOP_NAME'),
+            'description' => 'auto created by ps module',
+            'url' => $cron_url,
+            'interval' => 2,
+            'status' => 1
+        );
+        $data_string = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $header));
+
+        curl_setopt($ch,CURLOPT_POST, count($data));
+        $data = curl_exec($ch);
+
+        $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+        $curl_error = curl_error( $ch );
+        curl_close( $ch );
+        if($http_code != 200)
+            $this->logger->logDebug( 'loginUser - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data );
+        if ($http_code === 200)
+        {
+            $data = json_decode($data);
+        }
+        $ret['http_code'] = $http_code;
+        $ret['data'] = $data;
+        return $ret;
+    }
+
+    public function loginUser() {
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+
+        $url = $base_url . '/api/auth/login';
+
+        $data = array(
+            'email' => $api_key,
+            'password' => $api_password
+        );
+        $data_string = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+        curl_setopt($ch,CURLOPT_POST, count($data));
+        $data = curl_exec($ch);
+
+        $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+        $curl_error = curl_error( $ch );
+        curl_close( $ch );
+        if($http_code != 200)
+            $this->logger->logDebug( 'loginUser - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data );
+        if ($http_code === 200)
+        {
+            $data = json_decode($data);
+        }
+        $ret['http_code'] = $http_code;
+        $ret['data'] = $data;
+        return $ret;
+    }
+
+    public function connectUserCatalog() {
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_key = Configuration::get('BDROPPY_API_KEY');
+        $api_password = Configuration::get('BDROPPY_API_PASSWORD');
+        $api_catalog = Configuration::get('BDROPPY_CATALOG');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+
+        $url = $base_url . '/restful/user_catalog/'.$api_catalog.'/prestashopPlugin';
+
+        $header = "Authorization: Bearer " . $api_token;
+
+        $data = array(
+            'shopName' => Configuration::get('PS_SHOP_NAME'),
+            'url' => _PS_BASE_URL_.__PS_BASE_URI__
+        );
+        $data_string = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $header));
+
+        curl_setopt($ch,CURLOPT_POST, count($data));
+        $data = curl_exec($ch);
+
+        $http_code  = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+        $curl_error = curl_error( $ch );
+        curl_close( $ch );
+        if($http_code != 200)
+            $this->logger->logDebug( 'connectUserCatalog - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data );
         if ($http_code === 200)
         {
             $data = json_decode($data);
