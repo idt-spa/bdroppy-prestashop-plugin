@@ -113,27 +113,6 @@
 			<form action="" method="post">
 				<fieldset id="my_catalogs" class="{$my_catalogs_form}">
 					<h3 class="tab"> <i class="icon-ok-sign"></i>&nbsp;{l s='My Catalogs' mod='bdroppy'}</h3>
-					<div class="alert alert-info">
-						{l s='Please choose the method used to determine when executing jobs.' mod='bdroppy'}
-						<ol style="margin-top: 1em">
-							<li style="list-style:decimal">
-								{l s='"Server crontab" is the best method but only if your server uses Linux and you have access to crontab. In that case add the line below to your crontab file.' mod='bdroppy'}
-								<br/><pre>*/2 * * * * {$php_dir|escape:'htmlall':'UTF-8'} {$cron_command|escape:'htmlall':'UTF-8'}</pre>
-								<p>"{$php_dir|escape:'htmlall':'UTF-8'}" {l s='is the PHP path on your server. It has been automatically detected and may be wrong. If it doesn\'t work, contact your host.' mod='bdroppy'}</p>
-							</li>
-							<li style="list-style:decimal">
-								{l s='"Webcron service" is a good alternative to crontab but is often not free. Register to a webcron service and configure it to visit the URL below every minutes or the nearest.' mod='bdroppy'}
-								<br/><pre>{$cron_url|escape:'htmlall':'UTF-8'}</pre><br/>
-							</li>
-						</ol>
-						<p style="font-size: 18px;line-height: 30px;color: #000;">
-							{l s="You need a cronjob that make operations when people don't use your website; is an external service than Prestashop and you have to setup on your server or taking an external service like cronjob.com Free plan you can set to 10 minutes and reset every Month, payment version is really cheap and you can set cron every 2 minutes at beginning and 5 to 10 after first catalog import" mod='bdroppy'}
-						</p>
-						<br/>
-						<div align="center">
-							<iframe width="100%" allowfullscreen="allowfullscreen" height="400" src="https://www.youtube.com/embed/lwxpr6AA6Wg?start=18"></iframe>
-						</div>
-					</div>
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Catalog' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
