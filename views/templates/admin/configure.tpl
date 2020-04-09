@@ -15,6 +15,18 @@
 		});
 	});
 </script>
+{$confirmations_tab = ''}
+{$confirmations_form = ''}
+{$my_catalogs_tab = ''}
+{$my_catalogs_form = ''}
+{if $active_tab == 'configurations'}
+	{$confirmations_tab = ' active'}
+	{$confirmations_form = 'show'}
+{/if}
+{if $active_tab == 'my_catalogs'}
+	{$my_catalogs_tab = ' active'}
+	{$my_catalogs_form = 'show'}
+{/if}
 <link href="{$stripeBOCssUrl|escape:'htmlall':'UTF-8'}" rel="stylesheet" type="text/css">
 
 <div class="tabs stripe-module-wrapper">
@@ -39,8 +51,8 @@
 	<div class="row">
 		<div class="sidebar navigation col-md-2">
 			<nav class="list-group categorieList">
-				<a class="list-group-item active" data-id="configurations" href="#configurations"><i class="icon-gear"></i> {l s='Configurations' mod='bdroppy'}</a>
-				<a class="list-group-item" data-id="my_catalogs" href="#my_catalogs"><i class="icon-ok-sign"></i> {l s='My Catalogs' mod='bdroppy'}</a>
+				<a class="list-group-item{$confirmations_tab}" data-id="configurations" href="#configurations"><i class="icon-gear"></i> {l s='Configurations' mod='bdroppy'}</a>
+				<a class="list-group-item{$my_catalogs_tab}" data-id="my_catalogs" href="#my_catalogs"><i class="icon-ok-sign"></i> {l s='My Catalogs' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="status" href="#status"><i class="icon-question-sign"></i> {l s='Status' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="about" href="#about"><i class="icon-info-sign"></i> {l s='About' mod='bdroppy'}</a>
 			</nav>
@@ -48,17 +60,19 @@
 		<div class="panel content-wrap form-horizontal col-lg-10">
 
 			<form action="" method="post">
-				<fieldset id="configurations" class="show">
+				<fieldset id="configurations" class="{$confirmations_form}">
 					<h3 class="tab"> <i class="icon-gear"></i>&nbsp;{l s='Configurations' mod='bdroppy'}</h3>
 					<div class="row">
 						<div class="col-lg-8">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
 							<br>
-							<div id="div_status">
+							<div id="div_status" style="display: inherit">
 								<p><strong>URL</strong> {$base_url}</p>
+								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Status</strong> {$txtStatus}</p>
+								<p><button class="btn_change_token"><i class="icon-signout"></i> {l s='Disconnect' mod='bdroppy'}</button></p>
 							</div>
-							<div id="div_change_token">
+							<div id="div_change_token" style="display: none">
 								<input type="hidden" name="bdroppy_api_url" value="https://prod.bdroppy.com" />
 								<div class="form-group">
 									<label class="control-label col-lg-3" for="simple_product">{l s='Email' mod='bdroppy'}:</label>
@@ -69,13 +83,14 @@
 								<div class="form-group">
 									<label class="control-label col-lg-3" for="simple_product">{l s='Password' mod='bdroppy'}:</label>
 									<div class="col-lg-7">
-										<input type="password" name="bdroppy_api_password" value="{Configuration::get('BDROPPY_API_PASSWORD')|escape:'htmlall':'UTF-8'}" />
+										<input type="password" name="bdroppy_api_password" value="" />
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="control-label col-lg-3" for="simple_product"></label>
 									<div class="col-lg-7">
 										<button type="submit" name="submitApiConfig" class="btn btn-default pull-right"><i class="icon-signin"></i> {l s='Login' mod='bdroppy'}</button>
+										<button class="btn_change_token btn btn-default pull-right"><i class="icon-remove"></i> {l s='Cancel' mod='bdroppy'}</button>
 									</div>
 								</div>
 							</div>
@@ -96,14 +111,14 @@
 			</form>
 
 			<form action="" method="post">
-				<fieldset id="my_catalogs" class="">
+				<fieldset id="my_catalogs" class="{$my_catalogs_form}">
 					<h3 class="tab"> <i class="icon-ok-sign"></i>&nbsp;{l s='My Catalogs' mod='bdroppy'}</h3>
 					<div class="alert alert-info">
 						{l s='Please choose the method used to determine when executing jobs.' mod='bdroppy'}
 						<ol style="margin-top: 1em">
 							<li style="list-style:decimal">
 								{l s='"Server crontab" is the best method but only if your server uses Linux and you have access to crontab. In that case add the line below to your crontab file.' mod='bdroppy'}
-								<br/><pre>*/7 * * * * {$php_dir|escape:'htmlall':'UTF-8'} {$cron_command|escape:'htmlall':'UTF-8'}</pre>
+								<br/><pre>*/2 * * * * {$php_dir|escape:'htmlall':'UTF-8'} {$cron_command|escape:'htmlall':'UTF-8'}</pre>
 								<p>"{$php_dir|escape:'htmlall':'UTF-8'}" {l s='is the PHP path on your server. It has been automatically detected and may be wrong. If it doesn\'t work, contact your host.' mod='bdroppy'}</p>
 							</li>
 							<li style="list-style:decimal">

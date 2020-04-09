@@ -487,6 +487,7 @@ class Bdroppy extends Module
         $connectCatalog = false;
         $connectCronTxt = '';
         $cron_url = $this->getCronURL();
+        $active_tab = 'configurations';
 
         // check if a FORM was submitted using the 'Save Config' button
         if (Tools::isSubmit('submitApiConfig')) {
@@ -508,6 +509,7 @@ class Bdroppy extends Module
                     Configuration::updateValue('BDROPPY_TOKEN', $res['data']->token);
                 }
             }
+            $active_tab = 'configurations';
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
@@ -556,6 +558,7 @@ class Bdroppy extends Module
                     $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
                 else
                     $connectCronTxt = 'CronJob Added ('. $cron_url. ')';
+            $active_tab = 'my_catalogs';
             $saved = true;
         }
         $errors = "";
@@ -662,6 +665,7 @@ class Bdroppy extends Module
             'module_version'                    => $this->version,
             'description_big_html'              => '',
             'description'                       => '',
+            'active_tab'                        => $active_tab,
             'home_url'                          => $home_url,
             'urls'                              => $urls,
             'urls'                              => $urls,
