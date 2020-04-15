@@ -18,6 +18,8 @@
  */
 class BdroppyConfigKeys
 {
+    const ACTIVE_PRODUCT            = 'BDROPPY_ACTIVE_PRODUCT';
+    const CUSTOM_FEATURE            = 'BDROPPY_CUSTOM_FEATURE';
     const IMPORT_IMAGES             = 'BDROPPY_IMPORT_IMAGES';
     const API_URL                   = 'BDROPPY_API_URL';
     const API_KEY                   = 'BDROPPY_API_KEY';

@@ -98,6 +98,7 @@ class BdroppyImportTools
             $product->wholesale_price = round($productData['best_taxable'], 3);
             $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
+            $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             $product->save();
             $refId = (int)$xmlProduct->id;
             self::updateImportedProduct($refId, $product->id);
@@ -137,6 +138,7 @@ class BdroppyImportTools
                     $product3 = self::importModels($xmlProduct, $product, $default_lang);
                 }
                 $product->unity = Configuration::get('BDROPPY_CATALOG');
+                $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
@@ -627,7 +629,6 @@ class BdroppyImportTools
         try {
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
-            $product->active = (int)true;
             $product->weight = (float)$xmlProduct->weight;
 
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
@@ -689,6 +690,7 @@ class BdroppyImportTools
             $product->id_manufacturer = self::getManufacturer($productData['brand']);
             list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $xmlProduct);
             $product->id_category_default = $categoryDefaultId;
+            $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             $product->save();
 
             // updateCategories requires the product to have an id already set
@@ -800,7 +802,7 @@ class BdroppyImportTools
                 $colorFeatureId = $colorFeature[0]['id_feature'];
                 $genderFeatureId = $genderFeature[0]['id_feature'];
                 $seasonFeatureId = $seasonFeature[0]['id_feature'];
-
+                $customFeature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
                     if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($xmlProduct['size']) > 0) {
                         $featureValueId = FeatureValue::addFeatureValueImport(
@@ -808,7 +810,7 @@ class BdroppyImportTools
                             $productData['size'],
                             $product->id,
                             $lang['id_lang'],
-                            true
+                            $customFeature
                         );
                         Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
                     }
@@ -819,7 +821,7 @@ class BdroppyImportTools
                         self::getColor($xmlProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
-                        true
+                        $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
                 }
@@ -829,7 +831,7 @@ class BdroppyImportTools
                         self::getGender($xmlProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
-                        true
+                        $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
                 }
@@ -839,7 +841,7 @@ class BdroppyImportTools
                         self::getSeason($xmlProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
-                        true
+                        $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
                 }

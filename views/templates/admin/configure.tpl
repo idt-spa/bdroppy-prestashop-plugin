@@ -122,6 +122,38 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="active_product">{l s='Active Product' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_active_product" id="bdroppy_active_product_on" value="1" {if $bdroppy_active_product}checked="checked"{/if} type="radio">
+								<label for="bdroppy_active_product_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_active_product" id="bdroppy_active_product_off" value="0" {if !$bdroppy_active_product}checked="checked"{/if} type="radio">
+								<label for="bdroppy_active_product_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="custom_feature">{l s='Custom Feature' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_custom_feature" id="bdroppy_custom_feature_on" value="1" {if $bdroppy_custom_feature}checked="checked"{/if} type="radio">
+								<label for="bdroppy_custom_feature_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_custom_feature" id="bdroppy_custom_feature_off" value="0" {if !$bdroppy_custom_feature}checked="checked"{/if} type="radio">
+								<label for="bdroppy_custom_feature_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Size' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<select name="bdroppy_size" id="bdroppy_size">

@@ -43,6 +43,8 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
                 'BDROPPY_API_KEY' => Configuration::get('BDROPPY_API_KEY', null),
                 'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
                 'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
+                'BDROPPY_ACTIVE_PRODUCT' => Configuration::get('BDROPPY_ACTIVE_PRODUCT', null),
+                'BDROPPY_CUSTOM_FEATURE' => Configuration::get('BDROPPY_CUSTOM_FEATURE', null),
                 'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
                 'BDROPPY_GENDER' => Configuration::get('BDROPPY_GENDER', null),
                 'BDROPPY_COLOR' => Configuration::get('BDROPPY_COLOR', null),
@@ -57,6 +59,8 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             $this->api_key = isset($configurations['BDROPPY_API_KEY']) ? $configurations['BDROPPY_API_KEY'] : '';
             $this->api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
             $this->api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
+            $this->api_active_product = isset($configurations['BDROPPY_ACTIVE_PRODUCT']) ? $configurations['BDROPPY_ACTIVE_PRODUCT'] : '';
+            $this->api_custom_feature = isset($configurations['BDROPPY_CUSTOM_FEATURE']) ? $configurations['BDROPPY_CUSTOM_FEATURE'] : '';
             $this->api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
             $this->api_gender = isset($configurations['BDROPPY_GENDER']) ? $configurations['BDROPPY_GENDER'] : '';
             $this->api_color = isset($configurations['BDROPPY_COLOR']) ? $configurations['BDROPPY_COLOR'] : '';

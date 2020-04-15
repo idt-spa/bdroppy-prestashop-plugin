@@ -515,6 +515,12 @@ class Bdroppy extends Module
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
 
+            $bdroppy_active_product = (string)Tools::getValue('bdroppy_active_product');
+            Configuration::updateValue('BDROPPY_ACTIVE_PRODUCT', $bdroppy_active_product);
+
+            $bdroppy_custom_feature = (string)Tools::getValue('bdroppy_custom_feature');
+            Configuration::updateValue('BDROPPY_CUSTOM_FEATURE', $bdroppy_custom_feature);
+
             $bdroppy_size = (string)Tools::getValue('bdroppy_size');
             Configuration::updateValue('BDROPPY_SIZE', $bdroppy_size);
 
