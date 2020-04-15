@@ -608,6 +608,8 @@ class Bdroppy extends Module
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_key = Configuration::get('BDROPPY_API_KEY');
         $api_token = Configuration::get('BDROPPY_TOKEN');
+        $bdroppy_active_product = Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+        $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
@@ -698,6 +700,8 @@ class Bdroppy extends Module
             'queue_imported'                    => $queue_imported,
             'queue_all'                         => $queue_all,
             'limit_counts'                      => $limit_counts,
+            'bdroppy_active_product'            => $bdroppy_active_product,
+            'bdroppy_custom_feature'            => $bdroppy_custom_feature,
             'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
             'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
