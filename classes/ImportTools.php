@@ -98,7 +98,6 @@ class BdroppyImportTools
             $product->wholesale_price = round($productData['best_taxable'], 3);
             $product->price = round($productData['proposed_price']/$rate, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
-            $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             $product->save();
             $refId = (int)$xmlProduct->id;
             self::updateImportedProduct($refId, $product->id);
