@@ -92,12 +92,13 @@ class BdroppyImportTools
             $xmlProduct = json_decode($res['data']);
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product = new Product($item['ps_product_id']);
-            $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-            $rate = 1+$tax->rate/100;
-            $user_tax = Configuration::get('BDROPPY_USER_TAX');
+            $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
             $product->wholesale_price = round($productData['best_taxable'], 3);
-            $product->price = round($productData['proposed_price']/$rate, 3);
+            $price = $productData['proposed_price'];
+            $price = $price / (1 + $tax->rate / 100);
+            $product->price = round($price, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
+            $product->tax_rate = $tax->rate;
             $product->save();
             $refId = (int)$xmlProduct->id;
             self::updateImportedProduct($refId, $product->id);
@@ -630,12 +631,13 @@ class BdroppyImportTools
             $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
             $product->weight = (float)$xmlProduct->weight;
 
-            $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-            $rate = 1+$tax->rate/100;
-            $user_tax = Configuration::get('BDROPPY_USER_TAX');
+            $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
             $product->wholesale_price = round($productData['best_taxable'], 3);
-            $product->price = round($productData['proposed_price']/$rate, 3);
+            $price = $productData['proposed_price'];
+            $price = $price / (1 + $tax->rate / 100);
+            $product->price = round($price, 3);
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
+            $product->tax_rate = $tax->rate;
 
             $langs = [];
             $langs['en'] = 'en_US';

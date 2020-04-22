@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.20';
+        $this->version = '1.0.21';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -539,6 +539,9 @@ class Bdroppy extends Module
             $bdroppy_import_image = (string)Tools::getValue('bdroppy_import_image');
             Configuration::updateValue('BDROPPY_IMPORT_IMAGE', $bdroppy_import_image);
 
+            $bdroppy_tax_rate = (string)Tools::getValue('bdroppy_tax_rate');
+            Configuration::updateValue('BDROPPY_TAX_RATE', $bdroppy_tax_rate);
+
             $bdroppy_tax_rule = (string)Tools::getValue('bdroppy_tax_rule');
             Configuration::updateValue('BDROPPY_TAX_RULE', $bdroppy_tax_rule);
 
@@ -596,6 +599,11 @@ class Bdroppy extends Module
         $taxes = TaxRulesGroup::getTaxRulesGroups();
         foreach ($taxes as $tax) {
             $tax_rules[$tax['id_tax_rules_group']] = $tax['name'];
+        }
+        $tax_rates = [];
+        $rates = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
+        foreach ($rates as $rate) {
+            $tax_rates[$rate['id_tax']] = $rate['name'];
         }
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
@@ -690,6 +698,7 @@ class Bdroppy extends Module
             'attributes'                        => $attributes,
             'import_image'                      => $import_image,
             'tax_rule'                          => $tax_rules,
+            'tax_rate'                          => $tax_rates,
             'category_structure'                => $category_structure,
             'stripeBOCssUrl'                    => $stripeBOCssUrl,
             'base_url'                          => $base_url,
