@@ -704,17 +704,17 @@ class BdroppyRewixApi
 
     public function updateOrderStatuses()
     {
-        $this->logger->info( 'Order statuses update procedures STARTED!' );
+        $this->logger->logInfo( 'Order statuses update procedures STARTED!' );
 
         $orders = BdroppyRemoteOrder::getOrdersByNotStatus((int) BdroppyRemoteOrder::STATUS_DISPATCHED);
 
         foreach ( $orders as $order ) {
             $ps_order = new Order($order['ps_order_id']);
-            if ($ps_order){
+            if (!isset($ps_order->id_cart) && !isset($ps_order->id_customer)){
                 continue;
             }
 
-            $this->logger->info( 'Processing Order_id: #' . (int) $order['ps_order_id']);
+            $this->logger->logInfo( 'Processing Order_id: #' . (int) $order['ps_order_id']);
 
             $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$order['rewix_order_key'];
             $api_token = Configuration::get('BDROPPY_TOKEN');
@@ -730,13 +730,13 @@ class BdroppyRewixApi
             curl_close($ch);
 
             if ( $httpCode == 401 ) {
-                $this->logger->error( 'updateOrderStatuses - UNAUTHORIZED!!' );
+                $this->logger->logDebug( 'updateOrderStatuses - UNAUTHORIZED!!' );
 
                 return false;
             } else if ( $httpCode == 500 ) {
-                $this->logger->error( 'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform' );
+                $this->logger->logDebug( 'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform' );
             } else if ( $httpCode != 200 ) {
-                $this->logger->error( 'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id'] );
+                $this->logger->logDebug( 'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id'] );
             } else {
                 $reader = new \XMLReader();
                 $reader->xml( $data );
@@ -746,31 +746,39 @@ class BdroppyRewixApi
                     if ( $reader->nodeType == \XMLReader::ELEMENT && $reader->name == 'order' ) {
                         $xml_order = simplexml_import_dom( $doc->importNode( $reader->expand(), true ) );
                         $status    = (int) $xml_order->status;
-                        $order_id  = $xml_order->order_id;
-                        $this->logger->info( 'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status'] );
+                        $order_id  = (int) $xml_order->order_id;
+                        $this->logger->logInfo( 'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status'] );
                         if ( (int) $order['status'] != $status ) {
                             $association    = new BdroppyRemoteOrder($order['id']);
                             $association->rewix_order_id = $order_id;
                             $association->status = $status;
                             $association->save();
 
-                            $this->logger->info( 'Order status Update: WC ID #' . $order->wc_order_id . ': new status [' . $status . ']' );
+                            $this->logger->logInfo( 'Order status Update: WC ID #' . $order->wc_order_id . ': new status [' . $status . ']' );
 
-                            if ( $status == Order::STATUS_DISPATCHED ) {
+                            if ( $status == BdroppyRemoteOrder::STATUS_DISPATCHED ) {
+
                                 $carrier = new Carrier($ps_order->id_carrier, $ps_order->id_lang);
-                                //$ps_order->shipping_number, $carrier->url)
+                                $arr = explode("=",$xml_order->tracking_url);
+                                $tracking_number = pSQL($arr[count($arr)-1]);
+                                $carrier_url = str_replace($tracking_number,"@",$xml_order->tracking_url);
+                                if($carrier->url == '') {
+                                    $carrier->url = $carrier_url;
+                                    $carrier->update();
+                                }
 
                                 $ps_order->setCurrentState((int)Configuration::get('PS_OS_SHIPPING'));
                                 $shipping_number = pSQL($xml_order->tracking_url);
-                                $ps_order->shipping_number = $shipping_number;
-                                $ps_order->update();
+                                $ps_order->setWsShippingNumber($tracking_number);
+                                $ps_order->save();
                             }
                         }
                     }
                 }
             }
         }
-        $this->logger->info( 'Order statuses update procedures COMPLETED!' );
+        $this->logger->logInfo( 'Order statuses update procedures COMPLETED!' );
+        return true;
     }
 
     public function syncBookedProducts()
@@ -807,7 +815,6 @@ class BdroppyRewixApi
                 $this->modifyGrowingOrder($operations);
             }
         }
-
         return true;
     }
 

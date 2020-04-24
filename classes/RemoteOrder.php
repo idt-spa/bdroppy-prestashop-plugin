@@ -118,6 +118,6 @@ class BdroppyRemoteOrder extends ObjectModel
         $query->from('bdroppy_remoteorder');
         $query->where('`status` != ' . ($staus));
 
-        return Db::getInstance()->getValue($query);
+        return Db::getInstance()->ExecuteS($query);
     }
 }

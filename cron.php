@@ -353,15 +353,15 @@ class BdroppyCron
 
     public static function syncOrders()
     {
-        $lastSync = (int) Configuration::get(BdroppyConfigKeys::LAST_CART_SYNC);
+        $lastSync = (int) Configuration::get('BDROPPY_LAST_CART_SYNC');
         if ($lastSync == 0) {
             $lastSync = time();
-            Configuration::updateValue(BdroppyConfigKeys::LAST_CART_SYNC, $lastSync, null, 0, 0);
+            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', $lastSync);
         }
 
         if ((time() - $lastSync) > 30 * 60) {
             BdroppyImportTools::syncWithSupplier();
-            Configuration::updateValue(BdroppyConfigKeys::LAST_CART_SYNC, (int) time(), null, 0, 0);
+            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int) time());
         }
     }
 }

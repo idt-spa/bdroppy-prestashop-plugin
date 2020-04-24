@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.24';
+        $this->version = '1.0.25';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -387,7 +387,6 @@ class Bdroppy extends Module
 
         include(dirname(__FILE__) . '/sql/install.php');
 
-        Configuration::updateValue(BdroppyConfigKeys::LAST_CART_SYNC, 0, null, 0, 0);
         if (!parent::install() ||
             !$this->registerHook('header') &&
             !$this->registerHook('displayBackOfficeHeader') ||
