@@ -15,7 +15,7 @@ BdroppyCron::importProducts();
 //BdroppyCron::updatePrices();
 //BdroppyCron::syncProducts();
 //BdroppyCron::syncQuantities();
-//BdroppyCron::syncCarts();
+BdroppyCron::syncOrders();
 class BdroppyCron
 {
     public static $logger = null;
@@ -351,16 +351,8 @@ class BdroppyCron
         }
     }
 
-    public static function syncCarts()
+    public static function syncOrders()
     {
-        $logger = BdroppyImportTools::getLogger();
-        $lock = BdroppyImportTools::tryLock();
-
-        if (!$lock) {
-            $logger->logDebug('SYNCCARTS: Cannot get lock file');
-            throw new Exception('Sync failed. Check logs from more detail.');
-        }
-
         $lastSync = (int) Configuration::get(BdroppyConfigKeys::LAST_CART_SYNC);
         if ($lastSync == 0) {
             $lastSync = time();

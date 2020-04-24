@@ -1159,7 +1159,6 @@ class BdroppyImportTools
     public static function syncWithSupplier()
     {
         $rewixApi = new BdroppyRewixApi();
-
         $rewixApi->syncBookedProducts();
         $rewixApi->sendMissingOrders();
     }
