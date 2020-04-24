@@ -480,7 +480,7 @@ class Bdroppy extends Module
         return $result;
     }
 
-    public function getLogs()
+    public function getOrders()
     {
         $status = [
             '0' => ['value' => 'PENDING' ,'desc' => 'User is managing the cart'],
@@ -558,7 +558,7 @@ class Bdroppy extends Module
 
         $helper_list = New HelperList();
         $helper_list->module = $this;
-        $helper_list->title = $this->l('Users');
+        $helper_list->title = $this->l('Orders List');
         $helper_list->shopLinkType = '';
         $helper_list->no_link = true;
         $helper_list->show_toolbar = true;
@@ -569,7 +569,7 @@ class Bdroppy extends Module
         $this->_helperlist = $helper_list;
 
         /* Retrieve list data */
-        $users = $this->getUsers();
+        $users = $this->getOrders();
         $helper_list->listTotal = $this->users_count;
 
         /* Paginate the result */
