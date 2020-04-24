@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.25';
+        $this->version = '1.0.26';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -480,6 +480,106 @@ class Bdroppy extends Module
         return $result;
     }
 
+    public function getLogs()
+    {
+        $status = [
+            '0' => ['value' => 'PENDING' ,'desc' => 'User is managing the cart'],
+            '1' => ['value' => 'MONEY WAITING' ,'desc' => 'Awaiting for payment gateway response'],
+            '2' => ['value' => 'TO DISPATCH	' ,'desc' => 'Ready to be dispatched'],
+            '3' => ['value' => 'DISPATCHED' ,'desc' => 'Shipment has been picked up by carrier'],
+            '5' => ['value' => 'BOOKED' ,'desc' => 'Order created by API Acquire or booked by bank transfer'],
+            '2000' => ['value' => 'CANCELLED' ,'desc' => 'Order cancelled'],
+            '2002' => ['value' => 'VERIFY FAILED' ,'desc' => 'Payment was not accepted by payment gateway'],
+            '3001' => ['value' => 'WORKING ON' ,'desc' => 'Logistics office is working on the order'],
+            '3002' => ['value' => 'READY' ,'desc' => 'Order is ready for pick up'],
+            '5003' => ['value' => 'DROPSHIPPER GROWING' ,'desc' => 'Virtual order for growing cart'],
+        ];
+        $logs = array();
+        $sql = 'SELECT * FROM '._DB_PREFIX_.'bdroppy_remoteorder;';
+        if ($results = Db::getInstance()->ExecuteS($sql)) {
+            foreach ($results as $row) {
+                $row['status_value'] = $status[$row['status']]['value'];
+                $row['status_desc'] = $status[$row['status']]['desc'];
+                array_push($logs,$row);
+            }
+        }
+        return $logs;
+    }
+
+    public function paginateUsers($users, $page = 1, $pagination = 50)
+    {
+        if(count($users) > $pagination)
+            $users = array_slice($users, $pagination * ($page - 1), $pagination);
+
+        return $users;
+    }
+
+    protected function renderOrdersList()
+    {
+        $fields_list = array(
+
+            'id' => array(
+                'title' => $this->l('ID'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 50,
+            ),
+            'rewix_order_id' => array(
+                'title' => $this->l('Bdroppy Order ID'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 50,
+            ),
+            'rewix_order_key' => array(
+                'title' => $this->l('Order Key'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 100,
+            ),
+            'ps_order_id' => array(
+                'title' => $this->l('Prestashop Order ID'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 200,
+            ),
+            'status_value' => array(
+                'title' => $this->l('Status'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 200,
+            ),
+            'status_desc' => array(
+                'title' => $this->l('Description'),
+                'search' => false,
+                'type' => 'text',
+                'width' => 200,
+            )
+        );
+
+        $helper_list = New HelperList();
+        $helper_list->module = $this;
+        $helper_list->title = $this->l('Users');
+        $helper_list->shopLinkType = '';
+        $helper_list->no_link = true;
+        $helper_list->show_toolbar = true;
+        $helper_list->simple_header = false;
+        $helper_list->identifier = 'id';
+        $helper_list->table = 'merged';
+        $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name;
+        $this->_helperlist = $helper_list;
+
+        /* Retrieve list data */
+        $users = $this->getUsers();
+        $helper_list->listTotal = $this->users_count;
+
+        /* Paginate the result */
+        $page = ($page = Tools::getValue('submitFilter'.$helper_list->table)) ? $page : 1;
+        $pagination = ($pagination = Tools::getValue($helper_list->table.'_pagination')) ? $pagination : 50;
+        $users = $this->paginateUsers($users, $page, $pagination);
+
+        return $helper_list->generateList($users, $fields_list);
+    }
+
     public function getContent()
     {
         $output = '';
@@ -690,6 +790,7 @@ class Bdroppy extends Module
             'module_path'                       => '/modules/bdroppy/',
             'base_url'                          => $base_url,
             'api_key'                           => $api_key,
+            'ordersHtml'                        => $this->renderOrdersList(),
             'php_dir'                           => $this->getPHPExecutableFromPath(),
             'cron_command'                      => $this->getCronCommand(),
             'api_token'                         => $api_token,
