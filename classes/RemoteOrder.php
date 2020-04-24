@@ -110,4 +110,14 @@ class BdroppyRemoteOrder extends ObjectModel
  
         return $orders;
     }
+
+    public static function getOrdersByNotStatus($staus)
+    {
+        $query = new DbQuery();
+        $query->select('*');
+        $query->from('bdroppy_remoteorder');
+        $query->where('`status` != ' . ($staus));
+
+        return Db::getInstance()->getValue($query);
+    }
 }

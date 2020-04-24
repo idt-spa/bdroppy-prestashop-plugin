@@ -702,6 +702,77 @@ class BdroppyRewixApi
         return 0;
     }
 
+    public function updateOrderStatuses()
+    {
+        $this->logger->info( 'Order statuses update procedures STARTED!' );
+
+        $orders = BdroppyRemoteOrder::getOrdersByNotStatus((int) BdroppyRemoteOrder::STATUS_DISPATCHED);
+
+        foreach ( $orders as $order ) {
+            $ps_order = new Order($order['ps_order_id']);
+            if ($ps_order){
+                continue;
+            }
+
+            $this->logger->info( 'Processing Order_id: #' . (int) $order['ps_order_id']);
+
+            $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$order['rewix_order_key'];
+            $api_token = Configuration::get('BDROPPY_TOKEN');
+            $header = "Authorization: Bearer " . $api_token;
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/xml', $header));
+            $data = curl_exec( $ch );
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ( $httpCode == 401 ) {
+                $this->logger->error( 'updateOrderStatuses - UNAUTHORIZED!!' );
+
+                return false;
+            } else if ( $httpCode == 500 ) {
+                $this->logger->error( 'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform' );
+            } else if ( $httpCode != 200 ) {
+                $this->logger->error( 'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id'] );
+            } else {
+                $reader = new \XMLReader();
+                $reader->xml( $data );
+                $doc = new \DOMDocument( '1.0', 'UTF-8' );
+
+                while ( $reader->read() ) {
+                    if ( $reader->nodeType == \XMLReader::ELEMENT && $reader->name == 'order' ) {
+                        $xml_order = simplexml_import_dom( $doc->importNode( $reader->expand(), true ) );
+                        $status    = (int) $xml_order->status;
+                        $order_id  = $xml_order->order_id;
+                        $this->logger->info( 'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status'] );
+                        if ( (int) $order['status'] != $status ) {
+                            $association    = new BdroppyRemoteOrder($order['id']);
+                            $association->rewix_order_id = $order_id;
+                            $association->status = $status;
+                            $association->save();
+
+                            $this->logger->info( 'Order status Update: WC ID #' . $order->wc_order_id . ': new status [' . $status . ']' );
+
+                            if ( $status == Order::STATUS_DISPATCHED ) {
+                                $carrier = new Carrier($ps_order->id_carrier, $ps_order->id_lang);
+                                //$ps_order->shipping_number, $carrier->url)
+
+                                $ps_order->setCurrentState((int)Configuration::get('PS_OS_SHIPPING'));
+                                $shipping_number = pSQL($xml_order->tracking_url);
+                                $ps_order->shipping_number = $shipping_number;
+                                $ps_order->update();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $this->logger->info( 'Order statuses update procedures COMPLETED!' );
+    }
+
     public function syncBookedProducts()
     {
         $bookedProducts = $this->getGrowingOrderProducts();
