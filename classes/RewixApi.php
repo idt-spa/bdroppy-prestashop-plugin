@@ -288,6 +288,7 @@ class BdroppyRewixApi
         $operationSet->addAttribute('type', self::SOLD_API_SET_OP);
         $operationUnlock = $xml->addChild('operation');
         $operationUnlock->addAttribute('type', self::SOLD_API_UNLOCK_OP);
+
         foreach ($operations as $op) {
             switch ($op['type']) {
                 case self::SOLD_API_LOCK_OP:
@@ -327,14 +328,15 @@ class BdroppyRewixApi
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if (!$this->handleCurlError($httpCode)) {
-            return false;
+            return array( 'curl_error' => 1,'message' => $data );
         }
 
         $reader = new XMLReader();
         $reader->xml($data);
-        $reader-> read();
+        $reader->read();
         $this->setGrowingOrderId($reader->getAttribute('order_id'));
 
+        $errors = array();
         $growingOrder = array();
         while ($reader->read()) {
             if ($reader->nodeType == \XMLReader::ELEMENT && $reader->name == 'model') {
@@ -347,7 +349,7 @@ class BdroppyRewixApi
             }
         }
         foreach ( $operations as $op ) {
-            if ( isset( $growing_order[ $op['model_id'] ] ) ) {
+            if ( isset( $growingOrder[ $op['model_id'] ] ) ) {
                 $product             = $growingOrder[ $op['model_id'] ];
                 $success             = true;
                 $pending_quantity    = $this->getPendingQtyByRewixModel( (int) $op['model_id'] );
@@ -400,14 +402,10 @@ class BdroppyRewixApi
             }
         }
 
-        $success = true;
+        $errors = $this->modifyGrowingOrder($operations);
         if (count($operations) > 0) {
-            $this->logger->logDebug('Remote locking items');
-
-            $errors = '';
-            $errors = $this->modifyGrowingOrder($operations);
             if (isset($errors['curl_error'])) {
-                throw new Exception('Error while placing order ('. $errors['message'].').', 'error');
+                throw new Exception('Error while placing order ('. $errors['message'].').');
             } else if (count($errors) > 0) {
                 foreach ($errors as $model_id => $qty) {
                     throw new Exception(sprintf('Error while placing order. Product %s is not available in quantity requested (%d).',
@@ -416,7 +414,7 @@ class BdroppyRewixApi
                 }
             }
         }
-        return $success;
+        return true;
     }
 
     public function sendBdroppyOrder($order)
@@ -426,6 +424,11 @@ class BdroppyRewixApi
         $lines = $order->getProductsDetail();
 
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
+        if($catalog_id == '' || $catalog_id == '-1') {
+            $this->logger->logError('Bdroppy Catalog Not Set !');
+            $this->errors[] = Tools::displayError();
+            return array( 'module_error' => 1, 'message' => 'Bdroppy Catalog Not Set !' );
+        }
         $rewix_order_key = $catalog_id .$order->id . time();
 
         $currency = new CurrencyCore($order->id_currency);
@@ -435,7 +438,7 @@ class BdroppyRewixApi
         $item_list = $xmlOrder->addChild('item_list');
         $xmlOrder->addChild('key', $rewix_order_key);
         $xmlOrder->addChild('date', str_replace('-', '/', $order->date_add) . ' +0000');
-        $xmlOrder->addChild( 'user_catalog_id',Configuration::get('BDROPPY_CATALOG'));
+        $xmlOrder->addChild( 'user_catalog_id', $catalog_id);
         $xmlOrder->addChild( 'shipping_taxable', $order->total_shipping);
         $xmlOrder->addChild( 'shipping_currency', $currency->iso_code);
         $xmlOrder->addChild( 'price_total', $order->total_paid);
@@ -445,7 +448,8 @@ class BdroppyRewixApi
         foreach ($lines as $line) {
             $productId = (int)$line['product_id'];
             $modelId = (int)$line['product_attribute_id'];
-            $rewixId = (int)$line['product_isbn'];
+            $product_isbn = (int)$line['product_isbn'];
+            $rewixId = $product_isbn > 0 ? $product_isbn : $modelId;
 
             //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if (!$rewixId && $rewixProduct > 0) {
@@ -561,9 +565,9 @@ class BdroppyRewixApi
         $reader->xml($data);
         $doc = new DOMDocument('1.0', 'UTF-8');
 
-        while ($reader -> read()) {
+        while ($reader->read()) {
             if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'order') {
-                $xmlOrder = simplexml_import_dom($doc -> importNode($reader -> expand(), true));
+                $xmlOrder = simplexml_import_dom($doc->importNode($reader->expand(), true));
                 $rewixOrderId   = (int) $xmlOrder->order_id;
                 $status         = (int) $xmlOrder->status;
                 $orderId        = (int) $order->id;
@@ -604,7 +608,7 @@ class BdroppyRewixApi
 
     public function getPendingQtyByRewixModel($modelId)
     {
-        return $this->getPendingQty($this->getRewixModelId($modelId));
+        return $this->getPendingQty($modelId);
     }
 
     public function getPendingQty($productId)
@@ -676,7 +680,7 @@ class BdroppyRewixApi
 
     public function getProcessingQtyByRewixModel($modelId)
     {
-        return $this->getProcessingQty($this->getRewixModelId($modelId));
+        return $this->getProcessingQty($modelId);
     }
 
     public function getProcessingQty($productId)
@@ -760,19 +764,19 @@ class BdroppyRewixApi
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if (!$this->handleCurlError($httpCode)) {
-            return false;
+            return array( 'curl_error' => 1,'message' => $data );
         }
 
         $reader = new XMLReader();
         $reader->xml($data);
 
         //$doc = new DOMDocument('1.0', 'UTF-8');
-        $reader -> read();
-        $this->setGrowingOrderId($reader -> getAttribute('order_id'));
+        $reader->read();
+        $this->setGrowingOrderId($reader->getAttribute('order_id'));
 
         $bookedProducts = array();
 
-        while ($reader -> read()) {
+        while ($reader->read()) {
             if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'model') {
                 $bookedProducts[] = array(
                     'stock_id' => $reader->getAttribute('stock_id'),

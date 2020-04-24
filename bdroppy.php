@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.21';
+        $this->version = '1.0.22';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -779,7 +779,13 @@ class Bdroppy extends Module
         $rewixApi = new BdroppyRewixApi();
 
         try {
-            return $rewixApi->sendBdroppyOrder($order);
+            $r = $rewixApi->sendBdroppyOrder($order);
+            if(isset($r['module_error'])) {
+                $this->errors[] = Tools::displayError($r['message']);
+                $this->context->controller->errors[] = Tools::displayError($r['message']);
+                return false;
+            }
+            return true;
         } catch (Exception $e) {
             //$this->orderLogger->logDebug($e->getMessage());
             $this->context->controller->errors[] = $this->l($e->getMessage());
