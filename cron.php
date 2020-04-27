@@ -141,7 +141,7 @@ class BdroppyCron
 
                 if (!$api_limit_count)
                     $api_limit_count = 5;
-                $api_limit_count = $api_limit_count * 7;
+                $api_limit_count = $api_limit_count;
                 $min = date('i');
                 $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                 $count_products = $db->ExecuteS($sql);

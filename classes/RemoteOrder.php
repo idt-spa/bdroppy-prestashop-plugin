@@ -23,7 +23,7 @@ class BdroppyRemoteOrder extends ObjectModel
     public $rewix_order_key;
     public $ps_order_id;
     public $status;
-    
+
     const STATUS_FAILED = 2000;
     const STATUS_NOAVAILABILITY = 2001;
     const STATUS_UNKNOWN = 2002;
@@ -72,7 +72,7 @@ class BdroppyRemoteOrder extends ObjectModel
         $query->select('id');
         $query->from('bdroppy_remoteorder');
         $query->where('`rewix_order_id` = ' . pSQL($rewixOrderId));
-        
+
         return Db::getInstance()->getValue($query);
     }
 
@@ -87,27 +87,27 @@ class BdroppyRemoteOrder extends ObjectModel
         $query->select('rewix_order_id');
         $query->from('bdroppy_remoteorder');
         $query->where('`id` = ' . pSQL($psOrderId));
-        
+
         return Db::getInstance()->getValue($query);
     }
 
-     /**
+    /**
      * @return array
      * @throws PrestaShopDatabaseException
      */
     public static function getMissingOrdersId()
     {
         $query = 'select o.id_order ' .
-        'from `'._DB_PREFIX_.'orders` o ' .
-        'where o.current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') ) ' .
-        'and o.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r)';
+            'from `'._DB_PREFIX_.'orders` o ' .
+            'where o.current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') ) ' .
+            'and o.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r)';
         return Db::getInstance()->ExecuteS($query);
     }
 
     public static function getOrders()
     {
         $orders = new Collection('BdroppyRemoteOrder');
- 
+
         return $orders;
     }
 

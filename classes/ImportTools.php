@@ -692,7 +692,7 @@ class BdroppyImportTools
             list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $xmlProduct);
             $product->id_category_default = $categoryDefaultId;
             $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
-            $product->save();
+            //$product->save();
 
             // updateCategories requires the product to have an id already set
             $product->updateCategories($categories);
@@ -799,10 +799,14 @@ class BdroppyImportTools
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
-                $sizeFeatureId = $sizeFeature[0]['id_feature'];
-                $colorFeatureId = $colorFeature[0]['id_feature'];
-                $genderFeatureId = $genderFeature[0]['id_feature'];
-                $seasonFeatureId = $seasonFeature[0]['id_feature'];
+                if($sizeFeature)
+                    $sizeFeatureId = $sizeFeature[0]['id_feature'];
+                if($colorFeature)
+                    $colorFeatureId = $colorFeature[0]['id_feature'];
+                if($genderFeature)
+                    $genderFeatureId = $genderFeature[0]['id_feature'];
+                if($seasonFeature)
+                    $seasonFeatureId = $seasonFeature[0]['id_feature'];
                 $customFeature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
                     if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($xmlProduct['size']) > 0) {

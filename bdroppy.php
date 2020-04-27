@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.26';
+        $this->version = '1.0.27';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -570,7 +570,7 @@ class Bdroppy extends Module
 
         /* Retrieve list data */
         $users = $this->getOrders();
-        $helper_list->listTotal = $this->users_count;
+        $helper_list->listTotal = count($users);
 
         /* Paginate the result */
         $page = ($page = Tools::getValue('submitFilter'.$helper_list->table)) ? $page : 1;

@@ -92,7 +92,7 @@ class BdroppyRemoteCombination extends ObjectModel
 
         return Db::getInstance()->executeS($query);
     }
-  
+
     /**
      * @param int $rewix_product_id
      * @return array
@@ -113,9 +113,9 @@ class BdroppyRemoteCombination extends ObjectModel
     public static function getPsModelIdByRewixProductAndModelId($rewix_product_id, $rewix_model_id)
     {
         $sql =  "select r.ps_model_id " .
-                "from " . _DB_PREFIX_ . "bdroppy_remotecombination r " .
-                "where r.rewix_product_id = " . (int) $rewix_product_id .
-                " and r.rewix_model_id = " . (int) $rewix_model_id;
+            "from " . _DB_PREFIX_ . "bdroppy_remotecombination r " .
+            "where r.rewix_product_id = " . (int) $rewix_product_id .
+            " and r.rewix_model_id = " . (int) $rewix_model_id;
 
         return Db::getInstance()->getValue($sql);
     }
@@ -133,7 +133,7 @@ class BdroppyRemoteCombination extends ObjectModel
 
         return Db::getInstance()->execute($query);
     }
-    
+
     /*
      * @param int $rewix_product_id
      * @return array

@@ -79,11 +79,11 @@ class BdroppyRemoteProduct extends ObjectModel
     {
         $product = new self(self::getIdByRewixId($id));
         $product->rewix_product_id = $id;
-        
+
         return $product;
     }
 
-     /**
+    /**
      * @param int $id
      * @return int
      */
@@ -131,7 +131,7 @@ class BdroppyRemoteProduct extends ObjectModel
         if ($limit > 0) {
             $query->limit($limit);
         }
-        
+
         $results = Db::getInstance()->executeS($query);
         $ids = array();
 
