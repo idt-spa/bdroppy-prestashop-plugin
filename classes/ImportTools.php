@@ -306,12 +306,7 @@ class BdroppyImportTools
     {
         try {
             $imageCount = 1;
-            $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
-            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
-                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
-            }else{
-                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
-            }
+            $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
             $product->deleteImages();
 
             $i = 0;
