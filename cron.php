@@ -192,7 +192,8 @@ class BdroppyCron
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated' AND last_sync_date <= '$yesterday' LIMIT $api_limit_count;";
                     $items = $db->ExecuteS($sql);
                     foreach ($items as $item) {
-                        BdroppyImportTools::updateProductPrices($item, $default_lang);
+                        $res = BdroppyImportTools::importProduct($item, $default_lang);
+                        //BdroppyImportTools::updateProductPrices($item, $default_lang);
                     }
                 }
 

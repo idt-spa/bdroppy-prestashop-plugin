@@ -622,6 +622,10 @@ class BdroppyImportTools
     private static function populateProductAttributes($xmlProduct, Product $product, $default_lang)
     {
         try {
+            $sizeFeatureId = '';
+            $colorFeatureId = '';
+            $genderFeatureId = '';
+            $seasonFeatureId = '';
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
             $product->weight = (float)$xmlProduct->weight;
@@ -794,6 +798,10 @@ class BdroppyImportTools
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
+                $sizeFeatureId = '';
+                $colorFeatureId = '';
+                $genderFeatureId = '';
+                $seasonFeatureId = '';
                 if($sizeFeature)
                     $sizeFeatureId = $sizeFeature[0]['id_feature'];
                 if($colorFeature)
@@ -906,6 +914,7 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages(false);
             $first = true;
+            $delete_combinations = $product->deleteProductAttributes();
             foreach ($xmlModels as $model) {
                 $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
