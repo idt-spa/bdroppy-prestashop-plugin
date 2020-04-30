@@ -87,7 +87,7 @@ class BdroppyImportTools
 
     public static function updateProductPrices($item, $default_lang) {
         $rewixApi = new BdroppyRewixApi();
-        $res = $rewixApi->getProduct($item['rewix_product_id'], $item['rewix_catalog_id']);
+        $res = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
         if ($res['http_code'] === 200) {
             $xmlProduct = json_decode($res['data']);
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
@@ -113,7 +113,7 @@ class BdroppyImportTools
 
             $xmlProduct = false;
             $rewixApi = new BdroppyRewixApi();
-            $res = $rewixApi->getProduct($item['rewix_product_id'], $item['rewix_catalog_id']);
+            $res = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
 
             if ($res['http_code'] === 200) {
                 $xmlProduct = json_decode($res['data']);

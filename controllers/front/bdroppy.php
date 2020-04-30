@@ -124,7 +124,6 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
 
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_catalog_id <> '" . $this->api_catalog . "';";
                     $delete_products = Db::getInstance()->ExecuteS($sql);
-                    //echo"<pre>";var_dump($ids, $prds, $add_products, $delete_products);die;
 
                     foreach ($delete_products as $item) {
                         switch ($item['sync_status']) {
