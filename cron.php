@@ -24,7 +24,7 @@ class BdroppyCron
         if (self::$logger == null) {
             $verboseLog = true;
             self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-cron.log';
+            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-cron-'.date('y-m-d').'.log';
             self::$logger->setFilename($filename);
         }
 
@@ -34,6 +34,7 @@ class BdroppyCron
         try {
             header('Access-Control-Allow-Origin: *');
             @ini_set('max_execution_time', 100000);
+            $updateFlag = false;
 
             $langs = [];
             $langs['en'] = 'en_US';
@@ -188,16 +189,18 @@ class BdroppyCron
                     }
                 }
                 if ($bdroppy_auto_update_prices) {
+                    $updateFlag = true;
                     $yesterday = date('Y-m-d H:i:s', strtotime("-1 day"));
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'updated' AND last_sync_date <= '$yesterday' LIMIT $api_limit_count;";
                     $items = $db->ExecuteS($sql);
                     foreach ($items as $item) {
-                        $res = BdroppyImportTools::importProduct($item, $default_lang);
+                        $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
                         //BdroppyImportTools::updateProductPrices($item, $default_lang);
                     }
                 }
 
                 // select 10 products to import
+                $updateFlag = false;
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='queued' LIMIT " . $api_limit_count . ";";
                 $items = $db->ExecuteS($sql);
                 foreach ($items as $item) {
@@ -205,7 +208,7 @@ class BdroppyCron
                 }
                 foreach ($items as $item) {
                     if ($item['sync_status'] == 'queued') {
-                        $res = BdroppyImportTools::importProduct($item, $default_lang);
+                        $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
                     }
                     if ($item['sync_status'] == 'delete') {
                         $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'deleted', 'imported' => 0), 'id = ' . $item['id']);

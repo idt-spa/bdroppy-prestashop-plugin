@@ -40,7 +40,7 @@ class BdroppyImportTools
         if (self::$logger == null) {
             $verboseLog = true;
             self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-import.log';
+            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-import-'.date('y-m-d').'.log';
             self::$logger->setFilename($filename);
         }
 
@@ -105,7 +105,7 @@ class BdroppyImportTools
         }
     }
 
-    public static function importProduct($item, $default_lang)
+    public static function importProduct($item, $default_lang, $updateFlag)
     {
         try {
             @set_time_limit(3600);
@@ -125,7 +125,11 @@ class BdroppyImportTools
 
                 $product = new Product($remoteProduct->ps_product_id);
 
-                self::getLogger()->logDebug('Importing parent product ' . $sku . ' with id ' . $xmlProduct->id);
+                $logTxt = 'Importing product ' . $sku . ' with id ' . $xmlProduct->id;
+                if($updateFlag)
+                    $logTxt = 'Updating product ' . $sku . ' with id ' . $xmlProduct->id;
+
+                self::getLogger()->logDebug($logTxt);
 
                 // populate general common fields
                 $product1 = self::populateProductAttributes($xmlProduct, $product, $default_lang);
@@ -142,7 +146,7 @@ class BdroppyImportTools
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
-                if (Configuration::get('BDROPPY_IMPORT_IMAGE')) {
+                if (Configuration::get('BDROPPY_IMPORT_IMAGE') && !$updateFlag) {
                     self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
                     self::importProductImages($xmlProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
@@ -152,7 +156,10 @@ class BdroppyImportTools
                 return 1;
             }
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'import - importProduct : ' . $e->getMessage() );
+            $logTxt = 'import - importProduct : ' . $e->getMessage();
+            if($updateFlag)
+                $logTxt = 'update - importProduct : ' . $e->getMessage();
+            self::getLogger()->logDebug($logTxt);
         }
     }
 

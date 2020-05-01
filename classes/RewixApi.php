@@ -18,7 +18,7 @@ class BdroppyRewixApi
     public function __construct()
     {
         $this->logger = new FileLogger(AbstractLogger::DEBUG);
-        $this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-api.log');
+        $this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-api-'.date('y-m-d').'.log');
     }
 
     public function getProduct($product_id, $catalog_id) {
