@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.32';
+        $this->version = '1.0.33';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -718,6 +718,8 @@ class Bdroppy extends Module
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $bdroppy_active_product = Configuration::get('BDROPPY_ACTIVE_PRODUCT');
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
+        if($bdroppy_custom_feature == '')
+            $bdroppy_custom_feature = '0';
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
