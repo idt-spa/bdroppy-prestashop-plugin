@@ -67,6 +67,7 @@ class BdroppyCron
                 'BDROPPY_API_PASSWORD' => Configuration::get('BDROPPY_API_PASSWORD', null),
                 'BDROPPY_TOKEN' => Configuration::get('BDROPPY_TOKEN', null),
                 'BDROPPY_CATALOG' => Configuration::get('BDROPPY_CATALOG', null),
+                'BDROPPY_CATALOG_BU' => Configuration::get('BDROPPY_CATALOG_BU', null),
                 'BDROPPY_ACTIVE_PRODUCT' => Configuration::get('BDROPPY_ACTIVE_PRODUCT', null),
                 'BDROPPY_CUSTOM_FEATURE' => Configuration::get('BDROPPY_CUSTOM_FEATURE', null),
                 'BDROPPY_SIZE' => Configuration::get('BDROPPY_SIZE', null),
@@ -87,6 +88,7 @@ class BdroppyCron
             $api_password = isset($configurations['BDROPPY_API_PASSWORD']) ? $configurations['BDROPPY_API_PASSWORD'] : '';
             $api_token = isset($configurations['BDROPPY_TOKEN']) ? $configurations['BDROPPY_TOKEN'] : '';
             $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
+            $api_catalog_bu = isset($configurations['BDROPPY_CATALOG_BU']) ? $configurations['BDROPPY_CATALOG_BU'] : '';
             $api_active_product = isset($configurations['BDROPPY_ACTIVE_PRODUCT']) ? $configurations['BDROPPY_ACTIVE_PRODUCT'] : '';
             $api_custom_feature = isset($configurations['BDROPPY_CUSTOM_FEATURE']) ? $configurations['BDROPPY_CUSTOM_FEATURE'] : '';
             $api_size = isset($configurations['BDROPPY_SIZE']) ? $configurations['BDROPPY_SIZE'] : '';
@@ -101,7 +103,7 @@ class BdroppyCron
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
             $db = Db::getInstance();
 
-            if($api_catalog == "-1") {
+            if($api_catalog == "0" || $api_catalog == "-1") {
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                 $delete_products = $db->ExecuteS($sql);
                 if($delete_products) {
@@ -128,7 +130,7 @@ class BdroppyCron
                         }
                     }
                 } else {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity='$api_catalog';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity='$api_catalog_bu';";
                     $delete_products = $db->ExecuteS($sql);
                     foreach ($delete_products as $item) {
                         $product = new Product($item['id_product']);
@@ -143,10 +145,9 @@ class BdroppyCron
                 if (!$api_limit_count)
                     $api_limit_count = 5;
                 $api_limit_count = $api_limit_count;
-                $min = date('i');
                 $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                 $count_products = $db->ExecuteS($sql);
-                if($min % 5 == 0 || $count_products[0]['total'] == 0) {
+                if($count_products[0]['total'] == 0) {
                     $rewixApi = new BdroppyRewixApi();
                     $res = $rewixApi->getProductsJson($api_catalog);
                     if ($res['http_code'] === 200 && $res['data'] != "null") {

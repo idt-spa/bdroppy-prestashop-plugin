@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '1.0.33';
+        $this->version = '1.0.34';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -614,6 +614,7 @@ class Bdroppy extends Module
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
+            Configuration::updateValue('BDROPPY_CATALOG_BU', $bdroppy_catalog);
 
             $bdroppy_active_product = (string)Tools::getValue('bdroppy_active_product');
             Configuration::updateValue('BDROPPY_ACTIVE_PRODUCT', $bdroppy_active_product);

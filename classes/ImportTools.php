@@ -124,6 +124,12 @@ class BdroppyImportTools
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
 
                 $product = new Product($remoteProduct->ps_product_id);
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$remoteProduct->ps_product_id."' AND reference='". self::fitReference($xmlProduct->code, (string)$xmlProduct->id) ."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                $dps = Db::getInstance()->ExecuteS($sql);
+                foreach ($dps as $item) {
+                    $dp = new Product($item['id_product']);
+                    $dp->delete();
+                }
 
                 $logTxt = 'Importing product ' . $sku . ' with id ' . $xmlProduct->id;
                 if($updateFlag)
