@@ -450,11 +450,6 @@ class BdroppyRewixApi
             $modelId = (int)$line['product_attribute_id'];
             $product_isbn = (int)$line['product_isbn'];
             $rewixId = $product_isbn > 0 ? $product_isbn : $modelId;
-            $rewiuxProductId = BdroppyRemoteCombination::getIdByRewixId($rewixId);
-            if ($rewiuxProductId == 0) {
-                $this->logger->logError('Order #'.$order->id.': not for bdroppy');
-                $mixed = true;
-            }
 
             //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if (!$rewixId && $rewixProduct > 0) {

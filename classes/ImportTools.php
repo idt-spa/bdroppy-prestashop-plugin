@@ -321,6 +321,11 @@ class BdroppyImportTools
         try {
             $imageCount = 1;
             $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
+            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+                $websiteUrl = 'http://media.bdroppy.com/storage-foto/dev/';
+            }else{
+                $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
+            }
             $product->deleteImages();
 
             $i = 0;
@@ -705,7 +710,7 @@ class BdroppyImportTools
             list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $xmlProduct);
             $product->id_category_default = $categoryDefaultId;
             $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
-            //$product->save();
+            $product->save();
 
             // updateCategories requires the product to have an id already set
             $product->updateCategories($categories);
