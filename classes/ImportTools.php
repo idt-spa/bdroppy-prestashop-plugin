@@ -145,11 +145,12 @@ class BdroppyImportTools
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
                 } else {
+                    $product->save();
                     $product3 = self::importModels($xmlProduct, $product, $default_lang);
                 }
                 $product->unity = Configuration::get('BDROPPY_CATALOG');
                 $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
-                $product->save();
+                $product->update();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE') && !$updateFlag) {
