@@ -614,7 +614,9 @@ class Bdroppy extends Module
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
-            Configuration::updateValue('BDROPPY_CATALOG_BU', $bdroppy_catalog);
+
+            if($bdroppy_catalog != '0' && $bdroppy_catalog != '-1')
+                Configuration::updateValue('BDROPPY_CATALOG_BU', $bdroppy_catalog);
 
             $bdroppy_active_product = (string)Tools::getValue('bdroppy_active_product');
             Configuration::updateValue('BDROPPY_ACTIVE_PRODUCT', $bdroppy_active_product);
