@@ -728,9 +728,9 @@ class Bdroppy extends Module
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
         if($bdroppy_custom_feature == '')
             $bdroppy_custom_feature = '0';
-        $bdroppy_reimport_images = Configuration::get('BDROPPY_REIMPORT_IMAGES');
-        if($bdroppy_reimport_images == '')
-            $bdroppy_reimport_images = '0';
+        $bdroppy_reimport_image = Configuration::get('BDROPPY_REIMPORT_IMAGE');
+        if($bdroppy_reimport_image == '')
+            $bdroppy_reimport_image = '0';
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
@@ -829,7 +829,7 @@ class Bdroppy extends Module
             'bdroppy_active_product'            => $bdroppy_active_product,
             'bdroppy_custom_feature'            => $bdroppy_custom_feature,
             'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
-            'bdroppy_reimport_images'           => $bdroppy_reimport_images,
+            'bdroppy_reimport_image'            => $bdroppy_reimport_image,
             'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
         );
