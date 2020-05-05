@@ -51,6 +51,7 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
                 'BDROPPY_SEASON' => Configuration::get('BDROPPY_SEASON', null),
                 'BDROPPY_CATEGORY_STRUCTURE' => Configuration::get('BDROPPY_CATEGORY_STRUCTURE', null),
                 'BDROPPY_IMPORT_IMAGE' => Configuration::get('BDROPPY_IMPORT_IMAGE', null),
+                'BDROPPY_REIMPORT_IMAGE' => Configuration::get('BDROPPY_REIMPORT_IMAGE', null),
                 'BDROPPY_LIMIT_COUNT' => Configuration::get('BDROPPY_LIMIT_COUNT', null),
             );
 
@@ -67,6 +68,7 @@ class bdroppyBdroppyModuleFrontController extends ModuleFrontController
             $this->api_season = isset($configurations['BDROPPY_SEASON']) ? $configurations['BDROPPY_SEASON'] : '';
             $this->api_category_structure = isset($configurations['BDROPPY_CATEGORY_STRUCTURE']) ? $configurations['BDROPPY_CATEGORY_STRUCTURE'] : '';
             $this->api_import_image = isset($configurations['BDROPPY_IMPORT_IMAGE']) ? $configurations['BDROPPY_IMPORT_IMAGE'] : '';
+            $this->api_reimport_image = isset($configurations['BDROPPY_REIMPORT_IMAGE']) ? $configurations['BDROPPY_REIMPORT_IMAGE'] : '';
             $this->api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
 
     }

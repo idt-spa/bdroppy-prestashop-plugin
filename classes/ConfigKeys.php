@@ -21,6 +21,7 @@ class BdroppyConfigKeys
     const ACTIVE_PRODUCT            = 'BDROPPY_ACTIVE_PRODUCT';
     const CUSTOM_FEATURE            = 'BDROPPY_CUSTOM_FEATURE';
     const IMPORT_IMAGES             = 'BDROPPY_IMPORT_IMAGES';
+    const REIMPORT_IMAGES           = 'BDROPPY_REIMPORT_IMAGE';
     const API_URL                   = 'BDROPPY_API_URL';
     const API_KEY                   = 'BDROPPY_API_KEY';
     const API_PASSWORD              = 'BDROPPY_API_PASSWORD';

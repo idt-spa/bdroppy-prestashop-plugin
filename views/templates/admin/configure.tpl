@@ -209,6 +209,22 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Reimport Images On Updating' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_reimport_images" id="bdroppy_import_images_on" value="1" {if $bdroppy_reimport_images}checked="checked"{/if} type="radio">
+								<label for="bdroppy_reimport_images_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_reimport_images" id="bdroppy_reimport_images_off" value="0" {if !$bdroppy_reimport_images}checked="checked"{/if} type="radio">
+								<label for="bdroppy_reimport_images_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Brand To Title' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<span class="switch prestashop-switch fixed-width-lg">

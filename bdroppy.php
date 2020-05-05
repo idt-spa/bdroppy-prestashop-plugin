@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = '';
-        $this->version = '1.0.36';
+        $this->version = '1.0.37';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -644,6 +644,9 @@ class Bdroppy extends Module
             $bdroppy_import_image = (string)Tools::getValue('bdroppy_import_image');
             Configuration::updateValue('BDROPPY_IMPORT_IMAGE', $bdroppy_import_image);
 
+            $bdroppy_reimport_image = (int)Tools::getValue('bdroppy_reimport_image');
+            Configuration::updateValue('BDROPPY_REIMPORT_IMAGE', $bdroppy_reimport_image);
+
             $bdroppy_tax_rate = (string)Tools::getValue('bdroppy_tax_rate');
             Configuration::updateValue('BDROPPY_TAX_RATE', $bdroppy_tax_rate);
 
@@ -725,6 +728,9 @@ class Bdroppy extends Module
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
         if($bdroppy_custom_feature == '')
             $bdroppy_custom_feature = '0';
+        $bdroppy_reimport_images = Configuration::get('BDROPPY_REIMPORT_IMAGES');
+        if($bdroppy_reimport_images == '')
+            $bdroppy_reimport_images = '0';
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
@@ -823,6 +829,7 @@ class Bdroppy extends Module
             'bdroppy_active_product'            => $bdroppy_active_product,
             'bdroppy_custom_feature'            => $bdroppy_custom_feature,
             'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
+            'bdroppy_reimport_images'           => $bdroppy_reimport_images,
             'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
         );
