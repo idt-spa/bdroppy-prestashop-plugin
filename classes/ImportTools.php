@@ -1183,6 +1183,21 @@ class BdroppyImportTools
         return $ean;
     }
 
+    public static function sendOtherOrders()
+    {
+        $rewixApi = new BdroppyRewixApi();
+        $yesterday = date('Y-m-d H:i:s', strtotime("-1 hour"));
+        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "orders` WHERE date_add >= '$yesterday';";
+        $dorders = Db::getInstance()->ExecuteS($sql);
+        foreach ($dorders as $item) {
+            $osql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteorder` WHERE ps_order_id='".$item['id_order']."';";
+            $remoteOrder = Db::getInstance()->ExecuteS($osql);
+            if(!$remoteOrder) {
+                $rewixApi->sendBdroppyOrder(new Order((int)$item['id_order']));
+            }
+        }
+    }
+
     public static function syncWithSupplier()
     {
         $rewixApi = new BdroppyRewixApi();

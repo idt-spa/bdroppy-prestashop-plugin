@@ -385,9 +385,12 @@ class BdroppyRewixApi
 
         $operations = array();
         foreach ($lines as $line) {
-            $productId = (int)$line['id_product'];
-            $modelId = (int)$line['id_product_attribute'];
-            $rewixId = (int)$line['isbn'];
+            $productId = (int)$line['product_id'];
+            $modelId = (int)$line['product_attribute_id'];
+            $product_isbn = (int)$line['isbn'];
+            if($product_isbn <= 0)
+                $product_isbn = (int)$line['product_isbn'];
+            $rewixId = $product_isbn > 0 ? $product_isbn : $modelId;
             //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if ($rewixId) {
                 $operation = array(
@@ -448,7 +451,9 @@ class BdroppyRewixApi
         foreach ($lines as $line) {
             $productId = (int)$line['product_id'];
             $modelId = (int)$line['product_attribute_id'];
-            $product_isbn = (int)$line['product_isbn'];
+            $product_isbn = (int)$line['isbn'];
+            if($product_isbn <= 0)
+                $product_isbn = (int)$line['product_isbn'];
             $rewixId = $product_isbn > 0 ? $product_isbn : $modelId;
 
             //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
@@ -539,7 +544,6 @@ class BdroppyRewixApi
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        //echo "url : $url<br>apiKey : $username<br>password : $password<br>httpCode : $httpCode<br>data : $data";die;
         if ($httpCode == 401) {
             $this->logger->logError('Send dropshipping order: UNAUTHORIZED!!');
             return false;

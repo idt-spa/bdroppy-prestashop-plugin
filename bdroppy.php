@@ -45,8 +45,8 @@ class Bdroppy extends Module
     public function __construct()
     {
         $this->name = 'bdroppy';
-        $this->tab = 'administration';
-        $this->version = '1.0.35';
+        $this->tab = '';
+        $this->version = '1.0.36';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -506,7 +506,7 @@ class Bdroppy extends Module
         return $logs;
     }
 
-    public function paginateUsers($users, $page = 1, $pagination = 50)
+    public function paginateUsers($users, $page = 1, $pagination = 20)
     {
         if(count($users) > $pagination)
             $users = array_slice($users, $pagination * ($page - 1), $pagination);
@@ -565,6 +565,7 @@ class Bdroppy extends Module
         $helper_list->simple_header = false;
         $helper_list->identifier = 'id';
         $helper_list->table = 'merged';
+        $helper_list->token = Tools::getAdminTokenLite('AdminModules');
         $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name;
         $this->_helperlist = $helper_list;
 
@@ -572,9 +573,11 @@ class Bdroppy extends Module
         $users = $this->getOrders();
         $helper_list->listTotal = count($users);
 
+        if(Tools::getValue('submitFilter'.$helper_list->table))
+            $this->tab = 'orders';
         /* Paginate the result */
         $page = ($page = Tools::getValue('submitFilter'.$helper_list->table)) ? $page : 1;
-        $pagination = ($pagination = Tools::getValue($helper_list->table.'_pagination')) ? $pagination : 50;
+        $pagination = ($pagination = Tools::getValue($helper_list->table.'_pagination')) ? $pagination : 20;
         $users = $this->paginateUsers($users, $page, $pagination);
 
         return $helper_list->generateList($users, $fields_list);
@@ -587,7 +590,6 @@ class Bdroppy extends Module
         $connectCatalog = false;
         $connectCronTxt = '';
         $cron_url = $this->getCronURL();
-        $active_tab = 'configurations';
 
         // check if a FORM was submitted using the 'Save Config' button
         if (Tools::isSubmit('submitApiConfig')) {
@@ -609,7 +611,7 @@ class Bdroppy extends Module
                     Configuration::updateValue('BDROPPY_TOKEN', $res['data']->token);
                 }
             }
-            $active_tab = 'configurations';
+            $this->tab = 'configurations';
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
@@ -670,7 +672,7 @@ class Bdroppy extends Module
                     $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
                 else
                     $connectCronTxt = 'CronJob Added ('. $cron_url. ')';
-            $active_tab = 'my_catalogs';
+            $this->tab = 'my_catalogs';
             $saved = true;
         }
         $errors = "";
@@ -781,12 +783,14 @@ class Bdroppy extends Module
         $queue_importing = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_IMPORTING);
         $queue_imported = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED);
         $queue_all = BdroppyRemoteProduct::getCountByStatus('');
+        $renderedOrders = $this->renderOrdersList();
+        if($this->tab == '')
+            $this->tab = 'configurations';
         $tplVars = array(
             'module_display_name'               => $this->displayName,
             'module_version'                    => $this->version,
             'description_big_html'              => '',
             'description'                       => '',
-            'active_tab'                        => $active_tab,
             'home_url'                          => $home_url,
             'urls'                              => $urls,
             'urls'                              => $urls,
@@ -795,9 +799,10 @@ class Bdroppy extends Module
             'module_path'                       => '/modules/bdroppy/',
             'base_url'                          => $base_url,
             'api_key'                           => $api_key,
-            'ordersHtml'                        => $this->renderOrdersList(),
+            'ordersHtml'                        => $renderedOrders,
             'php_dir'                           => $this->getPHPExecutableFromPath(),
             'cron_command'                      => $this->getCronCommand(),
+            'active_tab'                        => $this->tab,
             'api_token'                         => $api_token,
             'cron_url'                          => $cron_url,
             'catalogs'                          => $catalogs['catalogs'],

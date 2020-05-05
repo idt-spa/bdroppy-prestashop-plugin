@@ -360,7 +360,7 @@ class BdroppyCron
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', $lastSync);
         }
 
-        if ((time() - $lastSync) > 30 * 60) {
+        if ((time() - $lastSync) > 10 * 60) {
             BdroppyImportTools::syncWithSupplier();
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int) time());
         }
