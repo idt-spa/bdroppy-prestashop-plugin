@@ -322,7 +322,7 @@ class BdroppyImportTools
             $imageCount = 1;
             $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
             if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
-                $websiteUrl = 'http://media.bdroppy.com/storage-foto/dev/';
+                $websiteUrl = 'http://media.bdroppy.com/storage-foto-dev/prod/';
             }else{
                 $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
             }
