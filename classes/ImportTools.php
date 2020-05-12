@@ -320,11 +320,11 @@ class BdroppyImportTools
     {
         try {
             $imageCount = 1;
-            $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
+            $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
-                $websiteUrl = 'http://media.bdroppy.com/storage-foto-dev/prod/';
+                $websiteUrl = 'https://media.bdroppy.com/storage-foto-dev/prod/';
             }else{
-                $websiteUrl = 'http://media.bdroppy.com/storage-foto/prod/';
+                $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
             $product->deleteImages();
 
@@ -339,7 +339,7 @@ class BdroppyImportTools
                 $curlError = curl_error($ch);
                 curl_close($ch);
                 if ($httpCode != 200) {
-                    self::getLogger()->logDebug('Error loading Image: There has been an error executing the request: ' . $httpCode . '. Error:' . $curlError);
+                    self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
                 } else {
                     $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
                     $handle = fopen($tmpfile, "w");
