@@ -43,6 +43,31 @@ class BdroppyRewixApi
         return $ret;
     }
 
+    public function getProductsJsonSince($catalog_id, $acceptedlocales, $lastQuantitiesSync) {
+        $ret = false;
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $header = "Authorization: Bearer " . $api_token;
+
+        $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.json?acceptedlocales=$acceptedlocales&light=true&user_catalog=$catalog_id&since=$lastQuantitiesSync";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+        $ret['http_code'] = $http_code;
+        if($http_code != 200) {
+            $this->logger->logDebug('getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+        } else {
+            $ret['data'] = json_decode($data);
+        }
+        return $ret;
+    }
+
     public function getProduct($product_id, $catalog_id) {
         $ret = false;
         $xml = new XMLReader();
