@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = '';
-        $this->version = '2.0.0';
+        $this->version = '2.1.0';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 
@@ -70,7 +70,8 @@ class Bdroppy extends Module
      * Don't forget to create update methods if needed:
      * http://doc.prestashop.com/display/PS16/Enabling+the+Auto-Update
      */
-    public function installTabs() {
+    public function installTabs()
+    {
         $languages = Language::getLanguages();
         // Install Tabs:
         // parent tab
@@ -94,7 +95,8 @@ class Bdroppy extends Module
         $importTab->add();
     }
 
-    public function installFeatures() {
+    public function installFeatures()
+    {
         $lngSize = [];
         $lngSize['it'] = 'Taglia';
         $lngSize['en'] = 'Size';
@@ -191,41 +193,43 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $features = Feature::getFeatures($default_language['id_lang']);
         foreach ($features as $feature) {
-            if($feature['name'] == $lngSize[$default_language['iso_code']])
+            if ($feature['name'] == $lngSize[$default_language['iso_code']])
                 $flgSize = false;
-            if($feature['name'] == $lngGender[$default_language['iso_code']])
+            if ($feature['name'] == $lngGender[$default_language['iso_code']])
                 $flgGender = false;
-            if($feature['name'] == $lngColor[$default_language['iso_code']])
+            if ($feature['name'] == $lngColor[$default_language['iso_code']])
                 $flgColor = false;
-            if($feature['name'] == $lngSeason[$default_language['iso_code']])
+            if ($feature['name'] == $lngSeason[$default_language['iso_code']])
                 $flgSeason = false;
         }
-        if($flgSize) {
+        if ($flgSize) {
             $feature = new Feature();
             foreach ($languages as $language)
                 $feature->name[$language['id_lang']] = $lngSize[$language['iso_code']];
             $feature->add();
         }
-        if($flgGender) {
+        if ($flgGender) {
             $feature = new Feature();
             foreach ($languages as $language)
                 $feature->name[$language['id_lang']] = $lngGender[$language['iso_code']];
             $feature->add();
         }
-        if($flgColor) {
+        if ($flgColor) {
             $feature = new Feature();
             foreach ($languages as $language)
                 $feature->name[$language['id_lang']] = $lngColor[$language['iso_code']];
             $feature->add();
         }
-        if($flgSeason) {
+        if ($flgSeason) {
             $feature = new Feature();
             foreach ($languages as $language)
                 $feature->name[$language['id_lang']] = $lngSeason[$language['iso_code']];
             $feature->add();
         }
     }
-    public function installAttributes() {
+
+    public function installAttributes()
+    {
         $lngSize = [];
         $lngSize['it'] = 'Taglia';
         $lngSize['en'] = 'Size';
@@ -322,13 +326,13 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
         foreach ($attributes as $attribute) {
-            if($attribute['name'] == $lngSize[$default_language['iso_code']])
+            if ($attribute['name'] == $lngSize[$default_language['iso_code']])
                 $flgSize = false;
-            if($attribute['name'] == $lngGender[$default_language['iso_code']])
+            if ($attribute['name'] == $lngGender[$default_language['iso_code']])
                 $flgGender = false;
-            if($attribute['name'] == $lngColor[$default_language['iso_code']])
+            if ($attribute['name'] == $lngColor[$default_language['iso_code']])
                 $flgColor = false;
-            if($attribute['name'] == $lngSeason[$default_language['iso_code']])
+            if ($attribute['name'] == $lngSeason[$default_language['iso_code']])
                 $flgSeason = false;
         }
         if ($flgSize) {
@@ -393,6 +397,7 @@ class Bdroppy extends Module
             !$this->registerHook('actionProductDelete') ||
             !$this->registerHook('actionCategoryDelete') ||
             !$this->registerHook('actionPaymentConfirmation') ||
+            !$this->registerHook('actionAdminProductsListingFieldsModifier') ||
             !$this->registerHook('actionObjectOrderAddBefore')
         ) {
             return false;
@@ -422,19 +427,20 @@ class Bdroppy extends Module
 
     public function getCronURL()
     {
-        return _PS_BASE_URL_.__PS_BASE_URI__."modules/".$this->name."/cron.php";
+        return _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/" . $this->name . "/cron.php";
     }
 
-    private function getCatalogs() {
+    private function getCatalogs()
+    {
         $catalogs = [];
         $catalogs[0] = $this->l('Please Select', 'main');
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getUserCatalogs();
-        if($res['catalogs'])
+        if ($res['catalogs'])
             $catalogs[-1] = 'No Catalog';
-        foreach ($res['catalogs'] as $r){
+        foreach ($res['catalogs'] as $r) {
             $r = $rewixApi->getCatalogById2($r->_id);
-            $catalogs[$r->_id]  = isset($r->name)? $r->name ." ( $r->currency ) ( ".count($r->ids)." products )" : null;
+            $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )" : null;
         }
         $ret['http_code'] = $res['http_code'];
         $ret['catalogs'] = $catalogs;
@@ -453,13 +459,13 @@ class Bdroppy extends Module
                 ) {
                     return $path;
                 } else {
-                    $php_executable = $path.DIRECTORY_SEPARATOR.'php'.(isset($_SERVER['WINDIR']) ? '.exe' : '');
+                    $php_executable = $path . DIRECTORY_SEPARATOR . 'php' . (isset($_SERVER['WINDIR']) ? '.exe' : '');
                     if (file_exists($php_executable)
                         && is_file($php_executable)) {
                         return $php_executable;
                     }
 
-                    $php_executable = $path.DIRECTORY_SEPARATOR.'php5'.(isset($_SERVER['WINDIR']) ? '.exe' : '');
+                    $php_executable = $path . DIRECTORY_SEPARATOR . 'php5' . (isset($_SERVER['WINDIR']) ? '.exe' : '');
                     if (file_exists($php_executable)
                         && is_file($php_executable)) {
                         return $php_executable;
@@ -476,31 +482,31 @@ class Bdroppy extends Module
 
     public function getCronCommand()
     {
-        $result = '"'._PS_MODULE_DIR_.$this->name.DIRECTORY_SEPARATOR.'cron.php" ';
+        $result = '"' . _PS_MODULE_DIR_ . $this->name . DIRECTORY_SEPARATOR . 'cron.php" ';
         return $result;
     }
 
     public function getOrders()
     {
         $status = [
-            '0' => ['value' => 'PENDING' ,'desc' => 'User is managing the cart'],
-            '1' => ['value' => 'MONEY WAITING' ,'desc' => 'Awaiting for payment gateway response'],
-            '2' => ['value' => 'TO DISPATCH	' ,'desc' => 'Ready to be dispatched'],
-            '3' => ['value' => 'DISPATCHED' ,'desc' => 'Shipment has been picked up by carrier'],
-            '5' => ['value' => 'BOOKED' ,'desc' => 'Order created by API Acquire or booked by bank transfer'],
-            '2000' => ['value' => 'CANCELLED' ,'desc' => 'Order cancelled'],
-            '2002' => ['value' => 'VERIFY FAILED' ,'desc' => 'Payment was not accepted by payment gateway'],
-            '3001' => ['value' => 'WORKING ON' ,'desc' => 'Logistics office is working on the order'],
-            '3002' => ['value' => 'READY' ,'desc' => 'Order is ready for pick up'],
-            '5003' => ['value' => 'DROPSHIPPER GROWING' ,'desc' => 'Virtual order for growing cart'],
+            '0' => ['value' => 'PENDING', 'desc' => 'User is managing the cart'],
+            '1' => ['value' => 'MONEY WAITING', 'desc' => 'Awaiting for payment gateway response'],
+            '2' => ['value' => 'TO DISPATCH	', 'desc' => 'Ready to be dispatched'],
+            '3' => ['value' => 'DISPATCHED', 'desc' => 'Shipment has been picked up by carrier'],
+            '5' => ['value' => 'BOOKED', 'desc' => 'Order created by API Acquire or booked by bank transfer'],
+            '2000' => ['value' => 'CANCELLED', 'desc' => 'Order cancelled'],
+            '2002' => ['value' => 'VERIFY FAILED', 'desc' => 'Payment was not accepted by payment gateway'],
+            '3001' => ['value' => 'WORKING ON', 'desc' => 'Logistics office is working on the order'],
+            '3002' => ['value' => 'READY', 'desc' => 'Order is ready for pick up'],
+            '5003' => ['value' => 'DROPSHIPPER GROWING', 'desc' => 'Virtual order for growing cart'],
         ];
         $logs = array();
-        $sql = 'SELECT * FROM '._DB_PREFIX_.'bdroppy_remoteorder;';
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bdroppy_remoteorder;';
         if ($results = Db::getInstance()->ExecuteS($sql)) {
             foreach ($results as $row) {
                 $row['status_value'] = $status[$row['status']]['value'];
                 $row['status_desc'] = $status[$row['status']]['desc'];
-                array_push($logs,$row);
+                array_push($logs, $row);
             }
         }
         return $logs;
@@ -508,7 +514,7 @@ class Bdroppy extends Module
 
     public function paginateUsers($users, $page = 1, $pagination = 20)
     {
-        if(count($users) > $pagination)
+        if (count($users) > $pagination)
             $users = array_slice($users, $pagination * ($page - 1), $pagination);
 
         return $users;
@@ -556,7 +562,7 @@ class Bdroppy extends Module
             )
         );
 
-        $helper_list = New HelperList();
+        $helper_list = new HelperList();
         $helper_list->module = $this;
         $helper_list->title = $this->l('Orders List');
         $helper_list->shopLinkType = '';
@@ -566,18 +572,18 @@ class Bdroppy extends Module
         $helper_list->identifier = 'id';
         $helper_list->table = 'merged';
         $helper_list->token = Tools::getAdminTokenLite('AdminModules');
-        $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name;
+        $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name;
         $this->_helperlist = $helper_list;
 
         /* Retrieve list data */
         $users = $this->getOrders();
         $helper_list->listTotal = count($users);
 
-        if(Tools::getValue('submitFilter'.$helper_list->table))
+        if (Tools::getValue('submitFilter' . $helper_list->table))
             $this->tab = 'orders';
         /* Paginate the result */
-        $page = ($page = Tools::getValue('submitFilter'.$helper_list->table)) ? $page : 1;
-        $pagination = ($pagination = Tools::getValue($helper_list->table.'_pagination')) ? $pagination : 20;
+        $page = ($page = Tools::getValue('submitFilter' . $helper_list->table)) ? $page : 1;
+        $pagination = ($pagination = Tools::getValue($helper_list->table . '_pagination')) ? $pagination : 20;
         $users = $this->paginateUsers($users, $page, $pagination);
 
         return $helper_list->generateList($users, $fields_list);
@@ -607,7 +613,7 @@ class Bdroppy extends Module
                 Configuration::updateValue('BDROPPY_CATALOG', '');
                 $rewixApi = new BdroppyRewixApi();
                 $res = $rewixApi->loginUser();
-                if($res['http_code'] == 200) {
+                if ($res['http_code'] == 200) {
                     Configuration::updateValue('BDROPPY_TOKEN', $res['data']->token);
                 }
             }
@@ -617,7 +623,7 @@ class Bdroppy extends Module
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
 
-            if($bdroppy_catalog != '0' && $bdroppy_catalog != '-1')
+            if ($bdroppy_catalog != '0' && $bdroppy_catalog != '-1')
                 Configuration::updateValue('BDROPPY_CATALOG_BU', $bdroppy_catalog);
 
             $bdroppy_active_product = (string)Tools::getValue('bdroppy_active_product');
@@ -667,14 +673,14 @@ class Bdroppy extends Module
 
             $rewixApi = new BdroppyRewixApi();
             $res = $rewixApi->connectUserCatalog();
-            if($res['http_code'] == 200)
+            if ($res['http_code'] == 200)
                 $connectCatalog = true;
             $cron = $rewixApi->setCronJob($cron_url);
-            if($cron['http_code'] == 200)
-                if($cron['data'] == 'url_already_exists')
+            if ($cron['http_code'] == 200)
+                if ($cron['data'] == 'url_already_exists')
                     $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
                 else
-                    $connectCronTxt = 'CronJob Added ('. $cron_url. ')';
+                    $connectCronTxt = 'CronJob Added (' . $cron_url . ')';
             $this->tab = 'my_catalogs';
             $saved = true;
         }
@@ -691,7 +697,7 @@ class Bdroppy extends Module
                 $confirmations .= $this->displayConfirmation($this->l('Catalog Connected'));
             }
         }
-        if($connectCronTxt != '')
+        if ($connectCronTxt != '')
             $confirmations .= $this->displayConfirmation($this->l($connectCronTxt));
 
         $res = AttributeGroup::getAttributesGroups($this->context->language->id);
@@ -717,7 +723,7 @@ class Bdroppy extends Module
         $catalogs = $this->getCatalogs();
 
         $shopDomainSsl = Tools::getShopDomainSsl(true, true);
-        $stripeBOCssUrl = $shopDomainSsl.__PS_BASE_URI__.'modules/'.$this->name.'/views/css/bdroppy.css';
+        $stripeBOCssUrl = $shopDomainSsl . __PS_BASE_URI__ . 'modules/' . $this->name . '/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
         $api_token = "Unkown";
@@ -726,16 +732,16 @@ class Bdroppy extends Module
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $bdroppy_active_product = Configuration::get('BDROPPY_ACTIVE_PRODUCT');
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
-        if($bdroppy_custom_feature == '')
+        if ($bdroppy_custom_feature == '')
             $bdroppy_custom_feature = '0';
         $bdroppy_reimport_image = Configuration::get('BDROPPY_REIMPORT_IMAGE');
-        if($bdroppy_reimport_image == '')
+        if ($bdroppy_reimport_image == '')
             $bdroppy_reimport_image = '0';
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
         $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs['http_code'] . '</span>';
-        if(count($catalogs['catalogs'])>1) {
+        if (count($catalogs['catalogs']) > 1) {
             /*$rewixApi = new BdroppyRewixApi();
             $userInfo = $rewixApi->getUserInfo();
             if($userInfo['http_code'] == 200) {
@@ -790,51 +796,51 @@ class Bdroppy extends Module
         $queue_imported = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED);
         $queue_all = BdroppyRemoteProduct::getCountByStatus('');
         $renderedOrders = $this->renderOrdersList();
-        if($this->tab == '')
+        if ($this->tab == '')
             $this->tab = 'configurations';
         $tplVars = array(
-            'module_display_name'               => $this->displayName,
-            'module_version'                    => $this->version,
-            'description_big_html'              => '',
-            'description'                       => '',
-            'home_url'                          => $home_url,
-            'urls'                              => $urls,
-            'urls'                              => $urls,
-            'erros'                             => $errors,
-            'confirmations'                     => $confirmations,
-            'module_path'                       => '/modules/bdroppy/',
-            'base_url'                          => $base_url,
-            'api_key'                           => $api_key,
-            'ordersHtml'                        => $renderedOrders,
-            'php_dir'                           => $this->getPHPExecutableFromPath(),
-            'cron_command'                      => $this->getCronCommand(),
-            'active_tab'                        => $this->tab,
-            'api_token'                         => $api_token,
-            'cron_url'                          => $cron_url,
-            'catalogs'                          => $catalogs['catalogs'],
-            'attributes'                        => $attributes,
-            'import_image'                      => $import_image,
-            'tax_rule'                          => $tax_rules,
-            'tax_rate'                          => $tax_rates,
-            'category_structure'                => $category_structure,
-            'stripeBOCssUrl'                    => $stripeBOCssUrl,
-            'base_url'                          => $base_url,
-            'api_key'                           => $api_key,
-            'txtStatus'                         => $txtStatus,
-            'queue_queued'                      => $queue_queued,
-            'queue_importing'                   => $queue_importing,
-            'queue_imported'                    => $queue_imported,
-            'queue_all'                         => $queue_all,
-            'limit_counts'                      => $limit_counts,
-            'bdroppy_active_product'            => $bdroppy_active_product,
-            'bdroppy_custom_feature'            => $bdroppy_custom_feature,
-            'bdroppy_import_brand_to_title'     => $bdroppy_import_brand_to_title,
-            'bdroppy_reimport_image'            => $bdroppy_reimport_image,
-            'bdroppy_import_tag_to_title'       => $bdroppy_import_tag_to_title,
-            'bdroppy_auto_update_prices'        => $bdroppy_auto_update_prices,
+            'module_display_name' => $this->displayName,
+            'module_version' => $this->version,
+            'description_big_html' => '',
+            'description' => '',
+            'home_url' => $home_url,
+            'urls' => $urls,
+            'urls' => $urls,
+            'erros' => $errors,
+            'confirmations' => $confirmations,
+            'module_path' => '/modules/bdroppy/',
+            'base_url' => $base_url,
+            'api_key' => $api_key,
+            'ordersHtml' => $renderedOrders,
+            'php_dir' => $this->getPHPExecutableFromPath(),
+            'cron_command' => $this->getCronCommand(),
+            'active_tab' => $this->tab,
+            'api_token' => $api_token,
+            'cron_url' => $cron_url,
+            'catalogs' => $catalogs['catalogs'],
+            'attributes' => $attributes,
+            'import_image' => $import_image,
+            'tax_rule' => $tax_rules,
+            'tax_rate' => $tax_rates,
+            'category_structure' => $category_structure,
+            'stripeBOCssUrl' => $stripeBOCssUrl,
+            'base_url' => $base_url,
+            'api_key' => $api_key,
+            'txtStatus' => $txtStatus,
+            'queue_queued' => $queue_queued,
+            'queue_importing' => $queue_importing,
+            'queue_imported' => $queue_imported,
+            'queue_all' => $queue_all,
+            'limit_counts' => $limit_counts,
+            'bdroppy_active_product' => $bdroppy_active_product,
+            'bdroppy_custom_feature' => $bdroppy_custom_feature,
+            'bdroppy_import_brand_to_title' => $bdroppy_import_brand_to_title,
+            'bdroppy_reimport_image' => $bdroppy_reimport_image,
+            'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
+            'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
         );
         $this->context->smarty->assign($tplVars);
-        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
 
         return $output;
     }
@@ -857,8 +863,8 @@ class Bdroppy extends Module
     public function hookBackOfficeHeader()
     {
         if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
+            $this->context->controller->addJS($this->_path . 'views/js/back.js');
+            $this->context->controller->addCSS($this->_path . 'views/css/back.css');
         }
     }
 
@@ -867,8 +873,8 @@ class Bdroppy extends Module
      */
     public function hookHeader()
     {
-        $this->context->controller->addJS($this->_path.'/views/js/front.js');
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+        $this->context->controller->addJS($this->_path . '/views/js/front.js');
+        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
     }
 
     public function hookActionObjectOrderAddBefore($params)
@@ -898,7 +904,7 @@ class Bdroppy extends Module
 
         try {
             $r = $rewixApi->sendBdroppyOrder($order);
-            if(isset($r['module_error'])) {
+            if (isset($r['module_error'])) {
                 $this->errors[] = Tools::displayError($r['message']);
                 $this->context->controller->errors[] = Tools::displayError($r['message']);
                 return false;
@@ -930,4 +936,32 @@ class Bdroppy extends Module
         }
     }
 
+    public function hookActionAdminProductsListingFieldsModifier($list)
+    {
+        if (isset($list['sql_select'])) {
+            $list['sql_select']['unity'] = array(
+                "table"=>"p",
+                "field"=>"unity",
+                "filtering"=>" %s "
+            );
+            $list['sql_select']['rewix_product_id'] = array(
+                "table"=>"br",
+                "field"=>"rewix_product_id",
+                "filtering"=>" %s "
+            );
+            $list['sql_select']['rewix_catalog_id'] = array(
+                "table"=>"br",
+                "field"=>"rewix_catalog_id",
+                "filtering"=>" %s "
+            );
+        }
+        if (isset($list['sql_table'])) {
+            $list['sql_table']['br'] = array(
+                "table"=>"bdroppy_remoteproduct",
+                "join"=>"LEFT JOIN",
+                "on"=>"br.`ps_product_id` = p.`id_product`"
+            );
+        }
+        //echo "<pre>";var_dump($list);die;
+    }
 }

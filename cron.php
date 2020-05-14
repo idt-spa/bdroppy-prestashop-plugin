@@ -30,6 +30,16 @@ class BdroppyCron
 
         return self::$logger;
     }
+    private static function fitReference($ean, $id)
+    {
+        $ean = (string)$ean;
+        $id = (string)$id;
+        if (Tools::strlen($ean) > 32) {
+            $ean = Tools::substr($ean, 0, 32 - Tools::strlen($id));
+            $ean .= $id;
+        }
+        return $ean;
+    }
     public static function importProducts() {
         try {
             header('Access-Control-Allow-Origin: *');
@@ -104,6 +114,26 @@ class BdroppyCron
             $bdroppy_import_tag_to_title = isset($configurations['BDROPPY_IMPORT_TAG_TO_TITLE']) ? $configurations['BDROPPY_IMPORT_TAG_TO_TITLE'] : '';
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
             $db = Db::getInstance();
+
+            if(isset($_GET['ps_product_id'])) {
+                $updateFlag = true;
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE ps_product_id = '". $_GET['ps_product_id'] ."';";
+                $items = $db->ExecuteS($sql);
+                if(count($items) == 0 && isset($_GET['rewix_product_id'])) {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $_GET['rewix_product_id'] ."';";
+                    $items = $db->ExecuteS($sql);
+                }
+                if(count($items) == 0 && isset($_GET['reference'])) {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE reference = '". $_GET['reference'] ."';";
+                    $items = $db->ExecuteS($sql);
+                }
+                foreach ($items as $item) {
+                    $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
+                    echo($res);
+                    //BdroppyImportTools::updateProductPrices($item, $default_lang);
+                }
+                die;
+            }
 
             if($api_catalog == "-1") {
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
@@ -185,11 +215,13 @@ class BdroppyCron
                         }
 
                         $xmls_ids = [];
+                        $xmls_references = [];
                         while($xml->read()){
                             if($xml->nodeType==XMLReader::ELEMENT && $xml->name == 'item'){
                                 $product_xml = $xml->readOuterXml();
                                 $product = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
                                 $xmls_ids[] = (string)$product->id;
+                                $xmls_references[(string)$product->id] = self::fitReference($product->code, $product->id);
                             }
                         }
                         $xml->close();
@@ -228,11 +260,24 @@ class BdroppyCron
                             }
 
                             foreach ($add_products as $item) {
-                                $db->insert('bdroppy_remoteproduct', array(
-                                    'rewix_product_id' => pSQL($item),
-                                    'rewix_catalog_id' => pSQL($api_catalog),
-                                    'sync_status' => pSQL('queued'),
-                                ));
+                                $remoteProduct = BdroppyRemoteProduct::fromRewixId(pSQL($item));
+                                if($remoteProduct->id) {
+                                    $res = $db->update('bdroppy_remoteproduct', array(
+                                        'rewix_product_id' => pSQL($item),
+                                        'rewix_catalog_id' => pSQL($api_catalog),
+                                        'reference' => pSQL($xmls_references[$item]),
+                                        'sync_status' => pSQL('queued'),
+                                    ),
+                                        'rewix_product_id = ' . pSQL($item)
+                                    );
+                                } else {
+                                    $db->insert('bdroppy_remoteproduct', array(
+                                        'rewix_product_id' => pSQL($item),
+                                        'rewix_catalog_id' => pSQL($api_catalog),
+                                        'reference' => pSQL($xmls_references[$item]),
+                                        'sync_status' => pSQL('queued'),
+                                    ));
+                                }
                             }
                         }
                         if ($bdroppy_auto_update_prices) {

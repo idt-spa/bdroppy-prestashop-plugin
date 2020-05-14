@@ -121,14 +121,24 @@ class BdroppyImportTools
                 $refId = (int)$xmlProduct->id;
                 $sku = (string)$xmlProduct->code;
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
+                $ps_product_id = 0;
 
-                $product = new Product($remoteProduct->ps_product_id);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$remoteProduct->ps_product_id."' AND reference='". self::fitReference($xmlProduct->code, (string)$xmlProduct->id) ."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                if($item['ps_product_id'] == '0') {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$item['reference']."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                    $prds = Db::getInstance()->ExecuteS($sql);
+                    $product = new Product($prds[0]['id_product']);
+                    $ps_product_id = $prds[0]['id_product'];
+                } else {
+                    $product = new Product($item['ps_product_id']);
+                    $ps_product_id = $item['ps_product_id'];
+                }
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='". self::fitReference($xmlProduct->code, (string)$xmlProduct->id) ."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $item) {
                     $dp = new Product($item['id_product']);
                     $dp->delete();
                 }
+                $product->unity = Configuration::get('BDROPPY_CATALOG');
 
                 $logTxt = 'Importing product ' . $sku . ' with id ' . $xmlProduct->id;
                 if($updateFlag)
@@ -147,7 +157,6 @@ class BdroppyImportTools
                     $product->save();
                     $product3 = self::importModels($xmlProduct, $product, $default_lang);
                 }
-                $product->unity = Configuration::get('BDROPPY_CATALOG');
                 $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
@@ -648,7 +657,7 @@ class BdroppyImportTools
             $genderFeatureId = '';
             $seasonFeatureId = '';
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
-            $product->reference = self::fitReference($productData['code'], (string)$xmlProduct->id);
+            $product->reference = self::fitReference($productData['code'], $xmlProduct->id);
             $product->weight = (float)$xmlProduct->weight;
 
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
@@ -702,7 +711,7 @@ class BdroppyImportTools
                 foreach ($productData['description'] as $desc) {
                     if($desc->localecode == $langCode)
                         $product->description[$lang['id_lang']] = $desc->description;
-                    $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
+                        $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
                 }
             }
 
@@ -948,7 +957,10 @@ class BdroppyImportTools
                 $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
-                $ean13 = trim((string)$model->barcode);
+                if(is_string($model->barcode))
+                    $ean13 = trim($model->barcode);
+                else
+                    $ean13 = "";
                 if (strlen($ean13) > 13) {
                     $ean13 = substr($ean13, 0, 13);
                 }
@@ -1056,7 +1068,7 @@ class BdroppyImportTools
             $product->minimal_quantity = 1;
             $product->ean13 = (string)$xmlModel->barcode;
             $product->isbn = $xmlModel->id;
-            $product->reference = self::fitReference((string)$xmlModel->code, $xmlProduct->id);
+            $product->reference = self::fitReference($xmlModel->code, $xmlProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);
 
             self::insertNosizeModel($xmlProduct);
@@ -1184,6 +1196,8 @@ class BdroppyImportTools
      */
     private static function fitReference($ean, $id)
     {
+        $ean = (string)$ean;
+        $id = (string)$id;
         if (Tools::strlen($ean) > 32) {
             $ean = Tools::substr($ean, 0, 32 - Tools::strlen($id));
             $ean .= $id;

@@ -55,6 +55,7 @@ class BdroppyRemoteProduct extends ObjectModel
                 'validate' => 'isInt',
             ),
             'sync_status'      => array('type' => self::TYPE_STRING),
+            'reference'      => array('type' => self::TYPE_STRING),
             'last_sync_date'   => array(
                 'type'     => self::TYPE_DATE,
                 'validate' => 'isDateFormat',

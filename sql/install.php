@@ -96,6 +96,9 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
                 ON DELETE CASCADE
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
+$sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`
+            ADD `reference` VARCHAR(128) NULL;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         echo "false";
