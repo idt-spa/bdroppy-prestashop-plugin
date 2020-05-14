@@ -177,7 +177,7 @@ class BdroppyCron
                         Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastImportSync);
                     }
 
-                    if ((time() - $lastImportSync) > 6 * 3600 || !file_exists('products.xml')) {
+                    if ((time() - $lastImportSync) > 2 * 3600 || !file_exists('products.xml')) {
                         $acceptedlocales = '';
                         $languages = Language::getLanguages();
                         foreach ($languages as $lang) {
