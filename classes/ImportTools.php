@@ -85,29 +85,53 @@ class BdroppyImportTools
         }
     }
 
-    public static function updateProductPrices($item, $default_lang) {
-        $rewixApi = new BdroppyRewixApi();
-        $res = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-        $rewixApi = new BdroppyRewixApi();
-        $xmlProduct = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-
-        if($xmlProduct) {
-            $productData = self::populateProduct($xmlProduct, $default_lang, true);
-            $product = new Product($item['ps_product_id']);
-            $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
-            $product->wholesale_price = round($productData['best_taxable'], 3);
-            $price = $productData['proposed_price'];
-            $price = $price / (1 + $tax->rate / 100);
-            $product->price = round($price, 3);
-            $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
-            $product->tax_rate = $tax->rate;
-            $product->save();
-            $refId = (int)$xmlProduct->id;
-            self::updateImportedProduct($refId, $product->id);
+    public static function updateProductPrices($default_lang, $acceptedlocales) {
+        $api_catalog = Configuration::get('BDROPPY_CATALOG');
+        $api_limit_count = Configuration::get('BDROPPY_LIMIT_COUNT');
+        $i = 1;
+        $db = Db::getInstance();
+        $xml = new XMLReader();
+        if(!$xml->open('since.xml')){
+            return false;
         }
+        while($xml->read()){
+            if($xml->nodeType==XMLReader::ELEMENT && $xml->name == 'item' && $i <= $api_limit_count){
+                $product_xml = $xml->readOuterXml();
+                $xmlProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
+                $json = json_encode($xmlProduct);
+                $product = json_decode($json);
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
+                $items = $db->ExecuteS($sql);
+                $updateFlag = 3;
+                if(count($items) == 0) {
+                    //add product to queue
+                    $db->insert('bdroppy_remoteproduct', array(
+                        'rewix_product_id' => pSQL($product->id),
+                        'rewix_catalog_id' => pSQL($api_catalog),
+                        'reference' => pSQL(self::fitReference($product->code, $product->id)),
+                        'sync_status' => pSQL('queued'),
+                    ));
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
+                    $items = $db->ExecuteS($sql);
+                    foreach ($items as $item) {
+                        $res = self::importProduct($item, $default_lang, false, $acceptedlocales);
+                    }
+                    $i++;
+                } else {
+                    foreach ($items as $item) {
+                        $past = date('Y-m-d H:i:s', strtotime("-1 hour"));
+                        if($item['last_sync_date'] < $past) {
+                            $res = self::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
+                            $i++;
+                        }
+                    }
+                }
+            }
+        }
+        $xml->close();
     }
 
-    public static function importProduct($item, $default_lang, $updateFlag)
+    public static function importProduct($item, $default_lang, $updateFlag, $acceptedlocales)
     {
         try {
             @set_time_limit(3600);
@@ -115,13 +139,26 @@ class BdroppyImportTools
 
             $xmlProduct = false;
             $rewixApi = new BdroppyRewixApi();
-            $xmlProduct = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+            $file = 'products.xml';
+            if($updateFlag == 3)
+                $file = 'since.xml';
+            $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+            if(!$xmlProduct) {
+                $file = 'since.xml';
+                $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+                if(!$xmlProduct) {
+                    $rewixApi = new BdroppyRewixApi();
+                    $r = $rewixApi->getProductsXml($acceptedlocales);
+                    $xmlProduct = $rewixApi->getProduct('products.xml', $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+                }
+            }
 
             if($xmlProduct) {
                 $refId = (int)$xmlProduct->id;
                 $sku = (string)$xmlProduct->code;
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
                 $ps_product_id = 0;
+                $reference = self::fitReference($xmlProduct->code, (string)$xmlProduct->id);
 
                 if($item['ps_product_id'] == '0') {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$item['reference']."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
@@ -132,7 +169,7 @@ class BdroppyImportTools
                     $product = new Product($item['ps_product_id']);
                     $ps_product_id = $item['ps_product_id'];
                 }
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='". self::fitReference($xmlProduct->code, (string)$xmlProduct->id) ."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $item) {
                     $dp = new Product($item['id_product']);
@@ -166,7 +203,7 @@ class BdroppyImportTools
                     self::importProductImages($xmlProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
 
-                self::updateImportedProduct($refId, $product->id);
+                self::updateImportedProduct($refId, $product->id, $reference);
 
                 return 1;
             }
@@ -429,12 +466,11 @@ class BdroppyImportTools
                 }
             }
         }
-
         return array($categoryIds, $deepestCategory);
     }
 
     /** Update the products just imported **/
-    private static function updateImportedProduct($refId, $productId)
+    private static function updateImportedProduct($refId, $productId, $reference)
     {
         try {
             $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
@@ -443,6 +479,7 @@ class BdroppyImportTools
             }
 
             $remoteProduct->sync_status = BdroppyRemoteProduct::SYNC_STATUS_UPDATED;
+            $remoteProduct->reference = $reference;
             $remoteProduct->imported = 1;
             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
             $remoteProduct->priority = 0;
@@ -711,7 +748,7 @@ class BdroppyImportTools
                 foreach ($productData['description'] as $desc) {
                     if($desc->localecode == $langCode)
                         $product->description[$lang['id_lang']] = $desc->description;
-                        $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
+                    $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
                 }
             }
 
@@ -1065,8 +1102,11 @@ class BdroppyImportTools
     {
         try {
             $xmlModel = $xmlProduct->models->model;
+            $ean13 = "";
+            if(is_string($xmlModel->barcode))
+                $ean13 = trim($xmlModel->barcode);
             $product->minimal_quantity = 1;
-            $product->ean13 = (string)$xmlModel->barcode;
+            $product->ean13 = $ean13;
             $product->isbn = $xmlModel->id;
             $product->reference = self::fitReference($xmlModel->code, $xmlProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);

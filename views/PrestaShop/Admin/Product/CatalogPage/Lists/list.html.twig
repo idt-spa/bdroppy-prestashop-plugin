@@ -36,13 +36,17 @@
             $('#myModal').modal('show');
         });
         $("#reimport").click(function(){
-            $('#modal_res').html('<b>Updating ...</b>');
             $.ajax({
                 type: 'GET',
                 url: '/modules/bdroppy/cron.php?ps_product_id='+product_id+'&rewix_product_id='+rewix_product_id+'&reference='+reference,
-                async:false,
+                cache: false,
+                beforeSend: function(){
+                    $('#modal_res').html('<b>Updating ...</b>');
+                    $("#reimport").prop('disabled', true);
+                },
                 error: function(err) {
                     $('#modal_res').html('Result : <b>Failed</b>');
+                    $("#reimport").prop('disabled', false);
                 },
                 success: function(data) {
                     if(data == '1' || data == 'true') {
@@ -50,10 +54,10 @@
                         location.reload();
                     } else {
                         $('#modal_res').html('Result : <b>Failed</b>');
+                        $("#reimport").prop('disabled', false);
                     }
                 },
                 timeout: 60000 // sets timeout to 60 seconds
-
             });
         });
     });
@@ -62,7 +66,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title pull-left">Updatig Product</h4>
+                <h4 class="modal-title pull-left"><img src="/modules/bdroppy/logo.png" alt="Bdroppy" style="float: left; padding-right: 1em"/> Bdroppy Update Product</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -150,7 +154,7 @@
             {% endif %}
             <td>
                 {% if product.unity != '' %}
-                    <span data-id="{{ product.id_product }}" data-name="{{ product.name }}" data-name_category="{{ product.name_category }}" data-reference="{{ product.reference }}" data-rewix_product_id="{{ product.rewix_product_id }}" class="reimport btn btn-success">bdroppy import</span>
+                    <span data-id="{{ product.id_product }}" data-name="{{ product.name }}" data-name_category="{{ product.name_category }}" data-reference="{{ product.reference }}" data-rewix_product_id="{{ product.rewix_product_id }}" class="reimport btn btn-success">ReImport</span>
                 {% endif %}
             </td>
             <td class="text-right">

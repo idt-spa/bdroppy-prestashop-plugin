@@ -108,7 +108,7 @@ class BdroppyRemoteCategory extends ObjectModel
      */
     private static function getTagValue($product, $name, $lang)
     {
-        foreach ($product->tags as $tag)
+        foreach ($product->tags->tag as $tag)
         {
             if($tag->name === $name)
             {

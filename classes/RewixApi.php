@@ -43,35 +43,70 @@ class BdroppyRewixApi
         return $ret;
     }
 
+    public function getProductsXml($acceptedlocales) {
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $api_catalog = Configuration::get('BDROPPY_CATALOG');
+        $url = $base_url . '/restful/export/api/products.xml?acceptedlocales=' . $acceptedlocales . '&user_catalog=' . $api_catalog;
+
+        $header = "Authorization: Bearer " . $api_token;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/xml', 'Content-Type: application/xml', $header));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if($http_code == 200) {
+            $destination = 'products.xml';
+            $file = fopen($destination, 'w');
+            fputs($file, $data);
+            fclose($file);
+            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+        }
+        return $http_code;
+    }
+
     public function getProductsJsonSince($catalog_id, $acceptedlocales, $lastQuantitiesSync) {
         $ret = false;
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
 
-        $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.json?acceptedlocales=$acceptedlocales&light=true&user_catalog=$catalog_id&since=$lastQuantitiesSync";
+
+        $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.xml?acceptedlocales=$acceptedlocales&user_catalog=$catalog_id&since=$lastQuantitiesSync";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/xml', 'Content-Type: application/xml', $header));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curl_error = curl_error($ch);
         curl_close($ch);
-        $ret['http_code'] = $http_code;
         if($http_code != 200) {
             $this->logger->logDebug('getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
         } else {
-            $ret['data'] = json_decode($data);
+            $destination = 'since.xml';
+            $file = fopen($destination, 'w');
+            fputs($file, $data);
+            fclose($file);
+            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+            $ret['http_code'] = $http_code;
         }
         return $ret;
     }
 
-    public function getProduct($product_id, $catalog_id) {
+    public function getProduct($file, $product_id, $catalog_id) {
         $ret = false;
         $xml = new XMLReader();
-        if(!$xml->open('products.xml')){
+        if(!$xml->open($file)){
             return false;
         }
         while($xml->read()){
