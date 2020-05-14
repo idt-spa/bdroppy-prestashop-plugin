@@ -21,7 +21,7 @@ class BdroppyRewixApi
         $this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-api-'.date('y-m-d').'.log');
     }
 
-    public function getProduct($product_id, $catalog_id) {
+    public function getProductJson($product_id, $catalog_id) {
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
 
@@ -41,6 +41,29 @@ class BdroppyRewixApi
         $ret['http_code'] = $http_code;
         $ret['data'] = $data;
         return $ret;
+    }
+
+    public function getProduct($product_id, $catalog_id) {
+        $ret = false;
+        $xml = new XMLReader();
+        if(!$xml->open('products.xml')){
+            return false;
+        }
+        while($xml->read()){
+            if($xml->nodeType==XMLReader::ELEMENT && $xml->name == 'item'){
+                $product_xml = $xml->readOuterXml();
+                $xmlProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
+                $json = json_encode($xmlProduct);
+                $product = json_decode($json);
+
+                if((string)$product->id == $product_id) {
+                    $xml->close();
+                    return $product;
+                }
+            }
+        }
+        $xml->close();
+        return false;
     }
 
     public function getProductsJson($api_catalog) {

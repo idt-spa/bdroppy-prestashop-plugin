@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = '';
-        $this->version = '1.0.38';
+        $this->version = '2.0.0';
         $this->author = 'Hamid Isaac';
         $this->need_instance = 1;
 

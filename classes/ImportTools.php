@@ -88,8 +88,10 @@ class BdroppyImportTools
     public static function updateProductPrices($item, $default_lang) {
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-        if ($res['http_code'] === 200) {
-            $xmlProduct = json_decode($res['data']);
+        $rewixApi = new BdroppyRewixApi();
+        $xmlProduct = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+
+        if($xmlProduct) {
             $productData = self::populateProduct($xmlProduct, $default_lang, true);
             $product = new Product($item['ps_product_id']);
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
@@ -113,11 +115,8 @@ class BdroppyImportTools
 
             $xmlProduct = false;
             $rewixApi = new BdroppyRewixApi();
-            $res = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+            $xmlProduct = $rewixApi->getProduct($item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
 
-            if ($res['http_code'] === 200) {
-                $xmlProduct = json_decode($res['data']);
-            }
             if($xmlProduct) {
                 $refId = (int)$xmlProduct->id;
                 $sku = (string)$xmlProduct->code;
@@ -173,9 +172,7 @@ class BdroppyImportTools
     private static function getTagValues($tag, $default_lang)
     {
         $value = self::stripTagValues((string)$tag->value);
-        $translation = "";
-        if(isset($tag->translations->{$default_lang}))
-            $translation = self::stripTagValues((string)$tag->translations->{$default_lang});
+        $translation = self::stripTagValues((string)$tag->translations->translation->description);
 
         return array(
             'value'       => $value,
@@ -329,7 +326,11 @@ class BdroppyImportTools
             $product->deleteImages();
 
             $i = 0;
-            foreach ($xmlProduct->pictures as $image) {
+            if(isset($xmlProduct->pictures->image->url))
+                $images[0] = $xmlProduct->pictures->image;
+            else
+                $images = $xmlProduct->pictures->image;
+            foreach ($images as $image) {
                 $imageUrl = "{$websiteUrl}{$image->url}";
 
                 $ch = curl_init($imageUrl);
@@ -364,8 +365,8 @@ class BdroppyImportTools
                     @unlink($tmpfile);
                 }
                 $i++;
-                if($count != 'all') {
-                    if($i >= $count)
+                if ($count != 'all') {
+                    if ($i >= $count)
                         break;
                 }
             }
@@ -487,7 +488,7 @@ class BdroppyImportTools
 
     private static function getTagValue($product, $name, $lang)
     {
-        foreach ($product->tags as $tag)
+        foreach ($product->tags->tag as $tag)
         {
             if($tag->name === $name)
             {
@@ -510,9 +511,10 @@ class BdroppyImportTools
 
     private static function getDescriptions($product, $lang)
     {
-        if (isset($product->descriptions->{$lang}))
+        if (isset($product->descriptions->description->localecode))
         {
-            return @$product->descriptions->{$lang};
+            if($product->descriptions->description->localecode == $lang)
+                return $product->descriptions->description->description;
         }else{
             return "";
         }
@@ -578,7 +580,7 @@ class BdroppyImportTools
         );
 
         //check for tag-ID:
-        foreach ($xml->tags as $tag) {
+        foreach ($xml->tags->tag as $tag) {
             if (in_array((int)$tag->id, array_keys($tags))) {
                 $tags[(int)$tag->id] = self::getTagValues($tag->value, $default_lang);
             }
@@ -600,7 +602,7 @@ class BdroppyImportTools
             $imported = false;
         }
 
-        $description = $xml->descriptions;
+        $description = (array)$xml->descriptions;
 
         $product = array(
             'remote_id'             => $refId,
@@ -697,8 +699,11 @@ class BdroppyImportTools
                 }
                 $product->name[$lang['id_lang']] = $name;
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
-                $product->description[$lang['id_lang']] = self::getDescriptions($xmlProduct, $langCode);
-                $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($xmlProduct, $langCode), 0, 800);
+                foreach ($productData['description'] as $desc) {
+                    if($desc->localecode == $langCode)
+                        $product->description[$lang['id_lang']] = $desc->description;
+                    $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
+                }
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
@@ -906,7 +911,11 @@ class BdroppyImportTools
     private static function importModels($xmlProduct, Product $product, $default_lang)
     {
         try {
-            $xmlModels = $xmlProduct->models;
+            if(isset($xmlProduct->models->model->size))
+                $xmlModels[0] = $xmlProduct->models->model;
+            else
+                $xmlModels = $xmlProduct->models->model;
+
             $modelCount = 0;
 
             $langs = [];
@@ -934,19 +943,20 @@ class BdroppyImportTools
             $languages = Language::getLanguages(false);
             $first = true;
             $delete_combinations = $product->deleteProductAttributes();
+
             foreach ($xmlModels as $model) {
                 $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
                 $ean13 = trim((string)$model->barcode);
-                if(strlen($ean13)>13) {
+                if (strlen($ean13) > 13) {
                     $ean13 = substr($ean13, 0, 13);
                 }
 
                 $combinationAttributes = array();
 
-                if($model->color) {
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
+                if ($model->color) {
+                    $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
@@ -959,7 +969,7 @@ class BdroppyImportTools
                         $attribute->color = self::getColor($xmlProduct, 'en_US');
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
-                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
+                        $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
                         $r = Db::getInstance()->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];
@@ -967,8 +977,8 @@ class BdroppyImportTools
                     }
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
-                if($model->size) {
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                if ($model->size) {
+                    $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                     $r = Db::getInstance()->executeS($sql);
 
                     if ($r) {
@@ -980,7 +990,7 @@ class BdroppyImportTools
                         }
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_SIZE');
                         $attribute->save();
-                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                        $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                         $r = Db::getInstance()->executeS($sql);
 
                         if ($r) {
@@ -991,7 +1001,7 @@ class BdroppyImportTools
                 }
 
                 $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-                $rate = 1+$tax->rate/100;
+                $rate = 1 + $tax->rate / 100;
                 $user_tax = Configuration::get('BDROPPY_USER_TAX');
                 $wholesale_price = round($xmlProduct->bestTaxable, 3);
 
@@ -1007,7 +1017,7 @@ class BdroppyImportTools
                 $minimal_quantity = 1;
                 $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute );
+                Db::getInstance()->update('product_attribute', array('wholesale_price' => $wholesale_price), 'id_product_attribute = ' . (int)$idProductAttribute);
                 $first = false;
             }
 
@@ -1027,7 +1037,7 @@ class BdroppyImportTools
     /** In case of simple product, nosize combination is stored in remote_combination table for sending right variation with orders */
     private static function insertNosizeModel($xmlProduct)
     {
-        $xmlModel = $xmlProduct->models[0];
+        $xmlModel = $xmlProduct->models->model;
 
         $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$xmlModel->id);
         $remoteCombination->rewix_product_id = (int) $xmlProduct->id;
@@ -1042,7 +1052,7 @@ class BdroppyImportTools
     private static function importSimpleProduct($xmlProduct, Product $product)
     {
         try {
-            $xmlModel = $xmlProduct->models[0];
+            $xmlModel = $xmlProduct->models->model;
             $product->minimal_quantity = 1;
             $product->ean13 = (string)$xmlModel->barcode;
             $product->isbn = $xmlModel->id;
@@ -1085,10 +1095,8 @@ class BdroppyImportTools
 
     private static function checkSimpleImport($xmlProduct)
     {
-        if (count($xmlProduct->models) == 1) {
-            $xmlModel = $xmlProduct->models[0];
-            $size = (string)$xmlModel->size;
-            if ($size == 'NOSIZE') {
+        if (isset($xmlProduct->models->model->size)) {
+            if ($xmlProduct->models->model->size == 'NOSIZE') {
                 return true;
             } else {
                 return false;
