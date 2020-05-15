@@ -141,11 +141,25 @@ class BdroppyImportTools
             $xmlProduct = false;
             $rewixApi = new BdroppyRewixApi();
             $file = $api_catalog.'.xml';
-            if($updateFlag == 3)
-                $file = $api_catalog.'_since.xml';
+            if($updateFlag == 3) {
+                $file = $api_catalog . '_since.xml';
+                if(!file_exists($file)) {
+                    $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
+                    if ($lastQuantitiesSync == 0) {
+                        $lastQuantitiesSync = time();
+                        Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
+                    }
+                    $rewixApi = new BdroppyRewixApi();
+                    $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
+                    $r = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
+                }
+            }
             $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
             if(!$xmlProduct) {
-                $file = $api_catalog.'_since.xml';
+                if($file == $api_catalog.'_since.xml')
+                    $file = $api_catalog.'.xml';
+                else
+                    $file = $api_catalog.'_since.xml';
                 $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
                 if(!$xmlProduct) {
                     $rewixApi = new BdroppyRewixApi();
@@ -210,6 +224,7 @@ class BdroppyImportTools
 
                 return 1;
             }
+            return 0;
         } catch (PrestaShopException $e) {
             $logTxt = 'import - importProduct : ' . $e->getMessage();
             if($updateFlag)
