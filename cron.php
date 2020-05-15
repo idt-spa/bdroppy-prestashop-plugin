@@ -128,10 +128,14 @@ class BdroppyCron
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
 
-            if(isset($_GET['ps_product_id'])) {
+            if(isset($_GET['ps_product_id']) || isset($_GET['rewix_product_id']) || isset($_GET['reference'])) {
                 $updateFlag = true;
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE ps_product_id = '". $_GET['ps_product_id'] ."';";
-                $items = $db->ExecuteS($sql);
+                $sql = "";
+                $items = [];
+                if(isset($_GET['ps_product_id'])) {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE ps_product_id = '". $_GET['ps_product_id'] ."';";
+                    $items = $db->ExecuteS($sql);
+                }
                 if(count($items) == 0 && isset($_GET['rewix_product_id'])) {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $_GET['rewix_product_id'] ."';";
                     $items = $db->ExecuteS($sql);
@@ -190,12 +194,12 @@ class BdroppyCron
                         Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastImportSync);
                     }
 
-                    if ((time() - $lastImportSync) > 6 * 3600 || !file_exists('products.xml')) {
+                    if ((time() - $lastImportSync) > 6 * 3600 || !file_exists($api_catalog.'.xml')) {
                         $rewixApi = new BdroppyRewixApi();
                         $rewixApi->getProductsXml($acceptedlocales);
                     } else {
                         $xml = new XMLReader();
-                        if(!$xml->open('products.xml')){
+                        if(!$xml->open($api_catalog.'.xml')){
                             die("Error opening the XML file");
                         }
 
@@ -276,6 +280,7 @@ class BdroppyCron
                         foreach ($items as $item) {
                             if ($item['sync_status'] == 'queued') {
                                 $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
+                                echo($item['rewix_product_id'] .':'.$res);
                             }
                             if ($item['sync_status'] == 'delete') {
                                 $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'deleted', 'imported' => 0), 'id = ' . $item['id']);
@@ -386,7 +391,7 @@ class BdroppyCron
                 if ($bdroppy_auto_update_prices) {
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
                     $total = $db->ExecuteS($sql);
-                    if($total[0]['total'] == 0 || $_GET['dev'] == 'isaac') {
+                    if($total[0]['total'] == 0 || isset($_GET['dev'])) {
                         $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                         if ($lastQuantitiesSync == 0) {
                             $lastQuantitiesSync = time();

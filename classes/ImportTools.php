@@ -91,7 +91,7 @@ class BdroppyImportTools
         $i = 1;
         $db = Db::getInstance();
         $xml = new XMLReader();
-        if(!$xml->open('since.xml')){
+        if(!$xml->open($api_catalog.'_since.xml')){
             return false;
         }
         while($xml->read()){
@@ -137,19 +137,20 @@ class BdroppyImportTools
             @set_time_limit(3600);
             @ini_set('memory_limit', '1024M');
 
+            $api_catalog = Configuration::get('BDROPPY_CATALOG');
             $xmlProduct = false;
             $rewixApi = new BdroppyRewixApi();
-            $file = 'products.xml';
+            $file = $api_catalog.'.xml';
             if($updateFlag == 3)
-                $file = 'since.xml';
+                $file = $api_catalog.'_since.xml';
             $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
             if(!$xmlProduct) {
-                $file = 'since.xml';
+                $file = $api_catalog.'_since.xml';
                 $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
                 if(!$xmlProduct) {
                     $rewixApi = new BdroppyRewixApi();
                     $r = $rewixApi->getProductsXml($acceptedlocales);
-                    $xmlProduct = $rewixApi->getProduct('products.xml', $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
+                    $xmlProduct = $rewixApi->getProduct($api_catalog.'.xml', $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
                 }
             }
 
@@ -161,14 +162,16 @@ class BdroppyImportTools
                 $reference = self::fitReference($xmlProduct->code, (string)$xmlProduct->id);
 
                 if($item['ps_product_id'] == '0') {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$item['reference']."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
                     $prds = Db::getInstance()->ExecuteS($sql);
-                    $product = new Product($prds[0]['id_product']);
-                    $ps_product_id = $prds[0]['id_product'];
+                    if(count($prds)>0) {
+                        $ps_product_id = $prds[0]['id_product'];
+                    }
                 } else {
-                    $product = new Product($item['ps_product_id']);
                     $ps_product_id = $item['ps_product_id'];
                 }
+
+                $product = new Product($ps_product_id);
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $item) {
@@ -218,7 +221,11 @@ class BdroppyImportTools
     private static function getTagValues($tag, $default_lang)
     {
         $value = self::stripTagValues((string)$tag->value);
-        $translation = self::stripTagValues((string)$tag->translations->translation->description);
+        $translation = "";
+        foreach ($tag->translations->translation as $tr) {
+            if($tr->localecode == $default_lang)
+                $translation = self::stripTagValues((string)$tr->description);
+        }
 
         return array(
             'value'       => $value,
@@ -369,6 +376,12 @@ class BdroppyImportTools
             }else{
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
+            $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
+            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+            }else{
+                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+            }
             $product->deleteImages();
 
             $i = 0;
@@ -400,7 +413,7 @@ class BdroppyImportTools
                     if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
                             false,
                             true
-                        )) === true && $image->add()
+                        )) === true && $image->save()
                     ) {
                         if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
                             $image->delete();
@@ -648,7 +661,7 @@ class BdroppyImportTools
             $imported = false;
         }
 
-        $description = (array)$xml->descriptions;
+        $description = (array)$xml->descriptions->description;
 
         $product = array(
             'remote_id'             => $refId,
@@ -746,9 +759,10 @@ class BdroppyImportTools
                 $product->name[$lang['id_lang']] = $name;
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
                 foreach ($productData['description'] as $desc) {
-                    if($desc->localecode == $langCode)
+                    if($desc->localecode == $langCode) {
                         $product->description[$lang['id_lang']] = $desc->description;
-                    $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
+                        $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
+                    }
                 }
             }
 

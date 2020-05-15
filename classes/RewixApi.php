@@ -63,8 +63,9 @@ class BdroppyRewixApi
         $curl_error = curl_error($ch);
         curl_close($ch);
 
+        //echo "<pre>";var_dump($url, $http_code, $data);die;
         if($http_code == 200) {
-            $destination = 'products.xml';
+            $destination = $api_catalog.'.xml';
             $file = fopen($destination, 'w');
             fputs($file, $data);
             fclose($file);
@@ -76,6 +77,7 @@ class BdroppyRewixApi
     public function getProductsJsonSince($catalog_id, $acceptedlocales, $lastQuantitiesSync) {
         $ret = false;
         $api_token = Configuration::get('BDROPPY_TOKEN');
+        $api_catalog = Configuration::get('BDROPPY_CATALOG');
         $header = "Authorization: Bearer " . $api_token;
 
 
@@ -93,7 +95,7 @@ class BdroppyRewixApi
         if($http_code != 200) {
             $this->logger->logDebug('getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
         } else {
-            $destination = 'since.xml';
+            $destination = $api_catalog.'_since.xml';
             $file = fopen($destination, 'w');
             fputs($file, $data);
             fclose($file);
