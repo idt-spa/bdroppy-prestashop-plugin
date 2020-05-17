@@ -21,6 +21,17 @@ class BdroppyRewixApi
         $this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-api-'.date('y-m-d').'.log');
     }
 
+    private static function fitReference($ean, $id)
+    {
+        $ean = (string)$ean;
+        $id = (string)$id;
+        if (Tools::strlen($ean) > 32) {
+            $ean = Tools::substr($ean, 0, 32 - Tools::strlen($id));
+            $ean .= $id;
+        }
+        return $ean;
+    }
+
     public function getProductJson($product_id, $catalog_id) {
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
@@ -43,18 +54,20 @@ class BdroppyRewixApi
         return $ret;
     }
 
-    public function getProductsXml($acceptedlocales) {
+    public function getProductsFull($acceptedlocales) {
+        $ret = false;
+        $pageSize = 100;
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
-        $url = $base_url . '/restful/export/api/products.xml?acceptedlocales=' . $acceptedlocales . '&user_catalog=' . $api_catalog;
+        $url = $base_url . "/restful/export/api/products.json?pageSize=$pageSize&page=1&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
         $header = "Authorization: Bearer " . $api_token;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/xml', 'Content-Type: application/xml', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
 
@@ -63,13 +76,61 @@ class BdroppyRewixApi
         $curl_error = curl_error($ch);
         curl_close($ch);
 
-        //echo "<pre>";var_dump($url, $http_code, $data);die;
         if($http_code == 200) {
-            $destination = $api_catalog.'.xml';
-            $file = fopen($destination, 'w');
-            fputs($file, $data);
-            fclose($file);
+            Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete'));
+
+            $json = json_decode($data);
+            foreach ($json->items as $item) {
+                $jsonProduct = json_encode($item);
+                $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
+                $remoteProduct->reference = self::fitReference($item->code, $item->id);
+                $remoteProduct->rewix_catalog_id = $api_catalog;
+                $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+                if($remoteProduct->data != $jsonProduct) {
+                    $remoteProduct->sync_status = 'queued';
+                }
+                $remoteProduct->data = $jsonProduct;
+                $remoteProduct->save();
+            }
+            if($json->totalPages >= 2) {
+                for ($i = 2; $i <= $json->totalPages; $i++) {
+                    $url = $base_url . "/restful/export/api/products.json?pageSize=$pageSize&page=$i&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
+
+                    $header = "Authorization: Bearer " . $api_token;
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+                    $data = curl_exec($ch);
+                    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    $curl_error = curl_error($ch);
+                    curl_close($ch);
+                    if($http_code == 200) {
+                        $json = json_decode($data);
+                        foreach ($json->items as $item) {
+                            $jsonProduct = json_encode($item);
+                            $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
+                            $remoteProduct->reference = self::fitReference($item->code, $item->id);
+                            $remoteProduct->rewix_catalog_id = $api_catalog;
+                            $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+                            if ($remoteProduct->data != $jsonProduct) {
+                                $remoteProduct->sync_status = 'queued';
+                            }
+                            $remoteProduct->data = $jsonProduct;
+                            $remoteProduct->save();
+                        }
+                    } else {
+                        $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+                    }
+                }
+            }
             Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+        } else {
+            $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
         }
         return $http_code;
     }
@@ -81,28 +142,35 @@ class BdroppyRewixApi
         $header = "Authorization: Bearer " . $api_token;
 
 
-        $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.xml?acceptedlocales=$acceptedlocales&user_catalog=$catalog_id&since=$lastQuantitiesSync";
+        $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.json?acceptedlocales=$acceptedlocales&user_catalog=$catalog_id&since=$lastQuantitiesSync";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/xml', 'Content-Type: application/xml', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curl_error = curl_error($ch);
         curl_close($ch);
-        if($http_code != 200) {
-            $this->logger->logDebug('getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+        if($http_code == 200) {
+            $json = json_decode($data);
+            foreach ($json->items as $item) {
+                $jsonProduct = json_encode($item);
+                $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
+                $remoteProduct->reference = self::fitReference($item->code, $item->id);
+                $remoteProduct->rewix_catalog_id = $api_catalog;
+                $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+                if ($remoteProduct->data != $jsonProduct) {
+                    $remoteProduct->sync_status = 'queued';
+                }
+                $remoteProduct->data = $jsonProduct;
+                $remoteProduct->save();
+            }
         } else {
-            $destination = $api_catalog.'_since.xml';
-            $file = fopen($destination, 'w');
-            fputs($file, $data);
-            fclose($file);
-            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
-            $ret['http_code'] = $http_code;
+            $this->logger->logDebug('getProductsJsonSince - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
         }
-        return $ret;
+        return $http_code;
     }
 
     public function getProduct($file, $product_id, $catalog_id) {

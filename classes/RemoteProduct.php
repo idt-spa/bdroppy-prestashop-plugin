@@ -20,6 +20,7 @@ class BdroppyRemoteProduct extends ObjectModel
 {
     public $id;
     public $rewix_product_id;
+    public $rewix_catalog_id;
     public $ps_product_id;
     public $sync_status;
     public $simple;
@@ -27,6 +28,8 @@ class BdroppyRemoteProduct extends ObjectModel
     public $priority;
     public $imported;
     public $reason;
+    public $reference;
+    public $data;
 
     const SYNC_STATUS_QUEUED = 'queued';
     const SYNC_STATUS_FAILED = 'failed';
@@ -55,7 +58,9 @@ class BdroppyRemoteProduct extends ObjectModel
                 'validate' => 'isInt',
             ),
             'sync_status'      => array('type' => self::TYPE_STRING),
+            'rewix_catalog_id'      => array('type' => self::TYPE_STRING),
             'reference'      => array('type' => self::TYPE_STRING),
+            'data'      => array('type' => self::TYPE_STRING),
             'last_sync_date'   => array(
                 'type'     => self::TYPE_DATE,
                 'validate' => 'isDateFormat',

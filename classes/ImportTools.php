@@ -90,15 +90,15 @@ class BdroppyImportTools
         $api_limit_count = Configuration::get('BDROPPY_LIMIT_COUNT');
         $i = 1;
         $db = Db::getInstance();
-        $xml = new XMLReader();
-        if(!$xml->open($api_catalog.'_since.xml')){
+        $json = new XMLReader();
+        if(!$json->open($api_catalog.'_since.xml')){
             return false;
         }
-        while($xml->read()){
-            if($xml->nodeType==XMLReader::ELEMENT && $xml->name == 'item' && $i <= $api_limit_count){
-                $product_xml = $xml->readOuterXml();
-                $xmlProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
-                $json = json_encode($xmlProduct);
+        while($json->read()){
+            if($json->nodeType==XMLReader::ELEMENT && $json->name == 'item' && $i <= $api_limit_count){
+                $product_xml = $json->readOuterXml();
+                $jsonProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
+                $json = json_encode($jsonProduct);
                 $product = json_decode($json);
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
                 $items = $db->ExecuteS($sql);
@@ -128,7 +128,7 @@ class BdroppyImportTools
                 }
             }
         }
-        $xml->close();
+        $json->close();
     }
 
     public static function importProduct($item, $default_lang, $updateFlag, $acceptedlocales)
@@ -138,45 +138,17 @@ class BdroppyImportTools
             @ini_set('memory_limit', '1024M');
 
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
-            $xmlProduct = false;
-            $rewixApi = new BdroppyRewixApi();
-            $file = $api_catalog.'.xml';
-            if($updateFlag == 3) {
-                $file = $api_catalog . '_since.xml';
-                if(!file_exists($file)) {
-                    $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
-                    if ($lastQuantitiesSync == 0) {
-                        $lastQuantitiesSync = time();
-                        Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
-                    }
-                    $rewixApi = new BdroppyRewixApi();
-                    $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
-                    $r = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
-                }
-            }
-            $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-            if(!$xmlProduct) {
-                if($file == $api_catalog.'_since.xml')
-                    $file = $api_catalog.'.xml';
-                else
-                    $file = $api_catalog.'_since.xml';
-                $xmlProduct = $rewixApi->getProduct($file, $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-                if(!$xmlProduct) {
-                    $rewixApi = new BdroppyRewixApi();
-                    $r = $rewixApi->getProductsXml($acceptedlocales);
-                    $xmlProduct = $rewixApi->getProduct($api_catalog.'.xml', $item['rewix_product_id'], Configuration::get('BDROPPY_CATALOG'));
-                }
-            }
+            $jsonProduct = json_decode($item['data']);
 
-            if($xmlProduct) {
-                $refId = (int)$xmlProduct->id;
-                $sku = (string)$xmlProduct->code;
+            if($jsonProduct) {
+                $refId = (int)$jsonProduct->id;
+                $sku = (string)$jsonProduct->code;
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
                 $ps_product_id = 0;
-                $reference = self::fitReference($xmlProduct->code, (string)$xmlProduct->id);
+                $reference = self::fitReference($jsonProduct->code, (string)$jsonProduct->id);
 
                 if($item['ps_product_id'] == '0') {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='$api_catalog';";
                     $prds = Db::getInstance()->ExecuteS($sql);
                     if(count($prds)>0) {
                         $ps_product_id = $prds[0]['id_product'];
@@ -186,45 +158,44 @@ class BdroppyImportTools
                 }
 
                 $product = new Product($ps_product_id);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='".Configuration::get('BDROPPY_CATALOG')."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='$api_catalog';";
                 $dps = Db::getInstance()->ExecuteS($sql);
-                foreach ($dps as $item) {
-                    $dp = new Product($item['id_product']);
+                foreach ($dps as $d) {
+                    $dp = new Product($d['id_product']);
                     $dp->delete();
                 }
-                $product->unity = Configuration::get('BDROPPY_CATALOG');
+                $product->unity = $api_catalog;
 
-                $logTxt = 'Importing product ' . $sku . ' with id ' . $xmlProduct->id;
+                $logTxt = 'Importing product ' . $sku . ' with id ' . $jsonProduct->id;
                 if($updateFlag)
-                    $logTxt = 'Updating product ' . $sku . ' with id ' . $xmlProduct->id;
+                    $logTxt = 'Updating product ' . $sku . ' with id ' . $jsonProduct->id;
 
                 self::getLogger()->logDebug($logTxt);
 
                 // populate general common fields
-                $product1 = self::populateProductAttributes($xmlProduct, $product, $default_lang);
-                if (self::checkSimpleImport($xmlProduct)) {
-                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $xmlProduct->id . ' will be imported as simple product');
-                    $product2 = self::importSimpleProduct($xmlProduct, $product);
+                $product1 = self::populateProductAttributes($jsonProduct, $product, $default_lang);
+                if (self::checkSimpleImport($jsonProduct)) {
+                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $jsonProduct->id . ' will be imported as simple product');
+                    $product2 = self::importSimpleProduct($jsonProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
                 } else {
                     $product->save();
-                    $product3 = self::importModels($xmlProduct, $product, $default_lang);
+                    $product3 = self::importModels($jsonProduct, $product, $default_lang);
                 }
                 $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE') || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
-                    self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $xmlProduct->id . ')');
-                    self::importProductImages($xmlProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
+                    self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')');
+                    self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
 
                 self::updateImportedProduct($refId, $product->id, $reference);
 
                 return 1;
             }
-            return 0;
         } catch (PrestaShopException $e) {
             $logTxt = 'import - importProduct : ' . $e->getMessage();
             if($updateFlag)
@@ -381,7 +352,7 @@ class BdroppyImportTools
         return true;
     }
 
-    private static function importProductImages($xmlProduct, $product, $count)
+    private static function importProductImages($jsonProduct, $product, $count)
     {
         try {
             $imageCount = 1;
@@ -391,20 +362,10 @@ class BdroppyImportTools
             }else{
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
-            $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
-            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
-                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
-            }else{
-                $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
-            }
             $product->deleteImages();
 
             $i = 0;
-            if(isset($xmlProduct->pictures->image->url))
-                $images[0] = $xmlProduct->pictures->image;
-            else
-                $images = $xmlProduct->pictures->image;
-            foreach ($images as $image) {
+            foreach ($jsonProduct->pictures as $image) {
                 $imageUrl = "{$websiteUrl}{$image->url}";
 
                 $ch = curl_init($imageUrl);
@@ -415,6 +376,46 @@ class BdroppyImportTools
                 curl_close($ch);
                 if ($httpCode != 200) {
                     self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
+                    $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
+                    if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+                        $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+                    }else{
+                        $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+                    }
+                    $imageUrl = "{$websiteUrl}{$image->url}";
+
+                    $ch = curl_init($imageUrl);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    $content = curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    $curlError = curl_error($ch);
+                    curl_close($ch);
+                    if ($httpCode != 200) {
+                        self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
+                    } else {
+                        $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
+                        $handle = fopen($tmpfile, "w");
+                        fwrite($handle, $content);
+                        fclose($handle);
+                        $image = new Image();
+                        $image->id_product = $product->id;
+                        $image->position = $imageCount;
+                        $image->cover = (int)$imageCount === 1;
+
+                        if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
+                                false,
+                                true
+                            )) === true && $image->add()
+                        ) {
+                            if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
+                                $image->delete();
+                            } else {
+                                $imageCount++;
+                            }
+                        }
+                        @unlink($tmpfile);
+                    }
+                    $i++;
                 } else {
                     $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
                     $handle = fopen($tmpfile, "w");
@@ -428,7 +429,7 @@ class BdroppyImportTools
                     if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
                             false,
                             true
-                        )) === true && $image->save()
+                        )) === true && $image->add()
                     ) {
                         if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
                             $image->delete();
@@ -439,8 +440,8 @@ class BdroppyImportTools
                     @unlink($tmpfile);
                 }
                 $i++;
-                if ($count != 'all') {
-                    if ($i >= $count)
+                if($count != 'all') {
+                    if($i >= $count)
                         break;
                 }
             }
@@ -454,7 +455,7 @@ class BdroppyImportTools
      *
      * @return array
      */
-    private static function getCategoryIds($tags, $xmlProduct)
+    private static function getCategoryIds($tags, $jsonProduct)
     {
         $rootCategory = Category::getRootCategory();
         $categoryIds = array($rootCategory->id);
@@ -485,7 +486,7 @@ class BdroppyImportTools
                     $category,
                     $id,
                     $tags[$id]['value'],
-                    $xmlProduct
+                    $jsonProduct
                 );
                 $categoryIds[] = $category->id;
                 if ($currentDeepness > $maxDeepness) {
@@ -529,8 +530,8 @@ class BdroppyImportTools
 
         while ($reader->read()) {
             if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
-                $xmlProduct = self::getProductXML($reader);
-                $product = self::populateProduct($xmlProduct);
+                $jsonProduct = self::getProductXML($reader);
+                $product = self::populateProduct($jsonProduct);
 
                 if (!$product) {
                     self::getLogger()->logDebug('Fail to load product!');
@@ -562,7 +563,7 @@ class BdroppyImportTools
 
     private static function getTagValue($product, $name, $lang)
     {
-        foreach ($product->tags->tag as $tag)
+        foreach ($product->tags as $tag)
         {
             if($tag->name === $name)
             {
@@ -585,14 +586,12 @@ class BdroppyImportTools
 
     private static function getDescriptions($product, $lang)
     {
-        if (isset($product->descriptions->description->localecode))
+        if (isset($product->descriptions->{$lang}))
         {
-            if($product->descriptions->description->localecode == $lang)
-                return $product->descriptions->description->description;
+            return @$product->descriptions->{$lang};
         }else{
             return "";
         }
-
     }
 
     private static function getBrand($product, $lang){
@@ -620,10 +619,10 @@ class BdroppyImportTools
         }
     }
 
-    private static function populateProduct($xml, $default_lang, $checkImported = true)
+    private static function populateProduct($json, $default_lang, $checkImported = true)
     {
-        $sku = (string)$xml->code;
-        $refId = (int)$xml->id;
+        $sku = (string)$json->code;
+        $refId = (int)$json->id;
 
         // fixme: use another initialization method
         $tags = array(
@@ -654,20 +653,21 @@ class BdroppyImportTools
         );
 
         //check for tag-ID:
-        foreach ($xml->tags->tag as $tag) {
+
+        foreach ($json->tags as $tag) {
             if (in_array((int)$tag->id, array_keys($tags))) {
                 $tags[(int)$tag->id] = self::getTagValues($tag->value, $default_lang);
             }
         }
 
-        $name = (string)$xml->name;
-        $price = (float)$xml->sellPrice;
-        $priceTax = (float)$xml->sellPrice;
-        $bestTaxable = (float)$xml->bestTaxable;
-        $taxable = (float)$xml->taxable;
-        $suggested = (float)$xml->suggestedPrice;
-        $streetPrice = (float)$xml->streetPrice;
-        $availability = (int)$xml->availability;
+        $name = (string)$json->name;
+        $price = (float)$json->sellPrice;
+        $priceTax = (float)$json->sellPrice;
+        $bestTaxable = (float)$json->bestTaxable;
+        $taxable = (float)$json->taxable;
+        $suggested = (float)$json->suggestedPrice;
+        $streetPrice = (float)$json->streetPrice;
+        $availability = (int)$json->availability;
 
         if ($checkImported) {
             $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
@@ -676,19 +676,19 @@ class BdroppyImportTools
             $imported = false;
         }
 
-        $description = (array)$xml->descriptions->description;
+        $description = (array)$json->descriptions;
 
         $product = array(
             'remote_id'             => $refId,
             'name'                  => $name,
-            'pictures'              => $xml->pictures,
+            'pictures'              => $json->pictures,
             'imported'              => $imported,
-            'brand'                 => self::getBrand($xml, $default_lang),
-            'category'              => self::getCategory($xml, $default_lang),
-            'subcategory'           => self::getSubcategory($xml, $default_lang),
-            'gender'                => self::getGender($xml, $default_lang),
-            'color'                 => self::getColor($xml, $default_lang),
-            'season'                => self::getSeason($xml, $default_lang),
+            'brand'                 => self::getBrand($json, $default_lang),
+            'category'              => self::getCategory($json, $default_lang),
+            'subcategory'           => self::getSubcategory($json, $default_lang),
+            'gender'                => self::getGender($json, $default_lang),
+            'color'                 => self::getColor($json, $default_lang),
+            'season'                => self::getSeason($json, $default_lang),
             'code'                  => $sku,
             'availability'          => $availability,
             'best_taxable'          => $bestTaxable,
@@ -699,7 +699,7 @@ class BdroppyImportTools
             'proposed_price_tax'    => $priceTax,
             'description'           => $description,
             'tags'                  => $tags,
-            'weight'                => $xml->weight,
+            'weight'                => $json->weight,
         );
 
         if (!empty($product)) {
@@ -714,16 +714,16 @@ class BdroppyImportTools
         return html_entity_decode(str_replace('\n', '', trim($value)));
     }
 
-    private static function populateProductAttributes($xmlProduct, Product $product, $default_lang)
+    private static function populateProductAttributes($jsonProduct, Product $product, $default_lang)
     {
         try {
             $sizeFeatureId = '';
             $colorFeatureId = '';
             $genderFeatureId = '';
             $seasonFeatureId = '';
-            $productData = self::populateProduct($xmlProduct, $default_lang, true);
-            $product->reference = self::fitReference($productData['code'], $xmlProduct->id);
-            $product->weight = (float)$xmlProduct->weight;
+            $productData = self::populateProduct($jsonProduct, $default_lang, true);
+            $product->reference = self::fitReference($productData['code'], $jsonProduct->id);
+            $product->weight = (float)$jsonProduct->weight;
 
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
             $product->wholesale_price = round($productData['best_taxable'], 3);
@@ -766,19 +766,15 @@ class BdroppyImportTools
                 }
                 $pname_tag = Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE');
                 if($pname_tag == 'color') {
-                    $tag = self::getColor($xmlProduct, $langCode);
+                    $tag = self::getColor($jsonProduct, $langCode);
                     if (!empty($tag)) {
                         $name .= ' - ' . $tag;
                     }
                 }
                 $product->name[$lang['id_lang']] = $name;
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
-                foreach ($productData['description'] as $desc) {
-                    if($desc->localecode == $langCode) {
-                        $product->description[$lang['id_lang']] = $desc->description;
-                        $product->description_short[$lang['id_lang']] = mb_substr($desc->description, 0, 800, 'utf-8');
-                    }
-                }
+                $product->description[$lang['id_lang']] = self::getDescriptions($jsonProduct, $langCode);
+                $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($jsonProduct, $langCode), 0, 800);
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
@@ -787,7 +783,7 @@ class BdroppyImportTools
             $product->date_upd = date('Y-m-d H:i:s');
 
             $product->id_manufacturer = self::getManufacturer($productData['brand']);
-            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $xmlProduct);
+            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
             $product->id_category_default = $categoryDefaultId;
             $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             $product->save();
@@ -911,7 +907,7 @@ class BdroppyImportTools
                     $seasonFeatureId = $seasonFeature[0]['id_feature'];
                 $customFeature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
-                    if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($xmlProduct['size']) > 0) {
+                    if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($jsonProduct['size']) > 0) {
                         $featureValueId = FeatureValue::addFeatureValueImport(
                             $sizeFeatureId,
                             $productData['size'],
@@ -922,30 +918,30 @@ class BdroppyImportTools
                         Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
                     }
                 }
-                if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen(self::getColor($xmlProduct, $langCode)) > 0) {
+                if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen(self::getColor($jsonProduct, $langCode)) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $colorFeatureId,
-                        self::getColor($xmlProduct, $langCode),
+                        self::getColor($jsonProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
                 }
-                if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen(self::getGender($xmlProduct, $langCode)) > 0) {
+                if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen(self::getGender($jsonProduct, $langCode)) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $genderFeatureId,
-                        self::getGender($xmlProduct, $langCode),
+                        self::getGender($jsonProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
                 }
-                if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen(self::getSeason($xmlProduct, $langCode)) > 0) {
+                if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen(self::getSeason($jsonProduct, $langCode)) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $seasonFeatureId,
-                        self::getSeason($xmlProduct, $langCode),
+                        self::getSeason($jsonProduct, $langCode),
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
@@ -983,14 +979,10 @@ class BdroppyImportTools
         return $brandId;
     }
 
-    private static function importModels($xmlProduct, Product $product, $default_lang)
+    private static function importModels($jsonProduct, Product $product, $default_lang)
     {
         try {
-            if(isset($xmlProduct->models->model->size))
-                $xmlModels[0] = $xmlProduct->models->model;
-            else
-                $xmlModels = $xmlProduct->models->model;
-
+            $jsonModels = $jsonProduct->models;
             $modelCount = 0;
 
             $langs = [];
@@ -1018,23 +1010,19 @@ class BdroppyImportTools
             $languages = Language::getLanguages(false);
             $first = true;
             $delete_combinations = $product->deleteProductAttributes();
-
-            foreach ($xmlModels as $model) {
+            foreach ($jsonModels as $model) {
                 $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
-                if(is_string($model->barcode))
-                    $ean13 = trim($model->barcode);
-                else
-                    $ean13 = "";
-                if (strlen($ean13) > 13) {
+                $ean13 = trim((string)$model->barcode);
+                if(strlen($ean13)>13) {
                     $ean13 = substr($ean13, 0, 13);
                 }
 
                 $combinationAttributes = array();
 
-                if ($model->color) {
-                    $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
+                if($model->color) {
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($jsonProduct, $default_lang) . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
@@ -1042,12 +1030,12 @@ class BdroppyImportTools
                         $attribute = new Attribute();
                         foreach ($languages as $lang) {
                             $langCode = $langs[$lang['iso_code']];
-                            $attribute->name[$lang['id_lang']] = self::getColor($xmlProduct, $langCode);
+                            $attribute->name[$lang['id_lang']] = self::getColor($jsonProduct, $langCode);
                         }
-                        $attribute->color = self::getColor($xmlProduct, 'en_US');
+                        $attribute->color = self::getColor($jsonProduct, 'en_US');
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
-                        $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . self::getColor($xmlProduct, $default_lang) . "';";
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($jsonProduct, $default_lang) . "';";
                         $r = Db::getInstance()->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];
@@ -1055,8 +1043,8 @@ class BdroppyImportTools
                     }
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
-                if ($model->size) {
-                    $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                if($model->size) {
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                     $r = Db::getInstance()->executeS($sql);
 
                     if ($r) {
@@ -1068,7 +1056,7 @@ class BdroppyImportTools
                         }
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_SIZE');
                         $attribute->save();
-                        $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ . "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                         $r = Db::getInstance()->executeS($sql);
 
                         if ($r) {
@@ -1079,13 +1067,13 @@ class BdroppyImportTools
                 }
 
                 $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-                $rate = 1 + $tax->rate / 100;
+                $rate = 1+$tax->rate/100;
                 $user_tax = Configuration::get('BDROPPY_USER_TAX');
-                $wholesale_price = round($xmlProduct->bestTaxable, 3);
+                $wholesale_price = round($jsonProduct->bestTaxable, 3);
 
                 $impact_on_price_per_unit = 0;
                 $impact_on_price = 0;
-                $impact_on_weight = $xmlProduct->weight;
+                $impact_on_weight = $jsonProduct->weight;
                 $isbn_code = $model->id;
                 $id_supplier = null;
                 $default = $first;
@@ -1095,7 +1083,7 @@ class BdroppyImportTools
                 $minimal_quantity = 1;
                 $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                Db::getInstance()->update('product_attribute', array('wholesale_price' => $wholesale_price), 'id_product_attribute = ' . (int)$idProductAttribute);
+                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute );
                 $first = false;
             }
 
@@ -1105,42 +1093,39 @@ class BdroppyImportTools
         }
     }
 
-    private static function checkNosizeModel($xmlProduct, Product $product)
+    private static function checkNosizeModel($jsonProduct, Product $product)
     {
         if (BdroppyRemoteCombination::countByRewixProductId($product->id) == 0) {
-            self::insertNosizeModel($xmlProduct);
+            self::insertNosizeModel($jsonProduct);
         }
     }
 
     /** In case of simple product, nosize combination is stored in remote_combination table for sending right variation with orders */
-    private static function insertNosizeModel($xmlProduct)
+    private static function insertNosizeModel($jsonProduct)
     {
-        $xmlModel = $xmlProduct->models->model;
+        $jsonModel = $jsonProduct->models->model;
 
-        $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$xmlModel->id);
-        $remoteCombination->rewix_product_id = (int) $xmlProduct->id;
+        $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$jsonModel->id);
+        $remoteCombination->rewix_product_id = (int) $jsonProduct->id;
 
-        //$reference = self::fitModelReference((string)$xmlModel->code, (string)$xmlModel->size);
-        //$ean13 = trim((string)$xmlModel->barcode);
+        //$reference = self::fitModelReference((string)$jsonModel->code, (string)$jsonModel->size);
+        //$ean13 = trim((string)$jsonModel->barcode);
 
         $remoteCombination->ps_model_id = 0;
         $remoteCombination->save();
     }
 
-    private static function importSimpleProduct($xmlProduct, Product $product)
+    private static function importSimpleProduct($jsonProduct, Product $product)
     {
         try {
-            $xmlModel = $xmlProduct->models->model;
-            $ean13 = "";
-            if(is_string($xmlModel->barcode))
-                $ean13 = trim($xmlModel->barcode);
+            $jsonModel = $jsonProduct->models[0];
             $product->minimal_quantity = 1;
-            $product->ean13 = $ean13;
-            $product->isbn = $xmlModel->id;
-            $product->reference = self::fitReference($xmlModel->code, $xmlProduct->id);
-            StockAvailable::setQuantity($product->id, 0, (int)$xmlModel->availability);
+            $product->ean13 = (string)$jsonModel->barcode;
+            $product->isbn = $jsonModel->id;
+            $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
+            StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);
 
-            self::insertNosizeModel($xmlProduct);
+            self::insertNosizeModel($jsonProduct);
 
             return $product;
         } catch (PrestaShopException $e) {
@@ -1174,10 +1159,12 @@ class BdroppyImportTools
         return $sizeAttribute;
     }
 
-    private static function checkSimpleImport($xmlProduct)
+    private static function checkSimpleImport($jsonProduct)
     {
-        if (isset($xmlProduct->models->model->size)) {
-            if ($xmlProduct->models->model->size == 'NOSIZE') {
+        if (count($jsonProduct->models) == 1) {
+            $jsonModel = $jsonProduct->models[0];
+            $size = (string)$jsonModel->size;
+            if ($size == 'NOSIZE') {
                 return true;
             } else {
                 return false;

@@ -620,7 +620,13 @@ class Bdroppy extends Module
             $this->tab = 'configurations';
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
+            $bdroppy_catalog_changed = false;
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
+            if(Configuration::get('BDROPPY_CATALOG') != $bdroppy_catalog)
+                $bdroppy_catalog_changed = true;
+
+            Configuration::updateValue('BDROPPY_CATALOG_CHANGED', $bdroppy_catalog_changed);
+
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
 
             if ($bdroppy_catalog != '0' && $bdroppy_catalog != '-1')
