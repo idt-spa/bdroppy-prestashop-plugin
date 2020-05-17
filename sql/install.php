@@ -99,6 +99,9 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
 $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`
             ADD `reference` VARCHAR(128) NULL;';
 
+$sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`
+            ADD `data` TEXT NULL;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         echo "false";
