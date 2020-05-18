@@ -192,25 +192,6 @@ class BdroppyCron
                             $api_limit_count = 5;
                         $api_limit_count = $api_limit_count;
 
-                        //get update products since
-                        if ($bdroppy_auto_update_prices) {
-                            $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
-                            $total = $db->ExecuteS($sql);
-                            if($total[0]['total'] == 0 || isset($_GET['dev'])) {
-                                $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
-                                if ($lastQuantitiesSync == 0) {
-                                    $lastQuantitiesSync = time();
-                                    Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
-                                }
-                                $rewixApi = new BdroppyRewixApi();
-                                $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
-
-                                if ((time() - $lastQuantitiesSync) > 3600) {
-                                    $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
-                                }
-                            }
-                        }
-
                         //delete products
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='delete' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
@@ -221,7 +202,7 @@ class BdroppyCron
                             }
                             BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                         }
-                        
+
                         // change status of products
                         $fiveago = date('Y-m-d H:i:s', strtotime("-3 minutes"));
                         $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'queued'), "sync_status = 'importing' AND last_sync_date <= '$fiveago'");
@@ -238,6 +219,25 @@ class BdroppyCron
                             if ($item['sync_status'] == 'queued') {
                                 $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
                                 var_dump($item['rewix_product_id'] .':'.$res);
+                            }
+                        }
+
+                        //get update products since
+                        if ($bdroppy_auto_update_prices) {
+                            $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
+                            $total = $db->ExecuteS($sql);
+                            if($total[0]['total'] == 0 || isset($_GET['dev'])) {
+                                $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
+                                if ($lastQuantitiesSync == 0) {
+                                    $lastQuantitiesSync = time();
+                                    Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
+                                }
+                                $rewixApi = new BdroppyRewixApi();
+                                $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
+
+                                if ((time() - $lastQuantitiesSync) > 3600) {
+                                    $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
+                                }
                             }
                         }
                     }
