@@ -81,7 +81,7 @@ class BdroppyRewixApi
 
             $json = json_decode($data);
             foreach ($json->items as $item) {
-                $jsonProduct = json_encode($item);
+                $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
@@ -112,12 +112,12 @@ class BdroppyRewixApi
                     if($http_code == 200) {
                         $json = json_decode($data);
                         foreach ($json->items as $item) {
-                            $jsonProduct = json_encode($item);
+                            $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                             $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            if ($remoteProduct->data != $jsonProduct) {
+                            if($remoteProduct->data != $jsonProduct) {
                                 $remoteProduct->sync_status = 'queued';
                             }
                             $remoteProduct->data = $jsonProduct;
@@ -156,12 +156,12 @@ class BdroppyRewixApi
         if($http_code == 200) {
             $json = json_decode($data);
             foreach ($json->items as $item) {
-                $jsonProduct = json_encode($item);
+                $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                if ($remoteProduct->data != $jsonProduct) {
+                if($remoteProduct->data != $jsonProduct) {
                     $remoteProduct->sync_status = 'queued';
                 }
                 $remoteProduct->data = $jsonProduct;
