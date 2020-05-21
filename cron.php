@@ -11,7 +11,12 @@ include_once _PS_ROOT_DIR_ . '/init.php';
 include_once dirname(__FILE__) . '/classes/ImportTools.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
-BdroppyCron::importProducts();
+$importFlag = true;
+if(isset($_GET['no_import']))
+    if($_GET['no_import'] == '1')
+        $importFlag = false;
+if($importFlag)
+    BdroppyCron::importProducts();
 //BdroppyCron::syncProducts();
 //BdroppyCron::syncQuantities();
 BdroppyCron::syncOrders();
@@ -302,6 +307,15 @@ class BdroppyCron
         if ($lastSync == 0) {
             $lastSync = time();
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', $lastSync);
+        }
+
+        if(isset($_GET['no_import'])) {
+            if ($_GET['no_import'] == '1') {
+                $rewixApi = new BdroppyRewixApi();
+                $rewixApi->updateOrderStatuses();
+                $rewixApi->syncBookedProducts();
+                $rewixApi->sendMissingOrders();
+            }
         }
 
         if ((time() - $lastSync) > 10 * 60) {
