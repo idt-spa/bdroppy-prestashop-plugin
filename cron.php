@@ -303,24 +303,25 @@ class BdroppyCron
 
     public static function syncOrders()
     {
-        $lastSync = (int) Configuration::get('BDROPPY_LAST_CART_SYNC');
+        $lastSync = (int)Configuration::get('BDROPPY_LAST_CART_SYNC');
         if ($lastSync == 0) {
             $lastSync = time();
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', $lastSync);
         }
 
-        if(isset($_GET['no_import'])) {
+        $noImportFlag = false;
+        if (isset($_GET['no_import'])) {
             if ($_GET['no_import'] == '1') {
+                $noImportFlag = true;
+            }
+        }
+
+            if ((time() - $lastSync) > 10 * 60 || $noImportFlag) {
                 $rewixApi = new BdroppyRewixApi();
                 $rewixApi->updateOrderStatuses();
                 $rewixApi->syncBookedProducts();
                 $rewixApi->sendMissingOrders();
-            }
-        }
-
-        if ((time() - $lastSync) > 10 * 60) {
-            BdroppyImportTools::syncWithSupplier();
-            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int) time());
+            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int)time());
         }
     }
 }

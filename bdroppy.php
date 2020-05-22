@@ -929,6 +929,5 @@ class Bdroppy extends Module
                 "on"=>"br.`ps_product_id` = p.`id_product`"
             );
         }
-        //echo "<pre>";var_dump($list);die;
     }
 }
