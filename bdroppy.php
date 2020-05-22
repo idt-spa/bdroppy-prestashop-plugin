@@ -378,11 +378,6 @@ class Bdroppy extends Module
 
     public function install()
     {
-        // make log folder
-        if (!file_exists(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR . 'log')) {
-            mkdir(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log', 0755, true);
-        }
-
         $this->installAttributes();
         $this->installFeatures();
         $this->installTabs();
