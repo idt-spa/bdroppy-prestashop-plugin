@@ -536,12 +536,18 @@ class BdroppyRewixApi
 
         $operations = array();
         foreach ($lines as $line) {
+            $modelId = 0;
             $productId = (int)$line['product_id'];
-            $modelId = (int)$line['product_attribute_id'];
+            $attributeId = (int)$line['product_attribute_id'];
             $product_isbn = (int)$line['isbn'];
+            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
+            $product_attribute = Db::getInstance()->ExecuteS($sql);
+            if(count($product_attribute)) {
+                $modelId = $product_attribute[0]['isbn'];
+            }
             if($product_isbn <= 0)
                 $product_isbn = (int)$line['product_isbn'];
-            $rewixId = $product_isbn > 0 ? $product_isbn : $modelId;
+            $rewixId = $modelId > 0 ? $modelId : $product_isbn;
             //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId, $modelId);
             if ($rewixId) {
                 $operation = array(
