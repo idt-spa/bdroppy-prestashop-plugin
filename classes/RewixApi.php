@@ -77,11 +77,9 @@ class BdroppyRewixApi
         curl_close($ch);
 
         if($http_code == 200) {
-            Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete'));
-
             $json = json_decode($data);
             foreach ($json->items as $item) {
-                $jsonProduct = json_encode($item);
+                $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
@@ -112,12 +110,12 @@ class BdroppyRewixApi
                     if($http_code == 200) {
                         $json = json_decode($data);
                         foreach ($json->items as $item) {
-                            $jsonProduct = json_encode($item);
+                            $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                             $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            if ($remoteProduct->data != $jsonProduct) {
+                            if($remoteProduct->data != $jsonProduct) {
                                 $remoteProduct->sync_status = 'queued';
                             }
                             $remoteProduct->data = $jsonProduct;
@@ -156,12 +154,12 @@ class BdroppyRewixApi
         if($http_code == 200) {
             $json = json_decode($data);
             foreach ($json->items as $item) {
-                $jsonProduct = json_encode($item);
+                $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                if ($remoteProduct->data != $jsonProduct) {
+                if($remoteProduct->data != $jsonProduct) {
                     $remoteProduct->sync_status = 'queued';
                 }
                 $remoteProduct->data = $jsonProduct;
@@ -948,7 +946,12 @@ class BdroppyRewixApi
         $operations = array();
         if ($bookedProducts) {
             foreach ($bookedProducts as $bookedProduct) {
-                $productId = BdroppyRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
+                //$productId = BdroppyRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
+                $productId = 0;
+                $sql = "SELECT id_product FROM `" . _DB_PREFIX_ . "product_attribute` WHERE isbn = '". $bookedProduct['stock_id'] ."';";
+                $product_attribute = Db::getInstance()->ExecuteS($sql);
+                if($product_attribute)
+                    $productId = $product_attribute[0]['id_product'];
                 if ($productId > 0) {
                     $locked = $bookedProduct['locked'];
                     //$available = $bookedProduct['available'];
@@ -978,6 +981,7 @@ class BdroppyRewixApi
     public function sendMissingOrders()
     {
         $orderIds = BdroppyRemoteOrder::getMissingOrdersId();
+
         foreach ($orderIds as $orderId) {
             $order = new Order(isset($orderId['id_order']) ? $orderId['id_order'] : $orderId);
             $this->sendBdroppyOrder($order);

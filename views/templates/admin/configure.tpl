@@ -13,6 +13,12 @@
 			$("#"+ID).addClass("show");
 			$("html, body").animate({ scrollTop: 0 });
 		});
+		$('input[name*="bdroppy_custom_feature"]').on('input', function() {
+			$('#custom_feature_msg').html('<div class=""></div>');
+			if($(this).val() == '1') {
+				$('#custom_feature_msg').html('<div class="alert alert-danger">Custom Features will add new features for every products, are you sure?</div>');
+			}
+		});
 	});
 </script>
 {$confirmations_tab = ''}
@@ -157,6 +163,12 @@
 								No
 								</label>
 								<a class="slide-button btn"></a>
+							</span>
+							<br/>
+							<span id="custom_feature_msg">
+								{if $bdroppy_custom_feature}
+									<div class="alert alert-danger">Custom Features will add new features for every products, are you sure?</div>
+								{/if}
 							</span>
 						</div>
 					</div>

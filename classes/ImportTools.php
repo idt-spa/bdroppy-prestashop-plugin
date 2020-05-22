@@ -208,11 +208,11 @@ class BdroppyImportTools
     {
         $value = self::stripTagValues((string)$tag->value);
         $translation = "";
-        foreach ($tag->translations->translation as $tr) {
-            if($tr->localecode == $default_lang)
-                $translation = self::stripTagValues((string)$tr->description);
-        }
 
+        foreach ($tag->translations as $localeCode => $tr) {
+            if($localeCode == $default_lang)
+                $translation = self::stripTagValues((string)$tr);
+        }
         return array(
             'value'       => $value,
             'translation' => Tools::strlen($translation) > 0 ? $translation : $value,
@@ -1103,7 +1103,7 @@ class BdroppyImportTools
     /** In case of simple product, nosize combination is stored in remote_combination table for sending right variation with orders */
     private static function insertNosizeModel($jsonProduct)
     {
-        $jsonModel = $jsonProduct->models->model;
+        $jsonModel = $jsonProduct->models[0];
 
         $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$jsonModel->id);
         $remoteCombination->rewix_product_id = (int) $jsonProduct->id;
@@ -1125,7 +1125,7 @@ class BdroppyImportTools
             $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);
 
-            self::insertNosizeModel($jsonProduct);
+            //self::insertNosizeModel($jsonProduct);
 
             return $product;
         } catch (PrestaShopException $e) {
