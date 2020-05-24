@@ -198,7 +198,8 @@ class BdroppyCron
                         $api_limit_count = $api_limit_count;
 
                         //delete products
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='delete' LIMIT " . $api_limit_count . ";";
+                        $hourAgo = date('Y-m-d H:i:s', strtotime("-60 minutes"));
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='delete' AND last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if($item['ps_product_id'] != '0') {
