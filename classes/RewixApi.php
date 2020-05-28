@@ -369,7 +369,7 @@ class BdroppyRewixApi
         $api_password = Configuration::get('BDROPPY_API_PASSWORD');
         $api_token = Configuration::get('BDROPPY_TOKEN');
 
-        $url = $base_url . '/restful/user_catalog';
+        $url = $base_url . '/restful/user_catalog/list';
 
         $header = "Authorization: Bearer " . $api_token;
         $ch = curl_init();
