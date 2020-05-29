@@ -47,7 +47,7 @@ class Bdroppy extends Module
         $this->name = 'bdroppy';
         $this->tab = '';
         $this->version = '2.0.0';
-        $this->author = 'Hamid Isaac';
+        $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
         /**
@@ -58,7 +58,7 @@ class Bdroppy extends Module
         parent::__construct();
 
         $this->displayName = $this->l('Bdroppy');
-        $this->description = $this->l('Bdroppy of Brandsdistributions');
+        $this->description = $this->l('Bdroppy of Brandsdistribution');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete the Bdroppy module?');
 
