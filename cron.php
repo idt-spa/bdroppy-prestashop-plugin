@@ -187,7 +187,7 @@ class BdroppyCron
                             $devFlag = true;
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                     $total = $db->ExecuteS($sql);
-                    if ((time() - $lastImportSync) > 6 * 3600 || $devFlag || $total[0]['total'] == 0 || $api_catalog_changed) {
+                    if ((time() - $lastImportSync) > 4 * 3600 || $devFlag || $total[0]['total'] == 0 || $api_catalog_changed) {
                         $rewixApi = new BdroppyRewixApi();
                         $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
@@ -198,7 +198,7 @@ class BdroppyCron
                         $api_limit_count = $api_limit_count;
 
                         //delete products
-                        $hourAgo = date('Y-m-d H:i:s', strtotime("-60 minutes"));
+                        $hourAgo = date('Y-m-d H:i:s', strtotime("-15 minutes"));
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='delete' AND last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
@@ -210,7 +210,7 @@ class BdroppyCron
                         }
 
                         // change status of products
-                        $fiveago = date('Y-m-d H:i:s', strtotime("-3 minutes"));
+                        $fiveago = date('Y-m-d H:i:s', strtotime("-5 minutes"));
                         $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'queued'), "sync_status = 'importing' AND last_sync_date <= '$fiveago'");
 
                         // products to import
@@ -241,7 +241,7 @@ class BdroppyCron
                                 $rewixApi = new BdroppyRewixApi();
                                 $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
 
-                                if ((time() - $lastQuantitiesSync) > 3600) {
+                                if ((time() - $lastQuantitiesSync) > 1800) {
                                     $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
                                 }
                             }

@@ -183,7 +183,7 @@ class BdroppyImportTools
                     $product->save();
                     $product3 = self::importModels($jsonProduct, $product, $default_lang);
                 }
-                $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+                $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
                 $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
@@ -785,7 +785,8 @@ class BdroppyImportTools
             $product->id_manufacturer = self::getManufacturer($productData['brand']);
             list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
             $product->id_category_default = $categoryDefaultId;
-            $product->active = (int)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+
+            $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             $product->save();
 
             // updateCategories requires the product to have an id already set

@@ -55,8 +55,9 @@ class BdroppyRewixApi
     }
 
     public function getProductsFull($acceptedlocales) {
+        $j = 1;
         $ret = false;
-        $pageSize = 100;
+        $pageSize = 50;
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
@@ -85,6 +86,10 @@ class BdroppyRewixApi
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+                if(isset($_GET['dev']))
+                    if($_GET['dev'] == 'isaac')
+                        $remoteProduct->sync_status = 'queued';
+
                 if($remoteProduct->data != $jsonProduct) {
                     $remoteProduct->sync_status = 'queued';
                 }
@@ -116,6 +121,10 @@ class BdroppyRewixApi
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
+                            if(isset($_GET['dev']))
+                                if($_GET['dev'] == 'isaac')
+                                    $remoteProduct->sync_status = 'queued';
+
                             if($remoteProduct->data != $jsonProduct) {
                                 $remoteProduct->sync_status = 'queued';
                             }
@@ -1013,8 +1022,8 @@ class BdroppyRewixApi
         $header = "Authorization: Bearer " . $api_token;
 
         $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
         $data = curl_exec($ch);
 

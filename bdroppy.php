@@ -46,7 +46,7 @@ class Bdroppy extends Module
     {
         $this->name = 'bdroppy';
         $this->tab = '';
-        $this->version = '2.0.0';
+        $this->version = '2.0.1';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -762,6 +762,7 @@ class Bdroppy extends Module
         $queue_queued = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED);
         $queue_importing = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_IMPORTING);
         $queue_imported = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED);
+        $queue_delete = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_DELETE);
         $queue_all = BdroppyRemoteProduct::getCountByStatus('');
         $renderedOrders = $this->renderOrdersList();
         if ($this->tab == '')
@@ -797,6 +798,7 @@ class Bdroppy extends Module
             'queue_queued' => $queue_queued,
             'queue_importing' => $queue_importing,
             'queue_imported' => $queue_imported,
+            'queue_delete' => $queue_delete,
             'queue_all' => $queue_all,
             'limit_counts' => $limit_counts,
             'bdroppy_active_product' => $bdroppy_active_product,

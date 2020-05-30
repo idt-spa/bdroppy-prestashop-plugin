@@ -34,6 +34,7 @@ class BdroppyRemoteProduct extends ObjectModel
     const SYNC_STATUS_QUEUED = 'queued';
     const SYNC_STATUS_FAILED = 'failed';
     const SYNC_STATUS_UPDATED = 'updated';
+    const SYNC_STATUS_DELETE = 'delete';
     const SYNC_STATUS_IMPORTING = 'importing';
 
     public static $definition = array(
