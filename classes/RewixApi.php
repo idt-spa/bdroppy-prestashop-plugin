@@ -86,13 +86,7 @@ class BdroppyRewixApi
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                if(isset($_GET['dev']))
-                    if($_GET['dev'] == 'isaac')
-                        $remoteProduct->sync_status = 'queued';
-
-                if($remoteProduct->data != $jsonProduct) {
-                    $remoteProduct->sync_status = 'queued';
-                }
+                $remoteProduct->sync_status = 'queued';
                 $remoteProduct->data = $jsonProduct;
                 $remoteProduct->save();
             }
@@ -121,13 +115,7 @@ class BdroppyRewixApi
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            if(isset($_GET['dev']))
-                                if($_GET['dev'] == 'isaac')
-                                    $remoteProduct->sync_status = 'queued';
-
-                            if($remoteProduct->data != $jsonProduct) {
-                                $remoteProduct->sync_status = 'queued';
-                            }
+                            $remoteProduct->sync_status = 'queued';
                             $remoteProduct->data = $jsonProduct;
                             $remoteProduct->save();
                         }
