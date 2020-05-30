@@ -434,7 +434,8 @@ class Bdroppy extends Module
         if ($res['catalogs'])
             $catalogs[-1] = 'No Catalog';
         foreach ($res['catalogs'] as $r) {
-            $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currenct ) ( " . $r->count . " products )" : null;
+            $r = $rewixApi->getCatalogById2($r->_id);
+            $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )" : null;
         }
         $ret['http_code'] = $res['http_code'];
         $ret['catalogs'] = $catalogs;
