@@ -334,7 +334,6 @@
 						<p><strong>{l s='Queued' mod='bdroppy'}</strong> {$queue_queued}</p>
 						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing}</p>
 						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported}</p>
-						<p><strong>{l s='Deleting' mod='bdroppy'}</strong> {$queue_delete}</p>
 						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all}</p>
 					</div>
 				</fieldset>

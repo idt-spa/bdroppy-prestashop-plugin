@@ -212,7 +212,7 @@ class BdroppyCron
                             $devFlag = true;
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                     $total = $db->ExecuteS($sql);
-                    if ((time() - $lastImportSync) > 4 * 3600 || $devFlag || $total[0]['total'] == 0 || $api_catalog_changed) {
+                    if ((time() - $lastImportSync) >  3600 || $devFlag || $total[0]['total'] == 0 || $api_catalog_changed) {
                         $rewixApi = new BdroppyRewixApi();
                         $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
@@ -223,8 +223,8 @@ class BdroppyCron
                         $api_limit_count = $api_limit_count;
 
                         //delete products
-                        $hourAgo = date('Y-m-d H:i:s', strtotime("-15 minutes"));
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status='delete' AND last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
+                        $hourAgo = date('Y-m-d H:i:s', strtotime("-60 minutes"));
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if($item['ps_product_id'] != '0') {

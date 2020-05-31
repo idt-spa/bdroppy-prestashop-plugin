@@ -105,7 +105,7 @@ class BdroppyRewixApi
         curl_close($ch);
 
         if ($http_code == 200) {
-            Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete', 'last_sync_date' => date('Y-m-d H:i:s')));
+            //Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete', 'last_sync_date' => date('Y-m-d H:i:s')));
             $json = json_decode($data);
             foreach ($json->items as $item) {
                 $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
@@ -113,7 +113,9 @@ class BdroppyRewixApi
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                $remoteProduct->sync_status = 'queued';
+                if($remoteProduct->data != $jsonProduct) {
+                    $remoteProduct->sync_status = 'queued';
+                }
                 $remoteProduct->data = $jsonProduct;
                 $remoteProduct->save();
             }
@@ -142,7 +144,9 @@ class BdroppyRewixApi
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            $remoteProduct->sync_status = 'queued';
+                            if($remoteProduct->data != $jsonProduct) {
+                                $remoteProduct->sync_status = 'queued';
+                            }
                             $remoteProduct->data = $jsonProduct;
                             $remoteProduct->save();
                         }
