@@ -1,21 +1,29 @@
 <?php
 /**
- * NOTICE OF LICENSE.
+ * 2007-2020 PrestaShop
  *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
+ * NOTICE OF LICENSE
  *
- * You must not modify, adapt or create derivative works of this source code
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
  *
- * @author    Zero11
- * @copyright 2015-2016 Zero11 S.r.l.
- * @license   Proprietary
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
  */
 
-/**
- * @class BdroppyRemoteCategory
- */
 class BdroppyRemoteCategory extends ObjectModel
 {
     public $id;
@@ -108,13 +116,11 @@ class BdroppyRemoteCategory extends ObjectModel
      */
     private static function getTagValue($product, $name, $lang)
     {
-        foreach ($product->tags as $tag)
-        {
-            if($tag->name === $name)
-            {
-                if (isset($tag->value->translations->{$lang})){
+        foreach($product->tags as $tag) {
+            if($tag->name === $name) {
+                if (isset($tag->value->translations->{$lang})) {
                     return $tag->value->translations->{$lang};
-                }else{
+                } else {
                     return $tag->value->value;
                 }
             }

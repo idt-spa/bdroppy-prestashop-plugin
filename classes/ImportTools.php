@@ -1,16 +1,27 @@
 <?php
 /**
- * NOTICE OF LICENSE.
+ * 2007-2020 PrestaShop
  *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
+ * NOTICE OF LICENSE
  *
- * You must not modify, adapt or create derivative works of this source code
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
  *
- * @author    Zero11
- * @copyright 2015-2016 Zero11 S.r.l.
- * @license   Proprietary
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
  */
 
 include_once dirname(__FILE__) . '/ConfigKeys.php';
@@ -312,7 +323,7 @@ class BdroppyImportTools
 
                     if (ImageManager::resize(
                         $tmpfile,
-                        $path . '-' . stripslashes($image_type['name']) . '.jpg',
+                        $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg',
                         $image_type['width'],
                         $image_type['height'],
                         'jpg',
@@ -326,7 +337,7 @@ class BdroppyImportTools
                     )) {
                         // the last image should not be added in the candidate list if it's bigger than the original image
                         if ($tgt_width <= $src_width && $tgt_height <= $src_height) {
-                            $path_infos[] = array($tgt_width, $tgt_height, $path . '-' . stripslashes($image_type['name']) . '.jpg');
+                            $path_infos[] = array($tgt_width, $tgt_height, $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg');
                         }
                         if ($entity == 'products') {
                             if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '.jpg')) {
@@ -774,7 +785,7 @@ class BdroppyImportTools
                 $product->name[$lang['id_lang']] = $name;
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
                 $product->description[$lang['id_lang']] = self::getDescriptions($jsonProduct, $langCode);
-                $product->description_short[$lang['id_lang']] = substr(self::getDescriptions($jsonProduct, $langCode), 0, 800);
+                $product->description_short[$lang['id_lang']] = Tools::substr(self::getDescriptions($jsonProduct, $langCode), 0, 800);
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
@@ -1016,8 +1027,8 @@ class BdroppyImportTools
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
                 $ean13 = trim((string)$model->barcode);
-                if(strlen($ean13)>13) {
-                    $ean13 = substr($ean13, 0, 13);
+                if(Tools::strlen($ean13)>13) {
+                    $ean13 = Tools::substr($ean13, 0, 13);
                 }
 
                 $combinationAttributes = array();
@@ -1266,10 +1277,10 @@ class BdroppyImportTools
     {
         $rewixApi = new BdroppyRewixApi();
         $yesterday = date('Y-m-d H:i:s', strtotime("-1 hour"));
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "orders` WHERE date_add >= '$yesterday';";
+        $sql = "SELECT * FROM `" . '_DB_PREFIX_' . "orders` WHERE date_add >= '$yesterday';";
         $dorders = Db::getInstance()->ExecuteS($sql);
         foreach ($dorders as $item) {
-            $osql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteorder` WHERE ps_order_id='".$item['id_order']."';";
+            $osql = "SELECT * FROM `" . '_DB_PREFIX_' . "bdroppy_remoteorder` WHERE ps_order_id='".$item['id_order']."';";
             $remoteOrder = Db::getInstance()->ExecuteS($osql);
             if(!$remoteOrder) {
                 $rewixApi->sendBdroppyOrder(new Order((int)$item['id_order']));

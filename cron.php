@@ -1,4 +1,29 @@
 <?php
+/**
+ * 2007-2020 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
+ */
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -12,8 +37,8 @@ include_once dirname(__FILE__) . '/classes/ImportTools.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
 $importFlag = true;
-if(isset($_GET['no_import']))
-    if($_GET['no_import'] == '1')
+if(Tools::getIsset($_GET['no_import']))
+    if(Tools::getValue('no_import') == '1')
         $importFlag = false;
 if($importFlag)
     BdroppyCron::importProducts();
@@ -130,20 +155,20 @@ class BdroppyCron
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
 
-            if(isset($_GET['ps_product_id']) || isset($_GET['rewix_product_id']) || isset($_GET['reference'])) {
+            if(Tools::getIsset($_GET['ps_product_id']) || Tools::getIsset($_GET['rewix_product_id']) || Tools::getIsset($_GET['reference'])) {
                 $updateFlag = true;
                 $sql = "";
                 $items = [];
-                if(isset($_GET['ps_product_id'])) {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE ps_product_id = '". $_GET['ps_product_id'] ."';";
+                if(Tools::getIsset($_GET['ps_product_id'])) {
+                    $sql = "SELECT * FROM `" . '_DB_PREFIX_' . "bdroppy_remoteproduct` WHERE ps_product_id = '". Tools::getValue('ps_product_id') ."';";
                     $items = $db->ExecuteS($sql);
                 }
-                if(count($items) == 0 && isset($_GET['rewix_product_id'])) {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $_GET['rewix_product_id'] ."';";
+                if(count($items) == 0 && Tools::getIsset($_GET['rewix_product_id'])) {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". Tools::getValue('rewix_product_id') ."';";
                     $items = $db->ExecuteS($sql);
                 }
-                if(count($items) == 0 && isset($_GET['reference'])) {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE reference = '". $_GET['reference'] ."';";
+                if(count($items) == 0 && Tools::getIsset($_GET['reference'])) {
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE reference = '". Tools::getValue('reference') ."';";
                     $items = $db->ExecuteS($sql);
                 }
                 foreach ($items as $item) {
@@ -174,7 +199,7 @@ class BdroppyCron
                     }
                 }
             } else {
-                if ($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && strlen($api_catalog) > 1) {
+                if ($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && Tools::strlen($api_catalog) > 1) {
                     $lastImportSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                     if ($lastImportSync == 0) {
                         $lastImportSync = time();
@@ -182,8 +207,8 @@ class BdroppyCron
                     }
 
                     $devFlag = false;
-                    if(isset($_GET['dev']))
-                        if($_GET['dev'] == 'isaac')
+                    if(Tools::getIsset($_GET['dev']))
+                        if(Tools::getValue('dev') == 'isaac')
                             $devFlag = true;
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                     $total = $db->ExecuteS($sql);
@@ -232,7 +257,7 @@ class BdroppyCron
                         if ($bdroppy_auto_update_prices) {
                             $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
                             $total = $db->ExecuteS($sql);
-                            if($total[0]['total'] == 0 || isset($_GET['dev'])) {
+                            if($total[0]['total'] == 0 || Tools::getIsset($_GET['dev'])) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                                 if ($lastQuantitiesSync == 0) {
                                     $lastQuantitiesSync = time();
@@ -311,8 +336,8 @@ class BdroppyCron
         }
 
         $noImportFlag = false;
-        if (isset($_GET['no_import'])) {
-            if ($_GET['no_import'] == '1') {
+        if (Tools::getIsset($_GET['no_import'])) {
+            if (Tools::getValue('no_import') == '1') {
                 $noImportFlag = true;
             }
         }
