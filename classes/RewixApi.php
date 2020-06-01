@@ -82,6 +82,8 @@ class BdroppyRewixApi
 
     public function getProductsFull($acceptedlocales)
     {
+        $ids = [];
+        $db = Db::getInstance();
         $j = 1;
         $ret = false;
         $pageSize = 50;
@@ -104,22 +106,23 @@ class BdroppyRewixApi
         $curl_error = curl_error($ch);
         curl_close($ch);
 
-        if ($http_code == 200) {
+        if($http_code == 200) {
             //Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete', 'last_sync_date' => date('Y-m-d H:i:s')));
             $json = json_decode($data);
             foreach ($json->items as $item) {
+                $ids[] = $item->id;
                 $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
-                $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                if($remoteProduct->data != $jsonProduct) {
+                if($remoteProduct->sync_status == '') {
                     $remoteProduct->sync_status = 'queued';
                 }
+                $remoteProduct->reason = $item->lastUpdate;
                 $remoteProduct->data = $jsonProduct;
                 $remoteProduct->save();
             }
-            if ($json->totalPages >= 2) {
+            if($json->totalPages >= 2) {
                 for ($i = 2; $i <= $json->totalPages; $i++) {
                     $url = $base_url . "/restful/export/api/products.json?pageSize=$pageSize&page=$i&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
@@ -136,17 +139,18 @@ class BdroppyRewixApi
                     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     $curl_error = curl_error($ch);
                     curl_close($ch);
-                    if ($http_code == 200) {
+                    if($http_code == 200) {
                         $json = json_decode($data);
                         foreach ($json->items as $item) {
+                            $ids[] = $item->id;
                             $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                             $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
-                            $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            if($remoteProduct->data != $jsonProduct) {
+                            if($remoteProduct->sync_status == '') {
                                 $remoteProduct->sync_status = 'queued';
                             }
+                            $remoteProduct->reason = $item->lastUpdate;
                             $remoteProduct->data = $jsonProduct;
                             $remoteProduct->save();
                         }
@@ -156,6 +160,24 @@ class BdroppyRewixApi
                 }
             }
             Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+
+            $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
+            $prds = $db->ExecuteS($sql);
+
+            $products = array_map(function ($item) {
+                return (integer)$item['rewix_product_id'];
+            }, $prds);
+            $delete_products = array_diff($products, $ids);
+
+            foreach ($delete_products as $id) {
+                BdroppyRemoteProduct::deleteByRewixId($id);
+                $remoteProduct = BdroppyRemoteProduct::fromRewixId($id);
+                if($remoteProduct->ps_product_id != '0') {
+                    $dp = new Product($remoteProduct->ps_product_id);
+                    $dp->delete();
+                }
+                BdroppyRemoteProduct::deleteByRewixId($id);
+            }
         } else {
             $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
         }
