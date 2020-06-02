@@ -160,7 +160,7 @@ class BdroppyCron
                 $sql = "";
                 $items = [];
                 if(Tools::getIsset('ps_product_id')) {
-                    $sql = "SELECT * FROM `" . '_DB_PREFIX_' . "bdroppy_remoteproduct` WHERE ps_product_id = '". Tools::getValue('ps_product_id') ."';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE ps_product_id = '". Tools::getValue('ps_product_id') ."';";
                     $items = $db->ExecuteS($sql);
                 }
                 if(count($items) == 0 && Tools::getIsset('rewix_product_id')) {
