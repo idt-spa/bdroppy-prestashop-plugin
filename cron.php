@@ -37,7 +37,7 @@ include_once dirname(__FILE__) . '/classes/ImportTools.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
 $importFlag = true;
-if(Tools::getIsset($_GET['no_import']))
+if(Tools::getIsset('no_import'))
     if(Tools::getValue('no_import') == '1')
         $importFlag = false;
 if($importFlag)
@@ -155,19 +155,19 @@ class BdroppyCron
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
 
-            if(Tools::getIsset($_GET['ps_product_id']) || Tools::getIsset($_GET['rewix_product_id']) || Tools::getIsset($_GET['reference'])) {
+            if(Tools::getIsset('ps_product_id') || Tools::getIsset('rewix_product_id') || Tools::getIsset('reference')) {
                 $updateFlag = true;
                 $sql = "";
                 $items = [];
-                if(Tools::getIsset($_GET['ps_product_id'])) {
+                if(Tools::getIsset('ps_product_id')) {
                     $sql = "SELECT * FROM `" . '_DB_PREFIX_' . "bdroppy_remoteproduct` WHERE ps_product_id = '". Tools::getValue('ps_product_id') ."';";
                     $items = $db->ExecuteS($sql);
                 }
-                if(count($items) == 0 && Tools::getIsset($_GET['rewix_product_id'])) {
+                if(count($items) == 0 && Tools::getIsset('rewix_product_id')) {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". Tools::getValue('rewix_product_id') ."';";
                     $items = $db->ExecuteS($sql);
                 }
-                if(count($items) == 0 && Tools::getIsset($_GET['reference'])) {
+                if(count($items) == 0 && Tools::getIsset('reference')) {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE reference = '". Tools::getValue('reference') ."';";
                     $items = $db->ExecuteS($sql);
                 }
@@ -207,7 +207,7 @@ class BdroppyCron
                     }
 
                     $devFlag = false;
-                    if(Tools::getIsset($_GET['dev']))
+                    if(Tools::getIsset('dev'))
                         if(Tools::getValue('dev') == 'isaac')
                             $devFlag = true;
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
@@ -257,16 +257,16 @@ class BdroppyCron
                         if ($bdroppy_auto_update_prices) {
                             $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
                             $total = $db->ExecuteS($sql);
-                            if($total[0]['total'] == 0 || Tools::getIsset($_GET['dev'])) {
+                            if($total[0]['total'] == 0 || Tools::getIsset('dev')) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                                 if ($lastQuantitiesSync == 0) {
                                     $lastQuantitiesSync = time();
                                     Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
                                 }
-                                $rewixApi = new BdroppyRewixApi();
                                 $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
 
                                 if ((time() - $lastQuantitiesSync) > 1800) {
+                                    $rewixApi = new BdroppyRewixApi();
                                     $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
                                 }
                             }
@@ -336,7 +336,7 @@ class BdroppyCron
         }
 
         $noImportFlag = false;
-        if (Tools::getIsset($_GET['no_import'])) {
+        if (Tools::getIsset('no_import')) {
             if (Tools::getValue('no_import') == '1') {
                 $noImportFlag = true;
             }
