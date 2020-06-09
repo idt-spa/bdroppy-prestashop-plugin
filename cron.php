@@ -262,7 +262,7 @@ class BdroppyCron
                                     $lastQuantitiesSync = time();
                                     Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
                                 }
-                                $iso8601 = date('Y-m-d\TH:i:s.u', $lastQuantitiesSync);
+                                $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
 
                                 if ((time() - $lastQuantitiesSync) > 1800) {
                                     $rewixApi = new BdroppyRewixApi();
