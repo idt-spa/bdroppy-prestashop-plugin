@@ -106,6 +106,7 @@ class BdroppyRewixApi
         curl_close($ch);
 
         if($http_code == 200) {
+            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
             //Db::getInstance()->update('bdroppy_remoteproduct', array('sync_status' => 'delete', 'last_sync_date' => date('Y-m-d H:i:s')));
             $json = json_decode($data);
             foreach ($json->items as $item) {
@@ -160,7 +161,6 @@ class BdroppyRewixApi
                     }
                 }
             }
-            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
 
             $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
             $prds = $db->ExecuteS($sql);
@@ -204,6 +204,7 @@ class BdroppyRewixApi
         $curl_error = curl_error($ch);
         curl_close($ch);
         if($http_code == 200) {
+            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
             $json = json_decode($data);
             foreach ($json->items as $item) {
                 $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);

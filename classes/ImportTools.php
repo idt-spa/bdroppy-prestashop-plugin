@@ -159,7 +159,7 @@ class BdroppyImportTools
                 $reference = self::fitReference($jsonProduct->code, (string)$jsonProduct->id);
 
                 if($item['ps_product_id'] == '0') {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='$api_catalog';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='bdroppy-$api_catalog';";
                     $prds = Db::getInstance()->ExecuteS($sql);
                     if(count($prds)>0) {
                         $ps_product_id = $prds[0]['id_product'];
@@ -169,13 +169,13 @@ class BdroppyImportTools
                 }
 
                 $product = new Product($ps_product_id);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='$api_catalog';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='bdroppy-$api_catalog';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $d) {
                     $dp = new Product($d['id_product']);
                     $dp->delete();
                 }
-                $product->unity = $api_catalog;
+                $product->unity = 'bdroppy-' . $api_catalog;
 
                 $logTxt = 'Importing product ' . $sku . ' with id ' . $jsonProduct->id;
                 if($updateFlag)

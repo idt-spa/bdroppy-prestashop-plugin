@@ -190,13 +190,12 @@ class BdroppyCron
                         }
                         BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                     }
-                } else {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity='$api_catalog_bu';";
-                    $delete_products = $db->ExecuteS($sql);
-                    foreach ($delete_products as $item) {
-                        $product = new Product($item['id_product']);
-                        $product->delete();
-                    }
+                }
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
+                $delete_products = $db->ExecuteS($sql);
+                foreach ($delete_products as $item) {
+                    $product = new Product($item['id_product']);
+                    $product->delete();
                 }
             } else {
                 if ($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && Tools::strlen($api_catalog) > 1) {
