@@ -154,7 +154,6 @@ class BdroppyCron
             }
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
-
             if(Tools::getIsset('ps_product_id') || Tools::getIsset('rewix_product_id') || Tools::getIsset('reference')) {
                 $updateFlag = true;
                 $sql = "";
@@ -341,11 +340,11 @@ class BdroppyCron
             }
         }
 
-            if ((time() - $lastSync) > 10 * 60 || $noImportFlag) {
-                $rewixApi = new BdroppyRewixApi();
-                $rewixApi->updateOrderStatuses();
-                $rewixApi->syncBookedProducts();
-                $rewixApi->sendMissingOrders();
+        if ((time() - $lastSync) > 10 * 60 || $noImportFlag) {
+            $rewixApi = new BdroppyRewixApi();
+            $rewixApi->updateOrderStatuses();
+            $rewixApi->syncBookedProducts();
+            $rewixApi->sendMissingOrders();
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int)time());
         }
     }

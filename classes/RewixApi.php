@@ -162,7 +162,7 @@ class BdroppyRewixApi
                 }
             }
 
-            $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE (sync_status = 'queued' OR sync_status = 'updated' OR sync_status = 'importing');";
+            $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
             $prds = $db->ExecuteS($sql);
 
             $products = array_map(function ($item) {
@@ -178,6 +178,12 @@ class BdroppyRewixApi
                     $dp->delete();
                 }
                 BdroppyRemoteProduct::deleteByRewixId($id);
+            }
+            $sql = "SELECT p.id_product FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
+            $items = $db->ExecuteS($sql);
+            foreach ($items as $item) {
+                $dp = new Product($item['id_product']);
+                $dp->delete();
             }
         } else {
             $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
