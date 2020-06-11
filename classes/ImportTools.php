@@ -654,7 +654,12 @@ class BdroppyImportTools
                         $name .= ' - ' . $tag;
                     }
                 }
-                $product->name[$lang['id_lang']] = $name;
+                $bdroppy_auto_update_name = (bool)Configuration::get('BDROPPY_AUTO_UPDATE_NAME');
+                if($product->name[$lang['id_lang']] == '') {
+                    $product->name[$lang['id_lang']] = $name;
+                } elseif ($bdroppy_auto_update_name) {
+                    $product->name[$lang['id_lang']] = $name;
+                }
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
                 $product->description[$lang['id_lang']] = self::getDescriptions($jsonProduct, $langCode);
                 $product->description_short[$lang['id_lang']] = Tools::substr(self::getDescriptions($jsonProduct, $langCode), 0, 800);

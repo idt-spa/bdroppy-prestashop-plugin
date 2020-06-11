@@ -127,6 +127,7 @@ class BdroppyCron
                 'BDROPPY_IMPORT_BRAND_TO_TITLE' => Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE', null),
                 'BDROPPY_IMPORT_TAG_TO_TITLE' => Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE', null),
                 'BDROPPY_AUTO_UPDATE_PRICES' => Configuration::get('BDROPPY_AUTO_UPDATE_PRICES', null),
+                'BDROPPY_AUTO_UPDATE_NAME' => Configuration::get('BDROPPY_AUTO_UPDATE_NAME', null),
             );
 
             $db = Db::getInstance();

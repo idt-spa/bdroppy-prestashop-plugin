@@ -1,15 +1,15 @@
 {*
- * NOTICE OF LICENSE.
- *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
- *
- * You must not modify, adapt or create derivative works of this source code
- *
- *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2020 PrestaShop SA
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+* NOTICE OF LICENSE.
+*
+* This file is licenced under the Software License Agreement.
+* With the purchase or the installation of the software in your application
+* you accept the licence agreement.
+*
+* You must not modify, adapt or create derivative works of this source code
+*
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2020 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -283,6 +283,22 @@
 								</label>
 								<input name="bdroppy_auto_update_prices" id="bdroppy_auto_update_prices_off" value="0" {if !$bdroppy_auto_update_prices}checked="checked"{/if} type="radio">
 								<label for="bdroppy_auto_update_prices_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Auto Update Products Name' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_auto_update_name" id="bdroppy_auto_update_name_on" value="1" {if $bdroppy_auto_update_name}checked="checked"{/if} type="radio">
+								<label for="bdroppy_auto_update_name_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_auto_update_name" id="bdroppy_auto_update_name_off" value="0" {if !$bdroppy_auto_update_name}checked="checked"{/if} type="radio">
+								<label for="bdroppy_auto_update_name_off" class="radioCheck">
 								No
 								</label>
 								<a class="slide-button btn"></a>

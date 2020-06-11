@@ -664,6 +664,9 @@ class Bdroppy extends Module
             $bdroppy_auto_update_prices = (int)Tools::getValue('bdroppy_auto_update_prices');
             Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', $bdroppy_auto_update_prices);
 
+            $bdroppy_auto_update_name = (int)Tools::getValue('bdroppy_auto_update_name');
+            Configuration::updateValue('BDROPPY_AUTO_UPDATE_NAME', $bdroppy_auto_update_name);
+
             $rewixApi = new BdroppyRewixApi();
             $res = $rewixApi->connectUserCatalog();
             if ($res['http_code'] == 200) {
@@ -731,6 +734,10 @@ class Bdroppy extends Module
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
         if ($bdroppy_custom_feature == '') {
             $bdroppy_custom_feature = '0';
+        }
+        $bdroppy_auto_update_name = Configuration::get('BDROPPY_AUTO_UPDATE_NAME');
+        if ($bdroppy_auto_update_name == '') {
+            $bdroppy_auto_update_name = '0';
         }
         $bdroppy_reimport_image = Configuration::get('BDROPPY_REIMPORT_IMAGE');
         if ($bdroppy_reimport_image == '') {
@@ -832,6 +839,7 @@ class Bdroppy extends Module
             'bdroppy_reimport_image' => $bdroppy_reimport_image,
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
+            'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
         );
         $this->context->smarty->assign($tplVars);
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
