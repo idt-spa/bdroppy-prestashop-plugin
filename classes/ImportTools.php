@@ -763,6 +763,7 @@ class BdroppyImportTools
             $lngSeason['da'] = 'Sæson';
             $lngSeason['lt'] = 'Sezonas';
 
+            $product->deleteFeatures();
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
