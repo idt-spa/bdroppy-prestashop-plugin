@@ -32,7 +32,7 @@ if (!defined('_PS_ROOT_DIR_')) {
 }
 
 include_once _PS_ROOT_DIR_ . '/config/config.inc.php';
-include_once _PS_ROOT_DIR_ . '/init.php';
+//include_once _PS_ROOT_DIR_ . '/init.php';
 include_once dirname(__FILE__) . '/classes/ImportTools.php';
 include_once dirname(__FILE__) . '/classes/RewixApi.php';
 
