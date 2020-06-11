@@ -40,13 +40,14 @@ class Bdroppy extends Module
     private $errors = null;
     private $logger;
     private $orderLogger;
-    public $tab = null;
+    public $current_tab = null;
 
     public function __construct()
     {
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
-        $this->version = '2.0.3';
+        $this->tab = 'administration';
+        $this->version = '2.0.4';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -193,37 +194,45 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $features = Feature::getFeatures($default_language['id_lang']);
         foreach ($features as $feature) {
-            if ($feature['name'] == $lngSize[$default_language['iso_code']])
+            if ($feature['name'] == $lngSize[$default_language['iso_code']]) {
                 $flgSize = false;
-            if ($feature['name'] == $lngGender[$default_language['iso_code']])
+            }
+            if ($feature['name'] == $lngGender[$default_language['iso_code']]) {
                 $flgGender = false;
-            if ($feature['name'] == $lngColor[$default_language['iso_code']])
+            }
+            if ($feature['name'] == $lngColor[$default_language['iso_code']]) {
                 $flgColor = false;
-            if ($feature['name'] == $lngSeason[$default_language['iso_code']])
+            }
+            if ($feature['name'] == $lngSeason[$default_language['iso_code']]) {
                 $flgSeason = false;
+            }
         }
         if ($flgSize) {
             $feature = new Feature();
-            foreach ($languages as $language)
+            foreach ($languages as $language) {
                 $feature->name[$language['id_lang']] = $lngSize[$language['iso_code']];
+            }
             $feature->add();
         }
         if ($flgGender) {
             $feature = new Feature();
-            foreach ($languages as $language)
+            foreach ($languages as $language) {
                 $feature->name[$language['id_lang']] = $lngGender[$language['iso_code']];
+            }
             $feature->add();
         }
         if ($flgColor) {
             $feature = new Feature();
-            foreach ($languages as $language)
+            foreach ($languages as $language) {
                 $feature->name[$language['id_lang']] = $lngColor[$language['iso_code']];
+            }
             $feature->add();
         }
         if ($flgSeason) {
             $feature = new Feature();
-            foreach ($languages as $language)
+            foreach ($languages as $language) {
                 $feature->name[$language['id_lang']] = $lngSeason[$language['iso_code']];
+            }
             $feature->add();
         }
     }
@@ -326,14 +335,18 @@ class Bdroppy extends Module
         $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
         $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
         foreach ($attributes as $attribute) {
-            if ($attribute['name'] == $lngSize[$default_language['iso_code']])
+            if ($attribute['name'] == $lngSize[$default_language['iso_code']]) {
                 $flgSize = false;
-            if ($attribute['name'] == $lngGender[$default_language['iso_code']])
+            }
+            if ($attribute['name'] == $lngGender[$default_language['iso_code']]) {
                 $flgGender = false;
-            if ($attribute['name'] == $lngColor[$default_language['iso_code']])
+            }
+            if ($attribute['name'] == $lngColor[$default_language['iso_code']]) {
                 $flgColor = false;
-            if ($attribute['name'] == $lngSeason[$default_language['iso_code']])
+            }
+            if ($attribute['name'] == $lngSeason[$default_language['iso_code']]) {
                 $flgSeason = false;
+            }
         }
         if ($flgSize) {
             $newGroup = new AttributeGroup();
@@ -427,15 +440,22 @@ class Bdroppy extends Module
 
     private function getCatalogs()
     {
+        $ret = [];
         $catalogs = [];
         $catalogs[0] = $this->l('Please Select', 'main');
         $rewixApi = new BdroppyRewixApi();
         $res = $rewixApi->getUserCatalogs();
-        if ($res['catalogs'])
+        if ($res['catalogs']) {
             $catalogs[-1] = 'No Catalog';
+        }
         foreach ($res['catalogs'] as $r) {
             $r = $rewixApi->getCatalogById2($r->_id);
-            $catalogs[$r->_id] = isset($r->name) ? $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )" : null;
+            $catalogs[$r->_id] = "";
+            if (isset($r->name)) {
+                $catalogs[$r->_id] = $r->name . " ( $r->currency ) ( " . count($r->ids) . " products )";
+            } else {
+                $catalogs[$r->_id] = null;
+            }
         }
         $ret['http_code'] = $res['http_code'];
         $ret['catalogs'] = $catalogs;
@@ -476,9 +496,9 @@ class Bdroppy extends Module
 
     public function paginateUsers($users, $page = 1, $pagination = 20)
     {
-        if (count($users) > $pagination)
+        if (count($users) > $pagination) {
             $users = array_slice($users, $pagination * ($page - 1), $pagination);
-
+        }
         return $users;
     }
 
@@ -534,15 +554,17 @@ class Bdroppy extends Module
         $helper_list->identifier = 'id';
         $helper_list->table = 'merged';
         $helper_list->token = Tools::getAdminTokenLite('AdminModules');
-        $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name;
+        $helper_list->currentIndex = $this->context->link->getAdminLink('AdminModules', false) .
+            '&configure=' . $this->name;
         $this->_helperlist = $helper_list;
 
         /* Retrieve list data */
         $users = $this->getOrders();
         $helper_list->listTotal = count($users);
 
-        if (Tools::getValue('submitFilter' . $helper_list->table))
-            $this->tab = 'orders';
+        if (Tools::getValue('submitFilter' . $helper_list->table)) {
+            $this->current_tab = 'orders';
+        }
         /* Paginate the result */
         $page = ($page = Tools::getValue('submitFilter' . $helper_list->table)) ? $page : 1;
         $pagination = ($pagination = Tools::getValue($helper_list->table . '_pagination')) ? $pagination : 20;
@@ -561,7 +583,6 @@ class Bdroppy extends Module
 
         // check if a FORM was submitted using the 'Save Config' button
         if (Tools::isSubmit('submitApiConfig')) {
-            $apiToken = '';
             $apiUrl = (string)Tools::getValue('bdroppy_api_url');
             $apiKey = (string)Tools::getValue('bdroppy_api_key');
             $apiPassword = (string)Tools::getValue('bdroppy_api_password');
@@ -571,7 +592,9 @@ class Bdroppy extends Module
             Configuration::updateValue('BDROPPY_API_KEY', $apiKey);
             Configuration::updateValue('BDROPPY_API_PASSWORD', $apiPassword);
             Configuration::updateValue('BDROPPY_TOKEN', '');
-            if ($apiKey != Configuration::get('BDROPPY_API_KEY') || $apiPassword != Configuration::get('BDROPPY_API_PASSWORD') || Configuration::get('BDROPPY_TOKEN') == '') {
+            if ($apiKey != Configuration::get('BDROPPY_API_KEY') ||
+                $apiPassword != Configuration::get('BDROPPY_API_PASSWORD') ||
+                Configuration::get('BDROPPY_TOKEN') == '') {
                 Configuration::updateValue('BDROPPY_CATALOG', '');
                 $rewixApi = new BdroppyRewixApi();
                 $res = $rewixApi->loginUser();
@@ -579,20 +602,22 @@ class Bdroppy extends Module
                     Configuration::updateValue('BDROPPY_TOKEN', $res['data']->token);
                 }
             }
-            $this->tab = 'configurations';
+            $this->current_tab = 'configurations';
             $saved = true;
         } elseif (Tools::isSubmit('submitCatalogConfig')) {
             $bdroppy_catalog_changed = false;
             $bdroppy_catalog = (string)Tools::getValue('bdroppy_catalog');
-            if(Configuration::get('BDROPPY_CATALOG') != $bdroppy_catalog)
+            if (Configuration::get('BDROPPY_CATALOG') != $bdroppy_catalog) {
                 $bdroppy_catalog_changed = true;
+            }
 
             Configuration::updateValue('BDROPPY_CATALOG_CHANGED', $bdroppy_catalog_changed);
 
             Configuration::updateValue('BDROPPY_CATALOG', $bdroppy_catalog);
 
-            if ($bdroppy_catalog != '0' && $bdroppy_catalog != '-1')
+            if ($bdroppy_catalog != '0' && $bdroppy_catalog != '-1') {
                 Configuration::updateValue('BDROPPY_CATALOG_BU', $bdroppy_catalog);
+            }
 
             $bdroppy_active_product = (string)Tools::getValue('bdroppy_active_product');
             Configuration::updateValue('BDROPPY_ACTIVE_PRODUCT', $bdroppy_active_product);
@@ -641,15 +666,18 @@ class Bdroppy extends Module
 
             $rewixApi = new BdroppyRewixApi();
             $res = $rewixApi->connectUserCatalog();
-            if ($res['http_code'] == 200)
+            if ($res['http_code'] == 200) {
                 $connectCatalog = true;
+            }
             $cron = $rewixApi->setCronJob($cron_url);
-            if ($cron['http_code'] == 200)
-                if ($cron['data'] == 'url_already_exists')
+            if ($cron['http_code'] == 200) {
+                if ($cron['data'] == 'url_already_exists') {
                     $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
-                else
+                } else {
                     $connectCronTxt = 'CronJob Added (' . $cron_url . ')';
-            $this->tab = 'my_catalogs';
+                }
+            }
+            $this->current_tab = 'my_catalogs';
             $saved = true;
         }
         $errors = "";
@@ -665,8 +693,9 @@ class Bdroppy extends Module
                 $confirmations .= $this->displayConfirmation($this->l('Catalog Connected'));
             }
         }
-        if ($connectCronTxt != '')
+        if ($connectCronTxt != '') {
             $confirmations .= $this->displayConfirmation($this->l($connectCronTxt));
+        }
 
         $res = AttributeGroup::getAttributesGroups($this->context->language->id);
         //$res = Feature::getFeatures($this->context->language->id);
@@ -700,21 +729,18 @@ class Bdroppy extends Module
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $bdroppy_active_product = Configuration::get('BDROPPY_ACTIVE_PRODUCT');
         $bdroppy_custom_feature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
-        if ($bdroppy_custom_feature == '')
+        if ($bdroppy_custom_feature == '') {
             $bdroppy_custom_feature = '0';
+        }
         $bdroppy_reimport_image = Configuration::get('BDROPPY_REIMPORT_IMAGE');
-        if ($bdroppy_reimport_image == '')
+        if ($bdroppy_reimport_image == '') {
             $bdroppy_reimport_image = '0';
+        }
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
         $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs['http_code'] . '</span>';
-        if (count($catalogs['catalogs']) > 1) {
-            /*$rewixApi = new BdroppyRewixApi();
-            $userInfo = $rewixApi->getUserInfo();
-            if($userInfo['http_code'] == 200) {
-                Configuration::updateValue('BDROPPY_USER_TAX', $userInfo['data']->tax);
-            }*/
+        if ($catalogs['http_code'] == 200) {
             $txtStatus = '<span style="color: green;">Ok</span>';
         }
         $urls = array(
@@ -764,8 +790,9 @@ class Bdroppy extends Module
         $queue_imported = BdroppyRemoteProduct::getCountByStatus(BdroppyRemoteProduct::SYNC_STATUS_UPDATED);
         $queue_all = BdroppyRemoteProduct::getCountByStatus('');
         $renderedOrders = $this->renderOrdersList();
-        if ($this->tab == '')
-            $this->tab = 'configurations';
+        if ($this->current_tab == '') {
+            $this->current_tab = 'configurations';
+        }
         $tplVars = array(
             'module_display_name' => $this->displayName,
             'module_version' => $this->version,
@@ -781,7 +808,7 @@ class Bdroppy extends Module
             'api_key' => $api_key,
             'ordersHtml' => $renderedOrders,
             'cron_command' => $this->getCronCommand(),
-            'active_tab' => $this->tab,
+            'active_tab' => $this->current_tab,
             'api_token' => $api_token,
             'cron_url' => $cron_url,
             'catalogs' => $catalogs['catalogs'],

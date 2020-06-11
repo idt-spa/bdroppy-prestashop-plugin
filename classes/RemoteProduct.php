@@ -227,8 +227,9 @@ class BdroppyRemoteProduct extends ObjectModel
         $query = new DbQuery();
         $query->select('COUNT(*)');
         $query->from('bdroppy_remoteproduct');
-        if($status != '')
+        if ($status != '') {
             $query->where('`sync_status` = \'' . pSQL($status) . '\'');
+        }
         $result = Db::getInstance()->getValue($query);
         return $result;
     }
@@ -245,7 +246,6 @@ class BdroppyRemoteProduct extends ObjectModel
         $query->from('bdroppy_remoteproduct');
         $query->where('rewix_product_id = ' . (int)pSQL($id));
         $query->limit(1);
-
         return Db::getInstance()->execute($query);
     }
 }

@@ -28,7 +28,7 @@
 		});
 		$('input[name*="bdroppy_custom_feature"]').on('input', function() {
 			$('#custom_feature_msg').html('<div class=""></div>');
-			if($(this).val() == '1') {
+			if ($(this).val() == '1') {
 				$('#custom_feature_msg').html('<div class="alert alert-danger">Custom Features will add new features for every products, are you sure?</div>');
 			}
 		});
@@ -56,7 +56,7 @@
 
 <div class="tabs stripe-module-wrapper">
 	{if !empty($confirmations)}
-		{$confirmations}
+		{$confirmations|escape:'htmlall':'UTF-8'}
 	{/if}
 	{if !empty($errors)}
 		<fieldset style="display:block;">
@@ -76,9 +76,9 @@
 	<div class="row">
 		<div class="sidebar navigation col-md-2">
 			<nav class="list-group categorieList">
-				<a class="list-group-item{$confirmations_tab}" data-id="configurations" href="#configurations"><i class="icon-gear"></i> {l s='Configurations' mod='bdroppy'}</a>
-				<a class="list-group-item{$my_catalogs_tab}" data-id="my_catalogs" href="#my_catalogs"><i class="icon-ok-sign"></i> {l s='My Catalogs' mod='bdroppy'}</a>
-				<a class="list-group-item{$orders_tab}" data-id="orders" href="#orders"><i class="icon-list"></i> {l s='Orders' mod='bdroppy'}</a>
+				<a class="list-group-item{$confirmations_tab|escape:'htmlall':'UTF-8'}" data-id="configurations" href="#configurations"><i class="icon-gear"></i> {l s='Configurations' mod='bdroppy'}</a>
+				<a class="list-group-item{$my_catalogs_tab|escape:'htmlall':'UTF-8'}" data-id="my_catalogs" href="#my_catalogs"><i class="icon-ok-sign"></i> {l s='My Catalogs' mod='bdroppy'}</a>
+				<a class="list-group-item{$orders_tab|escape:'htmlall':'UTF-8'}" data-id="orders" href="#orders"><i class="icon-list"></i> {l s='Orders' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="status" href="#status"><i class="icon-question-sign"></i> {l s='Status' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="about" href="#about"><i class="icon-info-sign"></i> {l s='About' mod='bdroppy'}</a>
 			</nav>
@@ -86,16 +86,16 @@
 		<div class="panel content-wrap form-horizontal col-lg-10">
 
 			<form action="" method="post">
-				<fieldset id="configurations" class="{$confirmations_form}">
+				<fieldset id="configurations" class="{$confirmations_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-gear"></i>&nbsp;{l s='Configurations' mod='bdroppy'}</h3>
 					<div class="row">
 						<div class="col-lg-8">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
 							<br>
 							<div id="div_status" style="display: inherit">
-								<p><strong>URL</strong> {$base_url}</p>
+								<p><strong>URL</strong> {$base_url|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
-								<p><strong>Status</strong> {$txtStatus}</p>
+								<p><strong>Status</strong> {$txtStatus|escape:'UTF-8'}</p>
 								<p><button class="btn_change_token"><i class="icon-signout"></i> {l s='Disconnect' mod='bdroppy'}</button></p>
 							</div>
 							<div id="div_change_token" style="display: none">
@@ -127,7 +127,7 @@
 							<p>Version : {$module_version|escape:'htmlall':'UTF-8'}</p>
 							<br>
 							<p style="clear: left;">{l s='Thanks for installing this module on your website.' mod='bdroppy'}</p>
-							{if $description_big_html}{$description_big_html}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
+							{if $description_big_html}{$description_big_html|escape:'htmlall':'UTF-8'}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
 							<p>
 								{l s='Made with by' mod='bdroppy'} <a style="color: #7ba45b; text-decoration: underline;" target="_blank" href="{$home_url|escape:'htmlall':'UTF-8'}">Brandsdistribution</a>
 							</p>
@@ -137,7 +137,7 @@
 			</form>
 
 			<form action="" method="post">
-				<fieldset id="my_catalogs" class="{$my_catalogs_form}">
+				<fieldset id="my_catalogs" class="{$my_catalogs_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-ok-sign"></i>&nbsp;{l s='My Catalogs' mod='bdroppy'}</h3>
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Catalog' mod='bdroppy'}:</label>
@@ -320,9 +320,9 @@
 			</form>
 
 			<form action="" method="post">
-				<fieldset id="orders" class="{$orders_form}">
+				<fieldset id="orders" class="{$orders_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-list"></i>&nbsp;{l s='Orders' mod='bdroppy'}</h3>
-					{$ordersHtml}
+					{$ordersHtml|escape:'UTF-8'}
 				</fieldset>
 			</form>
 
@@ -331,10 +331,10 @@
 					<h3 class="tab"> <i class="icon-question-sign"></i>&nbsp;{l s='Status' mod='bdroppy'}</h3>
 					<div class="card">
 						<h2>{l s='Import Queue Status' mod='bdroppy'}</h2>
-						<p><strong>{l s='Queued' mod='bdroppy'}</strong> {$queue_queued}</p>
-						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing}</p>
-						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported}</p>
-						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all}</p>
+						<p><strong>{l s='Queued' mod='bdroppy'}</strong> {$queue_queued|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all|escape:'htmlall':'UTF-8'}</p>
 					</div>
 				</fieldset>
 			</form>
@@ -347,7 +347,7 @@
 					<p>Version : {$module_version|escape:'htmlall':'UTF-8'}</p>
 					<br>
 					<p style="clear: left;">{l s='Thanks for installing this module on your website.' mod='bdroppy'}</p>
-					{if $description_big_html}{$description_big_html}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
+					{if $description_big_html}{$description_big_html|escape:'htmlall':'UTF-8'}{else}<p>{$description|escape:'htmlall':'UTF-8'}</p>{/if}
 					<p>
 						{l s='Made with by' mod='bdroppy'} <a style="color: #7ba45b; text-decoration: underline;" target="_blank" href="{$home_url|escape:'htmlall':'UTF-8'}">Brandsdistribution</a>
 					</p>

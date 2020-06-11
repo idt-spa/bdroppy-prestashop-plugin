@@ -96,17 +96,18 @@ class BdroppyImportTools
         }
     }
 
-    public static function updateProductPrices($default_lang, $acceptedlocales) {
+    public static function updateProductPrices($default_lang, $acceptedlocales)
+    {
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
         $api_limit_count = Configuration::get('BDROPPY_LIMIT_COUNT');
         $i = 1;
         $db = Db::getInstance();
         $json = new XMLReader();
-        if(!$json->open($api_catalog.'_since.xml')){
+        if (!$json->open($api_catalog.'_since.xml')) {
             return false;
         }
-        while($json->read()){
-            if($json->nodeType==XMLReader::ELEMENT && $json->name == 'item' && $i <= $api_limit_count){
+        while ($json->read()) {
+            if ($json->nodeType==XMLReader::ELEMENT && $json->name == 'item' && $i <= $api_limit_count) {
                 $product_xml = $json->readOuterXml();
                 $jsonProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
                 $json = json_encode($jsonProduct);
@@ -114,7 +115,7 @@ class BdroppyImportTools
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
                 $items = $db->ExecuteS($sql);
                 $updateFlag = 3;
-                if(count($items) == 0) {
+                if (count($items) == 0) {
                     //add product to queue
                     $db->insert('bdroppy_remoteproduct', array(
                         'rewix_product_id' => pSQL($product->id),
@@ -125,14 +126,14 @@ class BdroppyImportTools
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
                     $items = $db->ExecuteS($sql);
                     foreach ($items as $item) {
-                        $res = self::importProduct($item, $default_lang, false, $acceptedlocales);
+                        self::importProduct($item, $default_lang, false, $acceptedlocales);
                     }
                     $i++;
                 } else {
                     foreach ($items as $item) {
                         $past = date('Y-m-d H:i:s', strtotime("-1 hour"));
-                        if($item['last_sync_date'] < $past) {
-                            $res = self::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
+                        if ($item['last_sync_date'] < $past) {
+                            self::importProduct($item, $default_lang, $updateFlag);
                             $i++;
                         }
                     }
@@ -142,7 +143,7 @@ class BdroppyImportTools
         $json->close();
     }
 
-    public static function importProduct($item, $default_lang, $updateFlag, $acceptedlocales)
+    public static function importProduct($item, $default_lang, $updateFlag)
     {
         try {
             @set_time_limit(3600);
@@ -151,17 +152,17 @@ class BdroppyImportTools
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
             $jsonProduct = json_decode($item['data']);
 
-            if($jsonProduct) {
+            if ($jsonProduct) {
                 $refId = (int)$jsonProduct->id;
                 $sku = (string)$jsonProduct->code;
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($refId);
                 $ps_product_id = 0;
                 $reference = self::fitReference($jsonProduct->code, (string)$jsonProduct->id);
 
-                if($item['ps_product_id'] == '0') {
+                if ($item['ps_product_id'] == '0') {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='bdroppy-$api_catalog';";
                     $prds = Db::getInstance()->ExecuteS($sql);
-                    if(count($prds)>0) {
+                    if (count($prds)>0) {
                         $ps_product_id = $prds[0]['id_product'];
                     }
                 } else {
@@ -178,25 +179,26 @@ class BdroppyImportTools
                 $product->unity = 'bdroppy-' . $api_catalog;
 
                 $logTxt = 'Importing product ' . $sku . ' with id ' . $jsonProduct->id;
-                if($updateFlag)
+                if ($updateFlag) {
                     $logTxt = 'Updating product ' . $sku . ' with id ' . $jsonProduct->id;
+                }
 
                 self::getLogger()->logDebug($logTxt);
 
                 // populate general common fields
-                $product1 = self::populateProductAttributes($jsonProduct, $product, $default_lang);
+                self::populateProductAttributes($jsonProduct, $product, $default_lang);
                 if (self::checkSimpleImport($jsonProduct)) {
                     self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $jsonProduct->id . ' will be imported as simple product');
-                    $product2 = self::importSimpleProduct($jsonProduct, $product);
+                    self::importSimpleProduct($jsonProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
                 } else {
                     $product->save();
-                    $product3 = self::importModels($jsonProduct, $product, $default_lang);
+                    self::importModels($jsonProduct, $product, $default_lang);
                 }
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
-                $res = Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
+                Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE') || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
                     self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')');
@@ -209,8 +211,9 @@ class BdroppyImportTools
             }
         } catch (PrestaShopException $e) {
             $logTxt = 'import - importProduct : ' . $e->getMessage();
-            if($updateFlag)
+            if ($updateFlag) {
                 $logTxt = 'update - importProduct : ' . $e->getMessage();
+            }
             self::getLogger()->logDebug($logTxt);
         }
     }
@@ -221,8 +224,9 @@ class BdroppyImportTools
         $translation = "";
 
         foreach ($tag->translations as $localeCode => $tr) {
-            if($localeCode == $default_lang)
+            if ($localeCode == $default_lang) {
                 $translation = self::stripTagValues((string)$tr);
+            }
         }
         return array(
             'value'       => $value,
@@ -230,147 +234,14 @@ class BdroppyImportTools
         );
     }
 
-    protected static function get_best_path($tgt_width, $tgt_height, $path_infos)
-    {
-        $path_infos = array_reverse($path_infos);
-        $path = '';
-        foreach ($path_infos as $path_info) {
-            list($width, $height, $path) = $path_info;
-            if ($width >= $tgt_width && $height >= $tgt_height) {
-                return $path;
-            }
-        }
-
-        return $path;
-    }
-
-    function copyImg($id_entity, $id_image, $url, $entity = 'products', $regenerate = true) {
-        $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'ps_import');
-        $watermark_types = explode(',', Configuration::get('WATERMARK_TYPES'));
-
-        switch ($entity) {
-            default:
-            case 'products':
-                $image_obj = new Image($id_image);
-                $path = $image_obj->getPathForCreation();
-
-                break;
-            case 'categories':
-                $path = _PS_CAT_IMG_DIR_ . (int) $id_entity;
-
-                break;
-            case 'manufacturers':
-                $path = _PS_MANU_IMG_DIR_ . (int) $id_entity;
-
-                break;
-            case 'suppliers':
-                $path = _PS_SUPP_IMG_DIR_ . (int) $id_entity;
-
-                break;
-            case 'stores':
-                $path = _PS_STORE_IMG_DIR_ . (int) $id_entity;
-
-                break;
-        }
-
-        $url = urldecode(trim($url));
-        $parced_url = parse_url($url);
-
-        if (isset($parced_url['path'])) {
-            $uri = ltrim($parced_url['path'], '/');
-            $parts = explode('/', $uri);
-            foreach ($parts as &$part) {
-                $part = rawurlencode($part);
-            }
-            unset($part);
-            $parced_url['path'] = '/' . implode('/', $parts);
-        }
-
-        if (isset($parced_url['query'])) {
-            $query_parts = array();
-            parse_str($parced_url['query'], $query_parts);
-            $parced_url['query'] = http_build_query($query_parts);
-        }
-
-        if (!function_exists('http_build_url')) {
-            require_once _PS_TOOL_DIR_ . 'http_build_url/http_build_url.php';
-        }
-
-        $url = http_build_url('', $parced_url);
-
-        $orig_tmpfile = $tmpfile;
-
-        if (Tools::copy($url, $tmpfile)) {
-            // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
-            if (!ImageManager::checkImageMemoryLimit($tmpfile)) {
-                @unlink($tmpfile);
-
-                return false;
-            }
-
-            $tgt_width = $tgt_height = 0;
-            $src_width = $src_height = 0;
-            $error = 0;
-            ImageManager::resize($tmpfile, $path . '.jpg', null, null, 'jpg', false, $error, $tgt_width, $tgt_height, 5, $src_width, $src_height);
-            $images_types = ImageType::getImagesTypes($entity, true);
-
-            if ($regenerate) {
-                $previous_path = null;
-                $path_infos = array();
-                $path_infos[] = array($tgt_width, $tgt_height, $path . '.jpg');
-                foreach ($images_types as $image_type) {
-                    $tmpfile = self::get_best_path($image_type['width'], $image_type['height'], $path_infos);
-
-                    if (ImageManager::resize(
-                        $tmpfile,
-                        $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg',
-                        $image_type['width'],
-                        $image_type['height'],
-                        'jpg',
-                        false,
-                        $error,
-                        $tgt_width,
-                        $tgt_height,
-                        5,
-                        $src_width,
-                        $src_height
-                    )) {
-                        // the last image should not be added in the candidate list if it's bigger than the original image
-                        if ($tgt_width <= $src_width && $tgt_height <= $src_height) {
-                            $path_infos[] = array($tgt_width, $tgt_height, $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg');
-                        }
-                        if ($entity == 'products') {
-                            if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '.jpg')) {
-                                unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '.jpg');
-                            }
-                            if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '_' . (int) Context::getContext()->shop->id . '.jpg')) {
-                                unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int) $id_entity . '_' . (int) Context::getContext()->shop->id . '.jpg');
-                            }
-                        }
-                    }
-                    if (in_array($image_type['id_image_type'], $watermark_types)) {
-                        Hook::exec('actionWatermark', array('id_image' => $id_image, 'id_product' => $id_entity));
-                    }
-                }
-            }
-        } else {
-            @unlink($orig_tmpfile);
-
-            return false;
-        }
-        unlink($orig_tmpfile);
-
-        return true;
-    }
-
     private static function importProductImages($jsonProduct, $product, $count)
     {
         try {
             $imageCount = 1;
             $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
-            if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+            if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto-dev/prod/';
-            }else{
+            } else {
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
             $product->deleteImages();
@@ -388,9 +259,9 @@ class BdroppyImportTools
                 if ($httpCode != 200) {
                     self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
                     $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
-                    if(strpos(Configuration::get('BDROPPY_API_URL'),'dev') !== false){
+                    if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
                         $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
-                    }else{
+                    } else {
                         $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
                     }
                     $imageUrl = "{$websiteUrl}{$image->url}";
@@ -413,10 +284,9 @@ class BdroppyImportTools
                         $image->position = $imageCount;
                         $image->cover = (int)$imageCount === 1;
 
-                        if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
-                                false,
-                                true
-                            )) === true && $image->add()
+                        if (($image->validateFields(false, true)) === true &&
+                            ($image->validateFieldsLang(false, true)) === true &&
+                            $image->add()
                         ) {
                             if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
                                 $image->delete();
@@ -437,10 +307,9 @@ class BdroppyImportTools
                     $image->position = $imageCount;
                     $image->cover = (int)$imageCount === 1;
 
-                    if (($image->validateFields(false, true)) === true && ($image->validateFieldsLang(
-                            false,
-                            true
-                        )) === true && $image->add()
+                    if (($image->validateFields(false, true)) === true &&
+                        ($image->validateFieldsLang(false, true)) === true &&
+                        $image->add()
                     ) {
                         if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
                             $image->delete();
@@ -451,13 +320,14 @@ class BdroppyImportTools
                     @unlink($tmpfile);
                 }
                 $i++;
-                if($count != 'all') {
-                    if($i >= $count)
+                if ($count != 'all') {
+                    if ($i >= $count) {
                         break;
+                    }
                 }
             }
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'importProductImages : ' . $e->getMessage() );
+            self::getLogger()->logDebug('importProductImages : ' . $e->getMessage());
         }
     }
 
@@ -526,7 +396,7 @@ class BdroppyImportTools
             $remoteProduct->reason = '';
             $remoteProduct->save();
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'updateImportedProduct : ' . $e->getMessage() );
+            self::getLogger()->logDebug('updateImportedProduct : ' . $e->getMessage());
         }
     }
 
@@ -568,64 +438,66 @@ class BdroppyImportTools
                 }
             }
         }
-
         return true;
     }
 
     private static function getTagValue($product, $name, $lang)
     {
-        foreach ($product->tags as $tag)
-        {
-            if($tag->name === $name)
-            {
-                if (isset($tag->value->translations->{$lang})){
+        foreach ($product->tags as $tag) {
+            if ($tag->name === $name) {
+                if (isset($tag->value->translations->{$lang})) {
                     return $tag->value->translations->{$lang};
-                }else{
+                } else {
                     return $tag->value->value;
                 }
             }
         }
     }
 
-    private static function getCategory($product, $lang){
-        return self::getTagValue($product, 'category','$lang');
+    private static function getCategory($product, $lang)
+    {
+        return self::getTagValue($product, 'category', $lang);
     }
 
-    private static function getSubCategory($product, $lang){
-        return self::getTagValue($product, 'subcategory',$lang);
+    private static function getSubCategory($product, $lang)
+    {
+        return self::getTagValue($product, 'subcategory', $lang);
     }
 
     private static function getDescriptions($product, $lang)
     {
-        if (isset($product->descriptions->{$lang}))
-        {
+        if (isset($product->descriptions->{$lang})) {
             return @$product->descriptions->{$lang};
-        }else{
+        } else {
             return "";
         }
     }
 
-    private static function getBrand($product, $lang){
-        return self::getTagValue($product, 'brand',$lang);
+    private static function getBrand($product, $lang)
+    {
+        return self::getTagValue($product, 'brand', $lang);
     }
 
-    private static function getGender($product, $lang){
-        return self::getTagValue($product, 'gender',$lang);
+    private static function getGender($product, $lang)
+    {
+        return self::getTagValue($product, 'gender', $lang);
     }
 
-    private static function getSeason($product, $lang){
-        return self::getTagValue($product, 'season',$lang);
+    private static function getSeason($product, $lang)
+    {
+        return self::getTagValue($product, 'season', $lang);
     }
 
-    private static function getColor($product, $lang){
-        return self::getTagValue($product, 'color',$lang);
+    private static function getColor($product, $lang)
+    {
+        return self::getTagValue($product, 'color', $lang);
     }
 
-    private static function getName($product, $lang){
-        if(!empty(self::getTagValue($product, 'productname',$lang)))
-        {
-            return self::getTagValue($product, 'productname',$lang);
-        }else{
+    private static function getName($product, $lang)
+    {
+        if (!empty(self::getTagValue($product, 'productname', $lang))) {
+            return self::getTagValue($product, 'productname', $lang);
+        } else {
             return $product->name;
         }
     }
@@ -770,13 +642,13 @@ class BdroppyImportTools
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
                 $name = '';
-                if(Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
+                if (Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
                     $name = $productData['brand'] . ' - ' . $productData['name'];
                 } else {
                     $name = $productData['name'];
                 }
                 $pname_tag = Configuration::get('BDROPPY_IMPORT_TAG_TO_TITLE');
-                if($pname_tag == 'color') {
+                if ($pname_tag == 'color') {
                     $tag = self::getColor($jsonProduct, $langCode);
                     if (!empty($tag)) {
                         $name .= ' - ' . $tag;
@@ -909,14 +781,18 @@ class BdroppyImportTools
                 $colorFeatureId = '';
                 $genderFeatureId = '';
                 $seasonFeatureId = '';
-                if($sizeFeature)
+                if ($sizeFeature) {
                     $sizeFeatureId = $sizeFeature[0]['id_feature'];
-                if($colorFeature)
+                }
+                if ($colorFeature) {
                     $colorFeatureId = $colorFeature[0]['id_feature'];
-                if($genderFeature)
+                }
+                if ($genderFeature) {
                     $genderFeatureId = $genderFeature[0]['id_feature'];
-                if($seasonFeature)
+                }
+                if ($seasonFeature) {
                     $seasonFeatureId = $seasonFeature[0]['id_feature'];
+                }
                 $customFeature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
                     if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($jsonProduct['size']) > 0) {
@@ -964,9 +840,8 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'populateProductAttributes : ' . $e->getMessage() );
+            self::getLogger()->logDebug('populateProductAttributes : ' . $e->getMessage());
         }
-
     }
 
     /**
@@ -995,7 +870,6 @@ class BdroppyImportTools
     {
         try {
             $jsonModels = $jsonProduct->models;
-            $modelCount = 0;
 
             $langs = [];
             $langs['en'] = 'en_US';
@@ -1021,19 +895,19 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages(false);
             $first = true;
-            $delete_combinations = $product->deleteProductAttributes();
+            $product->deleteProductAttributes();
             foreach ($jsonModels as $model) {
-                $sizeAttribute = self::getSizeAttributeFromValue((string)$model->size);
+                self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
                 $ean13 = trim((string)$model->barcode);
-                if(Tools::strlen($ean13)>13) {
+                if (Tools::strlen($ean13)>13) {
                     $ean13 = Tools::substr($ean13, 0, 13);
                 }
 
                 $combinationAttributes = array();
 
-                if($model->color) {
+                if ($model->color) {
                     $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($jsonProduct, $default_lang) . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
@@ -1055,7 +929,7 @@ class BdroppyImportTools
                     }
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
-                if($model->size) {
+                if ($model->size) {
                     $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                     $r = Db::getInstance()->executeS($sql);
 
@@ -1078,9 +952,9 @@ class BdroppyImportTools
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
 
-                $tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-                $rate = 1+$tax->rate/100;
-                $user_tax = Configuration::get('BDROPPY_USER_TAX');
+                //$tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
+                //$rate = 1+$tax->rate/100;
+                //$user_tax = Configuration::get('BDROPPY_USER_TAX');
                 $wholesale_price = round($jsonProduct->bestTaxable, 3);
 
                 $impact_on_price_per_unit = 0;
@@ -1095,13 +969,13 @@ class BdroppyImportTools
                 $minimal_quantity = 1;
                 $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute );
+                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute);
                 $first = false;
             }
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'importModels : ' . $e->getMessage() );
+            self::getLogger()->logDebug('importModels : ' . $e->getMessage());
         }
     }
 
@@ -1141,7 +1015,7 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug( 'importSimpleProduct : ' . $e->getMessage() );
+            self::getLogger()->logDebug('importSimpleProduct : ' . $e->getMessage());
         }
     }
 
@@ -1277,12 +1151,18 @@ class BdroppyImportTools
     {
         $rewixApi = new BdroppyRewixApi();
         $yesterday = date('Y-m-d H:i:s', strtotime("-1 hour"));
-        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "orders` WHERE date_add >= '$yesterday';";
-        $dorders = Db::getInstance()->ExecuteS($sql);
+        $query = new DbQuery();
+        $query->select("*")
+            ->from("orders")
+            ->where("date_add >= '$yesterday'");
+        $dorders = Db::getInstance()->executeS($query);
         foreach ($dorders as $item) {
-            $osql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteorder` WHERE ps_order_id='".$item['id_order']."';";
-            $remoteOrder = Db::getInstance()->ExecuteS($osql);
-            if(!$remoteOrder) {
+            $oquery = new DbQuery();
+            $oquery->select("*")
+                ->from("bdroppy_remoteorder")
+                ->where("ps_order_id = '".$item['id_order']."'");
+            $remoteOrder = Db::getInstance()->executeS($oquery);
+            if (!$remoteOrder) {
                 $rewixApi->sendBdroppyOrder(new Order((int)$item['id_order']));
             }
         }

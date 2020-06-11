@@ -49,7 +49,7 @@
                     $("#reimport").prop('disabled', false);
                 },
                 success: function(data) {
-                    if(data == '1' || data == 'true') {
+                    if (data == '1' || data == 'true') {
                         $('#modal_res').html('Result : <b>Successful</b>');
                         location.reload();
                     } else {

@@ -116,8 +116,8 @@ class BdroppyRemoteCategory extends ObjectModel
      */
     private static function getTagValue($product, $name, $lang)
     {
-        foreach($product->tags as $tag) {
-            if($tag->name === $name) {
+        foreach ($product->tags as $tag) {
+            if ($tag->name === $name) {
                 if (isset($tag->value->translations->{$lang})) {
                     return $tag->value->translations->{$lang};
                 } else {
@@ -167,12 +167,15 @@ class BdroppyRemoteCategory extends ObjectModel
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
                 $catTxt = '';
-                if($tagId == self::REWIX_GENDER_ID)
+                if ($tagId == self::REWIX_GENDER_ID) {
                     $catTxt = self::getTagValue($xmlProduct, 'gender', $langCode);
-                if($tagId == self::REWIX_CATEGORY_ID)
+                }
+                if ($tagId == self::REWIX_CATEGORY_ID) {
                     $catTxt = self::getTagValue($xmlProduct, 'category', $langCode);
-                if($tagId == self::REWIX_SUBCATEGORY_ID)
+                }
+                if ($tagId == self::REWIX_SUBCATEGORY_ID) {
                     $catTxt = self::getTagValue($xmlProduct, 'subcategory', $langCode);
+                }
                 $category->name[$lang['id_lang']] = $catTxt;
                 $category->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($catTxt);
             }
