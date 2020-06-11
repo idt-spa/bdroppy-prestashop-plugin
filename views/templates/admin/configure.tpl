@@ -56,7 +56,7 @@
 
 <div class="tabs stripe-module-wrapper">
 	{if !empty($confirmations)}
-		{$confirmations|escape:'htmlall':'UTF-8'}
+		{$confirmations|escape:'UTF-8'}
 	{/if}
 	{if !empty($errors)}
 		<fieldset style="display:block;">

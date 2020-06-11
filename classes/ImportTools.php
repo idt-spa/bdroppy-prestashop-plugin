@@ -793,7 +793,7 @@ class BdroppyImportTools
                 if ($seasonFeature) {
                     $seasonFeatureId = $seasonFeature[0]['id_feature'];
                 }
-                $customFeature = Configuration::get('BDROPPY_CUSTOM_FEATURE');
+                $customFeature = (bool)Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
                     if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($jsonProduct['size']) > 0) {
                         $featureValueId = FeatureValue::addFeatureValueImport(
@@ -806,30 +806,33 @@ class BdroppyImportTools
                         Product::addFeatureProductImport($product->id, $sizeFeatureId, $featureValueId);
                     }
                 }
-                if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen(self::getColor($jsonProduct, $langCode)) > 0) {
+                $fColor = self::getColor($jsonProduct, $langCode);
+                if (Tools::strlen($colorFeatureId) > 0 && $colorFeatureId > 0 && Tools::strlen($fColor) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $colorFeatureId,
-                        self::getColor($jsonProduct, $langCode),
+                        $fColor,
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $colorFeatureId, $featureValueId);
                 }
-                if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen(self::getGender($jsonProduct, $langCode)) > 0) {
+                $fGender = self::getGender($jsonProduct, $langCode);
+                if (Tools::strlen($genderFeatureId) > 0 && $genderFeatureId > 0 && Tools::strlen($fGender) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $genderFeatureId,
-                        self::getGender($jsonProduct, $langCode),
+                        $fGender,
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
                     );
                     Product::addFeatureProductImport($product->id, $genderFeatureId, $featureValueId);
                 }
-                if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen(self::getSeason($jsonProduct, $langCode)) > 0) {
+                $fSeason = self::getSeason($jsonProduct, $langCode);
+                if (Tools::strlen($seasonFeatureId) > 0 && $seasonFeatureId > 0 && Tools::strlen($fSeason) > 0) {
                     $featureValueId = FeatureValue::addFeatureValueImport(
                         $seasonFeatureId,
-                        self::getSeason($jsonProduct, $langCode),
+                        $fSeason,
                         $product->id,
                         $lang['id_lang'],
                         $customFeature
