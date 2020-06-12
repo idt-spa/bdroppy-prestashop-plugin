@@ -88,12 +88,12 @@ class BdroppyRewixApi
     {
         $ids = [];
         $db = Db::getInstance();
-        $pageSize = 50;
+        $pageSize = 100;
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
         $url = $base_url . "/restful/export/api/products.json?pageSize=".
-        "$pageSize&page=1&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
+            "$pageSize&page=1&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
         $header = "Authorization: Bearer " . $api_token;
 
@@ -136,7 +136,7 @@ class BdroppyRewixApi
             if ($json->totalPages >= 2) {
                 for ($i = 2; $i <= $json->totalPages; $i++) {
                     $url = $base_url . "/restful/export/api/products.json?pageSize=$pageSize&page=$i" .
-                    "&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
+                        "&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
                     $header = "Authorization: Bearer " . $api_token;
 
@@ -186,7 +186,6 @@ class BdroppyRewixApi
             $delete_products = array_diff($products, $ids);
 
             foreach ($delete_products as $id) {
-                BdroppyRemoteProduct::deleteByRewixId($id);
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($id);
                 if ($remoteProduct->ps_product_id != '0') {
                     $dp = new Product($remoteProduct->ps_product_id);
