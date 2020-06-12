@@ -86,6 +86,8 @@ class BdroppyRewixApi
 
     public function getProductsFull($acceptedlocales)
     {
+        ini_set('max_execution_time', 0);
+        set_time_limit(0);
         $ids = [];
         $db = Db::getInstance();
         $pageSize = 100;
@@ -207,6 +209,8 @@ class BdroppyRewixApi
 
     public function getProductsJsonSince($catalog_id, $acceptedlocales, $lastQuantitiesSync)
     {
+        ini_set('max_execution_time', 0);
+        set_time_limit(0);
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
         $header = "Authorization: Bearer " . $api_token;

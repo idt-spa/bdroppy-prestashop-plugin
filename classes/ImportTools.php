@@ -660,9 +660,13 @@ class BdroppyImportTools
                 } elseif ($bdroppy_auto_update_name) {
                     $product->name[$lang['id_lang']] = $name;
                 }
+                $desc  = self::getDescriptions($jsonProduct, $langCode);
+                $desc = str_replace("</div>","<br>", $desc);
+                $desc = strip_tags($desc, "<br>");
+
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
-                $product->description[$lang['id_lang']] = self::getDescriptions($jsonProduct, $langCode);
-                $product->description_short[$lang['id_lang']] = Tools::substr(self::getDescriptions($jsonProduct, $langCode), 0, 800);
+                $product->description[$lang['id_lang']] = $desc;
+                $product->description_short[$lang['id_lang']] = Tools::substr($desc, 0, 800);
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
