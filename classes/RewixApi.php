@@ -623,51 +623,54 @@ class BdroppyRewixApi
 
     public function validateOrder($cart)
     {
-        $this->logger->logInfo('Validating order');
+        $catalog_id =  Configuration::get('BDROPPY_CATALOG');
+        if ($catalog_id != '' && $catalog_id != '-1') {
+            $this->logger->logInfo('Validating order');
+            $lines = $cart->getProducts(true);
 
-        $lines = $cart->getProducts(true);
-
-        $operations = array();
-        foreach ($lines as $line) {
-            $modelId = 0;
-            $attributeId = (int)$line['product_attribute_id'];
-            $product_isbn = (int)$line['isbn'];
-            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
-            $product_attribute = Db::getInstance()->ExecuteS($sql);
-            if (count($product_attribute)) {
-                $modelId = $product_attribute[0]['isbn'];
+            $operations = array();
+            foreach ($lines as $line) {
+                if ($line['unity'] == $catalog_id || $line['unity'] == "bdroppy-$catalog_id") {
+                    $modelId = 0;
+                    $attributeId = (int)$line['product_attribute_id'];
+                    $product_isbn = (int)$line['isbn'];
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
+                    $product_attribute = Db::getInstance()->ExecuteS($sql);
+                    if (count($product_attribute)) {
+                        $modelId = $product_attribute[0]['isbn'];
+                    }
+                    if ($product_isbn <= 0) {
+                        $product_isbn = (int)$line['product_isbn'];
+                    }
+                    $rewixId = $modelId > 0 ? $modelId : $product_isbn;
+                    //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
+                    if ($rewixId) {
+                        $operation = array(
+                            'type' => BdroppyRewixApi::SOLD_API_LOCK_OP,
+                            'model_id' => $rewixId,
+                            'qty' => (int)$line['cart_quantity']
+                        );
+                        $operations[] = $operation;
+                    } else {
+                        $err = 'Model ID Not Found!';
+                        throw new Exception($err);
+                    }
+                }
             }
-            if ($product_isbn <= 0) {
-                $product_isbn = (int)$line['product_isbn'];
-            }
-            $rewixId = $modelId > 0 ? $modelId : $product_isbn;
-            //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
-            if ($rewixId) {
-                $operation = array(
-                    'type' => BdroppyRewixApi::SOLD_API_LOCK_OP,
-                    'model_id' => $rewixId,
-                    'qty' => (int) $line['cart_quantity']
-                );
-                $operations[] = $operation;
-            } else {
-                $err = 'Model ID Not Found!';
-                throw new Exception($err);
-            }
-        }
-
-        $errors = $this->modifyGrowingOrder($operations);
-        if (count($operations) > 0) {
-            if (isset($errors['curl_error'])) {
-                throw new Exception('Error while placing order ('. $errors['message'].').');
-            } else if (count($errors) > 0) {
-                foreach ($errors as $model_id => $qty) {
-                    throw new Exception(
-                        sprintf(
-                            'Error while placing order. Product %s is not available in quantity requested (%d).',
-                            $this->getProductNameFromRewixModelId((int)$model_id),
-                            $qty
-                        )
-                    );
+            $errors = $this->modifyGrowingOrder($operations);
+            if (count($operations) > 0) {
+                if (isset($errors['curl_error'])) {
+                    throw new Exception('Error while placing order (' . $errors['message'] . ').');
+                } else if (count($errors) > 0) {
+                    foreach ($errors as $model_id => $qty) {
+                        throw new Exception(
+                            sprintf(
+                                'Error while placing order. Product %s is not available in quantity requested (%d).',
+                                $this->getProductNameFromRewixModelId((int)$model_id),
+                                $qty
+                            )
+                        );
+                    }
                 }
             }
         }
@@ -676,174 +679,173 @@ class BdroppyRewixApi
 
     public function sendBdroppyOrder($order)
     {
-        $this->logger->logInfo('Sending bdroppy order ' . $order->id);
-        $mixed = false;
-        $lines = $order->getProductsDetail();
-
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
-        if ($catalog_id == '' || $catalog_id == '-1') {
-            $this->logger->logError('Bdroppy Catalog Not Set !');
-            $this->errors[] = Tools::displayError();
-            return array('module_error' => 1, 'message' => 'Bdroppy Catalog Not Set !');
-        }
-        $rewix_order_key = $catalog_id .$order->id . time();
+        if ($catalog_id != '' && $catalog_id != '-1') {
+            $this->logger->logInfo('Sending bdroppy order ' . $order->id);
+            $mixed = false;
+            $lines = $order->getProductsDetail();
+            $rewix_order_key = $catalog_id .$order->id . time();
 
-        $currency = new CurrencyCore($order->id_currency);
-        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><root></root>');
-        $order_list = $xml->addChild('order_list');
-        $xmlOrder = $order_list->addChild('order');
-        $item_list = $xmlOrder->addChild('item_list');
-        $xmlOrder->addChild('key', $rewix_order_key);
-        $xmlOrder->addChild('date', str_replace('-', '/', $order->date_add) . ' +0000');
-        $xmlOrder->addChild('user_catalog_id', $catalog_id);
-        $xmlOrder->addChild('shipping_taxable', $order->total_shipping);
-        $xmlOrder->addChild('shipping_currency', $currency->iso_code);
-        $xmlOrder->addChild('price_total', $order->total_paid);
-        $xmlOrder->addChild('price_currency', $currency->iso_code);
+            $currency = new CurrencyCore($order->id_currency);
+            $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><root></root>');
+            $order_list = $xml->addChild('order_list');
+            $xmlOrder = $order_list->addChild('order');
+            $item_list = $xmlOrder->addChild('item_list');
+            $xmlOrder->addChild('key', $rewix_order_key);
+            $xmlOrder->addChild('date', str_replace('-', '/', $order->date_add) . ' +0000');
+            $xmlOrder->addChild('user_catalog_id', $catalog_id);
+            $xmlOrder->addChild('shipping_taxable', $order->total_shipping);
+            $xmlOrder->addChild('shipping_currency', $currency->iso_code);
+            $xmlOrder->addChild('price_total', $order->total_paid);
+            $xmlOrder->addChild('price_currency', $currency->iso_code);
 
-        $rewixProduct = 0;
-        foreach ($lines as $line) {
-            $modelId = 0;
-            $attributeId = (int)$line['product_attribute_id'];
-            $product_isbn = (int)$line['isbn'];
-            $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
-            $product_attribute = Db::getInstance()->ExecuteS($sql);
-            if (count($product_attribute)) {
-                $modelId = $product_attribute[0]['isbn'];
+            $rewixProduct = 0;
+            foreach ($lines as $line) {
+                if ($line['unity'] == $catalog_id || $line['unity'] == "bdroppy-$catalog_id") {
+                    $modelId = 0;
+                    $attributeId = (int)$line['product_attribute_id'];
+                    $product_isbn = (int)$line['isbn'];
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
+                    $product_attribute = Db::getInstance()->ExecuteS($sql);
+                    if (count($product_attribute)) {
+                        $modelId = $product_attribute[0]['isbn'];
+                    }
+                    if ($product_isbn <= 0) {
+                        $product_isbn = (int)$line['product_isbn'];
+                    }
+                    $rewixId = $modelId > 0 ? $modelId : $product_isbn;
+                    //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
+                    if (!$rewixId && $rewixProduct > 0) {
+                        $this->logger->logError('Order #' . $order->id . ': Mixed Order');
+                        $mixed = true;
+                    }
+                    if ($rewixId) {
+                        $rewixProduct++;
+                        $orderedQty = (int)$line['product_quantity'];
+                        $item = $item_list->addChild('item');
+                        $item->addChild('price_taxable', $line['price']);
+                        $item->addChild('price_currency', $currency->iso_code);
+                        $item->addChild('stock_id', $rewixId);
+                        $item->addChild('quantity', $orderedQty);
+                        $this->logger->logDebug('Creating bdroppy order with model ID#' . $rewixId . ' with quantity ' . $orderedQty);
+                    }
+                }
             }
-            if ($product_isbn <= 0) {
-                $product_isbn = (int)$line['product_isbn'];
+            if ($rewixProduct == 0) {
+                return false;
             }
-            $rewixId = $modelId > 0 ? $modelId : $product_isbn;
-            //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
-            if (!$rewixId && $rewixProduct > 0) {
-                $this->logger->logError('Order #'.$order->id.': Mixed Order');
-                $mixed = true;
+            if ($mixed) {
+                $this->logger->logError('Order #' . $order->get_order_number() . ': Mixed Order!!!');
+                return false;
             }
-            if ($rewixId) {
-                $rewixProduct++;
-                $orderedQty = (int) $line['product_quantity'];
-                $item = $item_list->addChild('item');
-                $item->addChild('price_taxable', $line['price']);
-                $item->addChild('price_currency', $currency->iso_code);
-                $item->addChild('stock_id', $rewixId);
-                $item->addChild('quantity', $orderedQty);
-                $this->logger->logDebug('Creating bdroppy order with model ID#'.$rewixId.' with quantity '.$orderedQty);
+
+            $shippingAddress = new Address($order->id_address_delivery);
+            //$customer = new Customer((int)($shippingAddress->id_customer));
+            $recipient_details = $xmlOrder->addChild('recipient_details');
+            //$email = $recipient_details->addChild('email', $customer->email);
+            $recipient_details->addChild('recipient', $shippingAddress->firstname.' '.$shippingAddress->lastname);
+            $recipient_details->addChild('careof', $shippingAddress->company);
+            //$cfpiva = $recipient_details->addChild('cfpiva');
+            //$customer_key = $recipient_details->addChild('customer_key', (int)($order->id_customer));
+            //$notes = $recipient_details->addChild('notes', $order->getFirstMessage());
+
+            $phone = $recipient_details->addChild('phone');
+            //$phone_prifix = $phone->addChild('prefix');
+            $phone->addChild('number', $shippingAddress->phone);
+
+            $address = $recipient_details->addChild('address');
+            //$street_type = $address->addChild('street_type');
+            $address->addChild('street_name', $shippingAddress->address1 . ' ' . $shippingAddress->address2);
+            //$address_number = $address->addChild('address_number');
+            $address->addChild('zip', $shippingAddress->postcode);
+            $address->addChild('city', $shippingAddress->city);
+
+            $state = new State($shippingAddress->id_state);
+            $address->addChild('province', $state->iso_code);
+
+            $country = new Country($shippingAddress->id_country);
+            $address->addChild('countrycode', $country->iso_code);
+
+            $xmlText = $xml->asXML();
+
+            $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/dropshipping';
+            $api_token = Configuration::get('BDROPPY_TOKEN');
+            $header = "Authorization: Bearer " . $api_token;
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
+            $data = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $reader = new XMLReader();
+            $reader->xml($data);
+            $reader->read();
+            //$rewixOrder = json_decode($data);
+
+            if (!$this->handleCurlError($httpCode)) {
+                return false;
             }
-        }
-        if ($rewixProduct == 0) {
-            return false;
-        }
-        if ($mixed) {
-            $this->logger->logError('Order #' . $order->get_order_number() . ': Mixed Order!!!');
-            return false;
-        }
+            $this->logger->logInfo('Rewix order key: ' . $rewix_order_key . ' ' . $data);
 
-        $shippingAddress = new Address($order->id_address_delivery);
-        //$customer = new Customer((int)($shippingAddress->id_customer));
-        $recipient_details = $xmlOrder->addChild('recipient_details');
-        //$email = $recipient_details->addChild('email', $customer->email);
-        $recipient_details->addChild('recipient', $shippingAddress->firstname.' '.$shippingAddress->lastname);
-        $recipient_details->addChild('careof', $shippingAddress->company);
-        //$cfpiva = $recipient_details->addChild('cfpiva');
-        //$customer_key = $recipient_details->addChild('customer_key', (int)($order->id_customer));
-        //$notes = $recipient_details->addChild('notes', $order->getFirstMessage());
+            $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
+            $api_token = Configuration::get('BDROPPY_TOKEN');
+            $header = "Authorization: Bearer " . $api_token;
 
-        $phone = $recipient_details->addChild('phone');
-        //$phone_prifix = $phone->addChild('prefix');
-        $phone->addChild('number', $shippingAddress->phone);
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/xml', $header));
+            $data = curl_exec($ch);
 
-        $address = $recipient_details->addChild('address');
-        //$street_type = $address->addChild('street_type');
-        $address->addChild('street_name', $shippingAddress->address1 . ' ' . $shippingAddress->address2);
-        //$address_number = $address->addChild('address_number');
-        $address->addChild('zip', $shippingAddress->postcode);
-        $address->addChild('city', $shippingAddress->city);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($httpCode == 401) {
+                $this->logger->logError('Send dropshipping order: UNAUTHORIZED!!');
+                return false;
+            } elseif ($httpCode == 500) {
+                $this->logger->logError('Exception: Order #'.$order->id.' does not exists on rewix platform');
+                $this->logger->logError('Bdroppy operation for order #'.$order->id.' failed!!');
 
-        $state = new State($shippingAddress->id_state);
-        $address->addChild('province', $state->iso_code);
-
-        $country = new Country($shippingAddress->id_country);
-        $address->addChild('countrycode', $country->iso_code);
-
-        $xmlText = $xml->asXML();
-
-        $url = Configuration::get('BDROPPY_API_URL') . '/restful/ghost/orders/0/dropshipping';
-        $api_token = Configuration::get('BDROPPY_TOKEN');
-        $header = "Authorization: Bearer " . $api_token;
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
-        $data = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $reader = new XMLReader();
-        $reader->xml($data);
-        $reader->read();
-        //$rewixOrder = json_decode($data);
-
-        if (!$this->handleCurlError($httpCode)) {
-            return false;
-        }
-        $this->logger->logInfo('Rewix order key: ' . $rewix_order_key . ' ' . $data);
-
-        $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
-        $api_token = Configuration::get('BDROPPY_TOKEN');
-        $header = "Authorization: Bearer " . $api_token;
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/xml', $header));
-        $data = curl_exec($ch);
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode == 401) {
-            $this->logger->logError('Send dropshipping order: UNAUTHORIZED!!');
-            return false;
-        } elseif ($httpCode == 500) {
-            $this->logger->logError('Exception: Order #'.$order->id.' does not exists on rewix platform');
-            $this->logger->logError('Bdroppy operation for order #'.$order->id.' failed!!');
-
-            $association    = new BdroppyRemoteOrder();
-            $association->rewix_order_key = $rewix_order_key;
-            $association->rewix_order_id = (int) 0;
-            $association->ps_order_id = (int) $order->id;
-            $association->status = (int) BdroppyRemoteOrder::STATUS_FAILED;
-            $association->save();
-            return false;
-        } elseif ($httpCode != 200) {
-            $this->logger->logError('Send dropshipping order - Url : ' . $rewix_order_key. ' - ERROR ' . $httpCode);
-            return false;
-        }
-
-        $this->logger->logInfo('Bdroppy order created successfully');
-
-        $reader = new XMLReader();
-        $reader->xml($data);
-        $doc = new DOMDocument('1.0', 'UTF-8');
-
-        while ($reader->read()) {
-            if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'order') {
-                $xmlOrder = simplexml_import_dom($doc->importNode($reader->expand(), true));
-                $rewixOrderId   = (int) $xmlOrder->order_id;
-                $status         = (int) $xmlOrder->status;
-                $orderId        = (int) $order->id;
                 $association    = new BdroppyRemoteOrder();
                 $association->rewix_order_key = $rewix_order_key;
-                $association->rewix_order_id = $rewixOrderId;
-                $association->ps_order_id = $orderId;
-                $association->status = $status;
+                $association->rewix_order_id = (int) 0;
+                $association->ps_order_id = (int) $order->id;
+                $association->status = (int) BdroppyRemoteOrder::STATUS_FAILED;
                 $association->save();
-                $this->logger->logInfo('Entry (' . $rewixOrderId . ',' . $orderId . ') in association table created');
-                $this->logger->logInfo('Supplier order ' . $rewixOrderId . ' created successfully');
+                return false;
+            } elseif ($httpCode != 200) {
+                $this->logger->logError('Send dropshipping order - Url : ' . $rewix_order_key. ' - ERROR ' . $httpCode);
+                return false;
+            }
+
+            $this->logger->logInfo('Bdroppy order created successfully');
+
+            $reader = new XMLReader();
+            $reader->xml($data);
+            $doc = new DOMDocument('1.0', 'UTF-8');
+
+            while ($reader->read()) {
+                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'order') {
+                    $xmlOrder = simplexml_import_dom($doc->importNode($reader->expand(), true));
+                    $rewixOrderId   = (int) $xmlOrder->order_id;
+                    $status         = (int) $xmlOrder->status;
+                    $orderId        = (int) $order->id;
+                    $association    = new BdroppyRemoteOrder();
+                    $association->rewix_order_key = $rewix_order_key;
+                    $association->rewix_order_id = $rewixOrderId;
+                    $association->ps_order_id = $orderId;
+                    $association->status = $status;
+                    $association->save();
+                    $this->logger->logInfo('Entry (' . $rewixOrderId . ',' . $orderId . ') in association table created');
+                    $this->logger->logInfo('Supplier order ' . $rewixOrderId . ' created successfully');
+                }
             }
         }
+
     }
 
     private function handleCurlError($httpCode)
