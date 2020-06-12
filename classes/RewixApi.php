@@ -128,7 +128,7 @@ class BdroppyRewixApi
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
                 $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                if ($remoteProduct->sync_status == '' || $remoteProduct->reason != $item->lastUpdate) {
+                if ($remoteProduct->sync_status == '') {
                     $remoteProduct->sync_status = 'queued';
                 }
                 $remoteProduct->reason = $item->lastUpdate;
@@ -166,7 +166,7 @@ class BdroppyRewixApi
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
                             $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                            if ($remoteProduct->sync_status == '' || $remoteProduct->reason != $item->lastUpdate) {
+                            if ($remoteProduct->sync_status == '') {
                                 $remoteProduct->sync_status = 'queued';
                             }
                             $remoteProduct->reason = $item->lastUpdate;
