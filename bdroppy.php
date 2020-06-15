@@ -47,7 +47,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.5';
+        $this->version = '2.0.6';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 

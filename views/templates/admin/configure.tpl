@@ -56,7 +56,7 @@
 
 <div class="tabs stripe-module-wrapper">
 	{if !empty($confirmations)}
-		{$confirmations|escape:'UTF-8'}
+		{$confirmations}
 	{/if}
 	{if !empty($errors)}
 		<fieldset style="display:block;">
@@ -95,7 +95,7 @@
 							<div id="div_status" style="display: inherit">
 								<p><strong>URL</strong> {$base_url|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
-								<p><strong>Status</strong> {$txtStatus|escape:'UTF-8'}</p>
+								<p><strong>Status</strong> {$txtStatus}</p>
 								<p><button class="btn_change_token"><i class="icon-signout"></i> {l s='Disconnect' mod='bdroppy'}</button></p>
 							</div>
 							<div id="div_change_token" style="display: none">
@@ -338,7 +338,7 @@
 			<form action="" method="post">
 				<fieldset id="orders" class="{$orders_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-list"></i>&nbsp;{l s='Orders' mod='bdroppy'}</h3>
-					{$ordersHtml|escape:'UTF-8'}
+					{$ordersHtml}
 				</fieldset>
 			</form>
 

@@ -161,7 +161,10 @@ class BdroppyRewixApi
                         $json = json_decode($data);
                         foreach ($json->items as $item) {
                             $ids[] = $item->id;
-                            $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+                            $jsonProduct = json_encode(
+                                $item,
+                                JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+                            );
                             $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                             $remoteProduct->reference = self::fitReference($item->code, $item->id);
                             $remoteProduct->rewix_catalog_id = $api_catalog;
@@ -174,7 +177,9 @@ class BdroppyRewixApi
                             $remoteProduct->save();
                         }
                     } else {
-                        $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+                        $this->logger->logDebug(
+                            'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+                        );
                     }
                 }
             }
@@ -195,14 +200,18 @@ class BdroppyRewixApi
                 }
                 BdroppyRemoteProduct::deleteByRewixId($id);
             }
-            $sql = "SELECT p.id_product FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
+            $sql = "SELECT p.id_product FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
+            `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) 
+            WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
             $items = $db->ExecuteS($sql);
             foreach ($items as $item) {
                 $dp = new Product($item['id_product']);
                 $dp->delete();
             }
         } else {
-            $this->logger->logDebug('getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         return $http_code;
     }
@@ -221,7 +230,10 @@ class BdroppyRewixApi
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'accept: application/json',
+            'Content-Type: application/json',
+            $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data = curl_exec($ch);
@@ -232,7 +244,10 @@ class BdroppyRewixApi
             Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
             $json = json_decode($data);
             foreach ($json->items as $item) {
-                $jsonProduct = json_encode($item, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+                $jsonProduct = json_encode(
+                    $item,
+                    JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+                );
                 $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
                 $remoteProduct->reference = self::fitReference($item->code, $item->id);
                 $remoteProduct->rewix_catalog_id = $api_catalog;
@@ -284,14 +299,18 @@ class BdroppyRewixApi
         $ret = [];
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
-        $url = $base_url . '/restful/export/api/products.json?user_catalog=' . $api_catalog . '&acceptedlocales=en_US&onlyid=true';
+        $url = "$base_url /restful/export/api/products.json?user_catalog=" .
+            "$api_catalog&acceptedlocales=en_US&onlyid=true";
 
         $header = "Authorization: Bearer " . $api_token;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'accept: application/json',
+            'Content-Type: application/json',
+            $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
 
@@ -300,7 +319,9 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('getProductsJson - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'getProductsJson - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         $ret['http_code'] = $http_code;
         $ret['data'] = $data;
@@ -319,7 +340,10 @@ class BdroppyRewixApi
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'accept: application/json',
+            'Content-Type: application/json',
+            $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data  = curl_exec($ch);
@@ -327,7 +351,9 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -445,7 +471,9 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('connectUserCatalog - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'connectUserCatalog - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -468,7 +496,10 @@ class BdroppyRewixApi
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'accept: application/json',
+            'Content-Type: application/json',
+            $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data  = curl_exec($ch);
@@ -476,7 +507,9 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('getUserCatalogs - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'getUserCatalogs - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         if ($http_code === 200) {
             $catalogs = json_decode($data);
@@ -495,13 +528,16 @@ class BdroppyRewixApi
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
 
-        $url = $base_url . '/restful/export/api/products.json?user_catalog='.$catalog.'&acceptedlocales=en_US&onlyid=true';
+        $url = "$base_url/restful/export/api/products.json?user_catalog=$catalog&acceptedlocales=en_US&onlyid=true";
 
         $header = "Authorization: Bearer " . $api_token;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('accept: application/json', 'Content-Type: application/json', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'accept: application/json',
+            'Content-Type: application/json',
+            $header));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         $data  = curl_exec($ch);
@@ -511,7 +547,9 @@ class BdroppyRewixApi
         $response = json_decode($data);
 
         if ($http_code != 200) {
-            $this->logger->logDebug('getCatalogById2 - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $this->logger->logDebug(
+                'getCatalogById2 - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
+            );
         }
         if ($response === 500 || empty($response->userCatalog)) {
             return 500;
@@ -551,7 +589,9 @@ class BdroppyRewixApi
             if (isset($model)) {
                 $model->addAttribute('stock_id', $op['model_id']);
                 $model->addAttribute('quantity', $op['qty']);
-                $this->logger->logDebug('Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type']);
+                $this->logger->logDebug(
+                    'Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type']
+                );
             } else {
                 $this->logger->logInfo('Invalid operation type: ' . $op['type']);
             }
@@ -565,7 +605,10 @@ class BdroppyRewixApi
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/xml',
+            'Accept: application/xml',
+            $header));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
         $data = curl_exec($ch);
@@ -603,18 +646,24 @@ class BdroppyRewixApi
                 if ($op['type'] == self::SOLD_API_LOCK_OP &&
                     $product['locked'] < ($pending_quantity + $processing_quantity + $op['qty'])) {
                     $success = false;
-                } else if ($op['type'] == self::SOLD_API_UNLOCK_OP &&
+                } elseif ($op['type'] == self::SOLD_API_UNLOCK_OP &&
                     $product['locked'] < ($pending_quantity + $processing_quantity - $op['qty'])) {
                     $success = false;
-                } else if ($op['type'] == self::SOLD_API_SET_OP && $product['locked'] < $op['qty']) {
+                } elseif ($op['type'] == self::SOLD_API_SET_OP && $product['locked'] < $op['qty']) {
                     $success = false;
                 }
 
                 if (! $success) {
-                    $this->logger->logError('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) . ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' . $op['type'] . ' : OPERATION FAILED!');
+                    $this->logger->logError('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
+                        ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) .
+                        ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' .
+                        $op['type'] . ' : OPERATION FAILED!');
                     $errors[ $op['model_id'] ] = $op['qty'];
                 } else {
-                    $this->logger->logInfo('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] . ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) . ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' . $op['type']);
+                    $this->logger->logInfo('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
+                        ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) .
+                        ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' .
+                        $op['type']);
                 }
             } else {
                 $errors[ $op['model_id'] ] = $op['qty'];
@@ -637,7 +686,8 @@ class BdroppyRewixApi
                     $modelId = 0;
                     $attributeId = (int)$line['product_attribute_id'];
                     $product_isbn = (int)$line['isbn'];
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
+                        "WHERE id_product_attribute = '$attributeId';";
                     $product_attribute = Db::getInstance()->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = $product_attribute[0]['isbn'];
@@ -664,11 +714,12 @@ class BdroppyRewixApi
             if (count($operations) > 0) {
                 if (isset($errors['curl_error'])) {
                     throw new Exception('Error while placing order (' . $errors['message'] . ').');
-                } else if (count($errors) > 0) {
+                } elseif (count($errors) > 0) {
                     foreach ($errors as $model_id => $qty) {
                         throw new Exception(
                             sprintf(
-                                'Error while placing order. Product %s is not available in quantity requested (%d).',
+                                'Error while placing order. Product %s '.
+                                'is not available in quantity requested (%d).',
                                 $this->getProductNameFromRewixModelId((int)$model_id),
                                 $qty
                             )
@@ -708,7 +759,8 @@ class BdroppyRewixApi
                     $modelId = 0;
                     $attributeId = (int)$line['product_attribute_id'];
                     $product_isbn = (int)$line['isbn'];
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` WHERE id_product_attribute = '$attributeId';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
+                        "WHERE id_product_attribute = '$attributeId';";
                     $product_attribute = Db::getInstance()->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = $product_attribute[0]['isbn'];
@@ -730,7 +782,8 @@ class BdroppyRewixApi
                         $item->addChild('price_currency', $currency->iso_code);
                         $item->addChild('stock_id', $rewixId);
                         $item->addChild('quantity', $orderedQty);
-                        $this->logger->logDebug('Creating bdroppy order with model ID#' . $rewixId . ' with quantity ' . $orderedQty);
+                        $this->logger->logDebug('Creating bdroppy order with model ID#' . $rewixId .
+                            ' with quantity ' . $orderedQty);
                     }
                 }
             }
@@ -746,7 +799,8 @@ class BdroppyRewixApi
             //$customer = new Customer((int)($shippingAddress->id_customer));
             $recipient_details = $xmlOrder->addChild('recipient_details');
             //$email = $recipient_details->addChild('email', $customer->email);
-            $recipient_details->addChild('recipient', $shippingAddress->firstname.' '.$shippingAddress->lastname);
+            $recipient_details->addChild('recipient', $shippingAddress->firstname.' '.
+                $shippingAddress->lastname);
             $recipient_details->addChild('careof', $shippingAddress->company);
             //$cfpiva = $recipient_details->addChild('cfpiva');
             //$customer_key = $recipient_details->addChild('customer_key', (int)($order->id_customer));
@@ -778,7 +832,10 @@ class BdroppyRewixApi
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/xml',
+                'Accept: application/xml',
+                $header));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlText);
             $data = curl_exec($ch);
@@ -843,23 +900,24 @@ class BdroppyRewixApi
                     $association->ps_order_id = $orderId;
                     $association->status = $status;
                     $association->save();
-                    $this->logger->logInfo('Entry (' . $rewixOrderId . ',' . $orderId . ') in association table created');
-                    $this->logger->logInfo('Supplier order ' . $rewixOrderId . ' created successfully');
+                    $this->logger->logInfo("Entry ($rewixOrderId, $orderId) in association table created");
+                    $this->logger->logInfo("Supplier order $rewixOrderId created successfully");
                 }
             }
         }
-
     }
 
     private function handleCurlError($httpCode)
     {
         if ($httpCode == 401) {
             $this->logger->logError('UNAUTHORIZED!!');
-            Tools::displayError('You are NOT authorized to access this service. <br/> Please check your configuration in System -> Configuration or contact your supplier.');
+            Tools::displayError('You are NOT authorized to access this service. <br/> Please check your configuration'.
+                ' in System -> Configuration or contact your supplier.');
             return false;
         } elseif ($httpCode == 0) {
             $this->logger->logError('HTTP Error 0!!');
-            Tools::displayError('There has been an error executing the request.<br/> Please check your configuration in System -> Configuration');
+            Tools::displayError('There has been an error executing the request.<br/> Please check your configuration'.
+                ' in System -> Configuration');
             return false;
         } elseif ($httpCode != 200) {
             $this->logger->logError('HTTP Error '.$httpCode.'!!');
@@ -883,11 +941,13 @@ class BdroppyRewixApi
     {
 
         if (is_null($this->pendingCache)) {
-            $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
-                'from `'._DB_PREFIX_.'order_detail` od ' .
-                'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_CHEQUE\', \'PS_OS_PAYMENT\', \'PS_OS_BANKWIRE\', \'PS_OS_WS_PAYMENT\', \'PS_OS_COD_VALIDATION\'))) ' .
-                'and od.id_order not in (select x.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` x) ' .
-                'group by od.product_id ';
+            $query = "select od.product_id, sum(od.product_quantity) as ordered_qty " .
+                "from `"._DB_PREFIX_."order_detail` od " .
+                "where od.id_order in (select id_order from `"._DB_PREFIX_."orders` where current_state in " .
+                "(select value from `"._DB_PREFIX_."configuration` where name in ('PS_OS_CHEQUE', 'PS_OS_PAYMENT', " .
+                "'PS_OS_BANKWIRE', 'PS_OS_WS_PAYMENT', 'PS_OS_COD_VALIDATION'))) " .
+                "and od.id_order not in (select x.ps_order_id from `"._DB_PREFIX_."bdroppy_remoteorder` x) " .
+                "group by od.product_id ";
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
 
@@ -955,11 +1015,12 @@ class BdroppyRewixApi
     public function getProcessingQty($productId)
     {
         if (is_null($this->pendingCache)) {
-            $query = 'select od.product_id, sum(od.product_quantity) as ordered_qty ' .
-                'from `'._DB_PREFIX_.'order_detail` od ' .
-                'where od.id_order in (select id_order from `'._DB_PREFIX_.'orders` where current_state in (select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\'))) ' .
-                'and od.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r) ' .
-                'group by od.product_id ';
+            $query = "select od.product_id, sum(od.product_quantity) as ordered_qty " .
+                "from `"._DB_PREFIX_."order_detail` od " .
+                "where od.id_order in (select id_order from `"._DB_PREFIX_."orders` where current_state in " .
+                "(select value from `"._DB_PREFIX_."configuration` where name in ('PS_OS_PREPARATION'))) " .
+                "and od.id_order not in (select r.ps_order_id from `"._DB_PREFIX_."bdroppy_remoteorder` r) " .
+                "group by od.product_id ";
             $this->pendingCache = Db::getInstance()->ExecuteS($query);
         }
 
@@ -985,7 +1046,8 @@ class BdroppyRewixApi
 
             $this->logger->logInfo('Processing Order_id: #' . (int) $order['ps_order_id']);
 
-            $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$order['rewix_order_key'];
+            $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.
+                $order['rewix_order_key'];
             $api_token = Configuration::get('BDROPPY_TOKEN');
             $header = "Authorization: Bearer " . $api_token;
 
@@ -1001,11 +1063,11 @@ class BdroppyRewixApi
             if ($httpCode == 401) {
                 $this->logger->logDebug('updateOrderStatuses - UNAUTHORIZED!!');
                 return false;
-            } else if ($httpCode == 500) {
+            } elseif ($httpCode == 500) {
                 $this->logger->logDebug(
                     'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform'
                 );
-            } else if ($httpCode != 200) {
+            } elseif ($httpCode != 200) {
                 $this->logger->logDebug(
                     'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id']
                 );
@@ -1019,7 +1081,9 @@ class BdroppyRewixApi
                         $xml_order = simplexml_import_dom($doc->importNode($reader->expand(), true));
                         $status    = (int) $xml_order->status;
                         $order_id  = (int) $xml_order->order_id;
-                        $this->logger->logInfo('Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status']);
+                        $this->logger->logInfo(
+                            'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status']
+                        );
                         if ((int) $order['status'] != $status) {
                             $association    = new BdroppyRemoteOrder($order['id']);
                             $association->rewix_order_id = $order_id;
@@ -1067,7 +1131,8 @@ class BdroppyRewixApi
             foreach ($bookedProducts as $bookedProduct) {
                 $productId = BdroppyRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
                 $productId = 0;
-                $sql = "SELECT id_product FROM `" . _DB_PREFIX_ . "product_attribute` WHERE isbn = '". $bookedProduct['stock_id'] ."';";
+                $sql = "SELECT id_product FROM `" . _DB_PREFIX_ . "product_attribute` " .
+                    "WHERE isbn = '". $bookedProduct['stock_id'] ."';";
                 $product_attribute = Db::getInstance()->ExecuteS($sql);
                 if ($product_attribute) {
                     $productId = $product_attribute[0]['id_product'];
@@ -1090,7 +1155,7 @@ class BdroppyRewixApi
                 }
             }
 
-            $this->logger->logDebug('Applying following operations to growing order ' . print_r($operations, true));
+            $this->logger->logDebug('Applying following operations to growing order '.print_r($operations, true));
             if (sizeof($operations) > 0) {
                 $this->modifyGrowingOrder($operations);
             }
@@ -1120,7 +1185,9 @@ class BdroppyRewixApi
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml','Accept: application/xml', $header));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml',
+            'Accept: application/xml',
+            $header));
         $data = curl_exec($ch);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

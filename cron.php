@@ -134,9 +134,12 @@ class BdroppyCron
 
             $db = Db::getInstance();
             $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
-            $api_catalog_changed = isset($configurations['BDROPPY_CATALOG_CHANGED']) ? $configurations['BDROPPY_CATALOG_CHANGED'] : false;
-            $api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ? $configurations['BDROPPY_LIMIT_COUNT'] : 5;
-            $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ? $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
+            $api_catalog_changed = isset($configurations['BDROPPY_CATALOG_CHANGED']) ?
+                $configurations['BDROPPY_CATALOG_CHANGED'] : false;
+            $api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ?
+                $configurations['BDROPPY_LIMIT_COUNT'] : 5;
+            $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ?
+                $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
             $db = Db::getInstance();
 
             $acceptedlocales = '';
@@ -146,7 +149,7 @@ class BdroppyCron
             }
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
-            if (Tools::getIsset('ps_product_id') || Tools::getIsset('rewix_product_id') || Tools::getIsset('reference')) {
+            if (Tools::getIsset('ps_product_id')||Tools::getIsset('rewix_product_id')||Tools::getIsset('reference')) {
                 $updateFlag = true;
                 $sql = "";
                 $items = [];
@@ -197,7 +200,7 @@ class BdroppyCron
                     $product->delete();
                 }
             } else {
-                if ($api_catalog != "" && $api_catalog != "0" && $api_catalog != "-1" && Tools::strlen($api_catalog) > 1) {
+                if ($api_catalog!="" && $api_catalog!="0" && $api_catalog!="-1" && Tools::strlen($api_catalog)>1) {
                     $lastImportSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                     if ($lastImportSync == 0) {
                         $lastImportSync = time();
@@ -228,7 +231,8 @@ class BdroppyCron
 
                         //delete products
                         /*$hourAgo = date('Y-m-d H:i:s', strtotime("-60 minutes"));
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
+                        "WHERE last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
@@ -252,7 +256,14 @@ class BdroppyCron
                             "WHERE sync_status='queued' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
-                            $res = $db->update('bdroppy_remoteproduct', array('sync_status' => 'importing', 'last_sync_date' => date('Y-m-d H:i:s')), 'id = ' . $item['id']);
+                            $res = $db->update(
+                                'bdroppy_remoteproduct',
+                                array(
+                                    'sync_status' => 'importing',
+                                    'last_sync_date' => date('Y-m-d H:i:s')
+                                ),
+                                'id = ' . $item['id']
+                            );
                         }
                         echo "<pre>";
                         foreach ($items as $item) {

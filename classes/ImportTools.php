@@ -51,7 +51,8 @@ class BdroppyImportTools
         if (self::$logger == null) {
             $verboseLog = true;
             self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'bdroppy-import-'.date('y-m-d').'.log';
+            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
+                'bdroppy-import-'.date('y-m-d').'.log';
             self::$logger->setFilename($filename);
         }
 
@@ -90,7 +91,11 @@ class BdroppyImportTools
 
     public static function processImportQueue()
     {
-        $productIds = BdroppyRemoteProduct::getIdsByStatus(BdroppyRemoteProduct::SYNC_STATUS_QUEUED, 30, 4);
+        $productIds = BdroppyRemoteProduct::getIdsByStatus(
+            BdroppyRemoteProduct::SYNC_STATUS_QUEUED,
+            30,
+            4
+        );
         if (count($productIds) > 0) {
             self::importProducts($productIds);
         }
@@ -109,10 +114,15 @@ class BdroppyImportTools
         while ($json->read()) {
             if ($json->nodeType==XMLReader::ELEMENT && $json->name == 'item' && $i <= $api_limit_count) {
                 $product_xml = $json->readOuterXml();
-                $jsonProduct = simplexml_load_string($product_xml, 'SimpleXMLElement', LIBXML_NOBLANKS && LIBXML_NOWARNING);
+                $jsonProduct = simplexml_load_string(
+                    $product_xml,
+                    'SimpleXMLElement',
+                    LIBXML_NOBLANKS && LIBXML_NOWARNING
+                );
                 $json = json_encode($jsonProduct);
                 $product = json_decode($json);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '".
+                    $product->id ."';";
                 $items = $db->ExecuteS($sql);
                 $updateFlag = 3;
                 if (count($items) == 0) {
@@ -123,7 +133,8 @@ class BdroppyImportTools
                         'reference' => pSQL(self::fitReference($product->code, $product->id)),
                         'sync_status' => pSQL('queued'),
                     ));
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '". $product->id ."';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '".
+                        $product->id ."';";
                     $items = $db->ExecuteS($sql);
                     foreach ($items as $item) {
                         self::importProduct($item, $default_lang, false, $acceptedlocales);
@@ -160,7 +171,8 @@ class BdroppyImportTools
                 $reference = self::fitReference($jsonProduct->code, (string)$jsonProduct->id);
 
                 if ($item['ps_product_id'] == '0') {
-                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='".$reference."' AND unity='bdroppy-$api_catalog';";
+                    $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='" .
+                        $reference."' AND unity='bdroppy-$api_catalog';";
                     $prds = Db::getInstance()->ExecuteS($sql);
                     if (count($prds)>0) {
                         $ps_product_id = $prds[0]['id_product'];
@@ -170,7 +182,8 @@ class BdroppyImportTools
                 }
 
                 $product = new Product($ps_product_id);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'".$ps_product_id."' AND reference='$reference' AND unity='bdroppy-$api_catalog';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'" . $ps_product_id .
+                    "' AND reference='$reference' AND unity='bdroppy-$api_catalog';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $d) {
                     $dp = new Product($d['id_product']);
@@ -188,7 +201,8 @@ class BdroppyImportTools
                 // populate general common fields
                 self::populateProductAttributes($jsonProduct, $product, $default_lang);
                 if (self::checkSimpleImport($jsonProduct)) {
-                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $jsonProduct->id . ' will be imported as simple product');
+                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $jsonProduct->id .
+                        ' will be imported as simple product');
                     self::importSimpleProduct($jsonProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
@@ -198,10 +212,15 @@ class BdroppyImportTools
                 }
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
                 $product->save();
-                Db::getInstance()->update('bdroppy_remoteproduct', array('ps_product_id'=>$product->id), 'id = '.$item['id']);
+                Db::getInstance()->update(
+                    'bdroppy_remoteproduct',
+                    array('ps_product_id'=>$product->id),
+                    'id = '.$item['id']
+                );
 
                 if (Configuration::get('BDROPPY_IMPORT_IMAGE') || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
-                    self::getLogger()->logDebug('Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')');
+                    self::getLogger()->logDebug('Importing images for product ' . $product->id .
+                        ' (' . $jsonProduct->id . ')');
                     self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
 
@@ -257,7 +276,8 @@ class BdroppyImportTools
                 $curlError = curl_error($ch);
                 curl_close($ch);
                 if ($httpCode != 200) {
-                    self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
+                    self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode .
+                        '. Error:' . $curlError);
                     $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
                     if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
                         $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
@@ -273,7 +293,9 @@ class BdroppyImportTools
                     $curlError = curl_error($ch);
                     curl_close($ch);
                     if ($httpCode != 200) {
-                        self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError);
+                        self::getLogger()->logDebug(
+                            'Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError
+                        );
                     } else {
                         $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
                         $handle = fopen($tmpfile, "w");
@@ -288,7 +310,13 @@ class BdroppyImportTools
                             ($image->validateFieldsLang(false, true)) === true &&
                             $image->add()
                         ) {
-                            if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
+                            if (!BdroppyImportHelper::copyImg(
+                                $product->id,
+                                $image->id,
+                                $tmpfile,
+                                'products',
+                                true
+                            )) {
                                 $image->delete();
                             } else {
                                 $imageCount++;
@@ -311,7 +339,13 @@ class BdroppyImportTools
                         ($image->validateFieldsLang(false, true)) === true &&
                         $image->add()
                     ) {
-                        if (!BdroppyImportHelper::copyImg($product->id, $image->id, $tmpfile, 'products', true)) {
+                        if (!BdroppyImportHelper::copyImg(
+                            $product->id,
+                            $image->id,
+                            $tmpfile,
+                            'products',
+                            true
+                        )) {
                             $image->delete();
                         } else {
                             $imageCount++;
@@ -655,16 +689,18 @@ class BdroppyImportTools
                     }
                 }
                 $bdroppy_auto_update_name = (bool)Configuration::get('BDROPPY_AUTO_UPDATE_NAME');
-                if($product->name[$lang['id_lang']] == '') {
+                if ($product->name[$lang['id_lang']] == '') {
                     $product->name[$lang['id_lang']] = $name;
                 } elseif ($bdroppy_auto_update_name) {
                     $product->name[$lang['id_lang']] = $name;
                 }
                 $desc  = self::getDescriptions($jsonProduct, $langCode);
-                $desc = str_replace("</div>","<br>", $desc);
+                $desc = str_replace("</div>", "<br>", $desc);
                 $desc = strip_tags($desc, "<br>");
 
-                $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite("{$productData['brand']}-{$productData['code']}");
+                $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
+                    "{$productData['brand']}-{$productData['code']}"
+                );
                 $product->description[$lang['id_lang']] = $desc;
                 $product->description_short[$lang['id_lang']] = Tools::substr($desc, 0, 800);
             }
@@ -775,16 +811,24 @@ class BdroppyImportTools
             $product->deleteFeatures();
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
+                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
+                    ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
                 $sizeFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngColor[$lang['iso_code']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
+                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
+                    ") WHERE fl.name = '".$lngColor[$lang['iso_code']]."';";
                 $colorFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngGender[$lang['iso_code']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
+                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
+                    ") WHERE fl.name = '".$lngGender[$lang['iso_code']]."';";
                 $genderFeature = Db::getInstance()->executeS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ . "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] . ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
+                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
+                    ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
                 $sizeFeatureId = '';
@@ -805,7 +849,7 @@ class BdroppyImportTools
                 }
                 $customFeature = (bool)Configuration::get('BDROPPY_CUSTOM_FEATURE');
                 if (isset($productData['size'])) {
-                    if (Tools::strlen($sizeFeatureId) > 0 && $sizeFeatureId > 0 && Tools::strlen($jsonProduct['size']) > 0) {
+                    if (Tools::strlen($sizeFeatureId)>0 && $sizeFeatureId>0 && Tools::strlen($jsonProduct['size'])>0) {
                         $featureValueId = FeatureValue::addFeatureValueImport(
                             $sizeFeatureId,
                             $productData['size'],
@@ -921,7 +965,10 @@ class BdroppyImportTools
                 $combinationAttributes = array();
 
                 if ($model->color) {
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($jsonProduct, $default_lang) . "';";
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN " . _DB_PREFIX_ .
+                        "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
+                        Configuration::get('BDROPPY_COLOR')." AND al.name = '" .
+                        self::getColor($jsonProduct, $default_lang) . "';";
                     $r = Db::getInstance()->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
@@ -934,7 +981,10 @@ class BdroppyImportTools
                         $attribute->color = self::getColor($jsonProduct, 'en_US');
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
                         $attribute->save();
-                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = ".Configuration::get('BDROPPY_COLOR')." AND al.name = '" . self::getColor($jsonProduct, $default_lang) . "';";
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN " . _DB_PREFIX_ .
+                            "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
+                            Configuration::get('BDROPPY_COLOR')." AND al.name = '" .
+                            self::getColor($jsonProduct, $default_lang) . "';";
                         $r = Db::getInstance()->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];
@@ -943,7 +993,9 @@ class BdroppyImportTools
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
                 if ($model->size) {
-                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                    $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN " . _DB_PREFIX_ .
+                        "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
+                        Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                     $r = Db::getInstance()->executeS($sql);
 
                     if ($r) {
@@ -955,7 +1007,9 @@ class BdroppyImportTools
                         }
                         $attribute->id_attribute_group = Configuration::get('BDROPPY_SIZE');
                         $attribute->save();
-                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN "._DB_PREFIX_."attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " . Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                        $sql = "SELECT * FROM "._DB_PREFIX_."attribute a LEFT JOIN " . _DB_PREFIX_ .
+                            "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
+                            Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
                         $r = Db::getInstance()->executeS($sql);
 
                         if ($r) {
@@ -980,9 +1034,29 @@ class BdroppyImportTools
                 $id_images = null;
                 $upc = null;
                 $minimal_quantity = 1;
-                $idProductAttribute = $product->addProductAttribute((float)$impact_on_price, (float)$impact_on_weight, $impact_on_price_per_unit, null, (int)$quantity, $id_images, $reference, $id_supplier, $ean13, $default, $location, $upc, null, $isbn_code, $minimal_quantity);
+                $idProductAttribute = $product->addProductAttribute(
+                    (float)$impact_on_price,
+                    (float)$impact_on_weight,
+                    $impact_on_price_per_unit,
+                    null,
+                    (int)$quantity,
+                    $id_images,
+                    $reference,
+                    $id_supplier,
+                    $ean13,
+                    $default,
+                    $location,
+                    $upc,
+                    null,
+                    $isbn_code,
+                    $minimal_quantity
+                );
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                Db::getInstance()->update('product_attribute', array('wholesale_price'=>$wholesale_price), 'id_product_attribute = '.(int)$idProductAttribute);
+                Db::getInstance()->update(
+                    'product_attribute',
+                    array('wholesale_price'=>$wholesale_price),
+                    'id_product_attribute = '.(int)$idProductAttribute
+                );
                 $first = false;
             }
 
@@ -999,7 +1073,6 @@ class BdroppyImportTools
         }
     }
 
-    /** In case of simple product, nosize combination is stored in remote_combination table for sending right variation with orders */
     private static function insertNosizeModel($jsonProduct)
     {
         $jsonModel = $jsonProduct->models[0];
