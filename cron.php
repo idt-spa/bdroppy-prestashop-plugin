@@ -56,11 +56,13 @@ class BdroppyCron
     public static function getLogger()
     {
         if (self::$logger == null) {
-            $verboseLog = true;
-            self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
-                'bdroppy-cron-'.date('y-m-d').'.log';
-            self::$logger->setFilename($filename);
+            $api_log = Configuration::get('BDROPPY_LOG', false);
+            if($api_log) {
+                self::$logger = new FileLogger(FileLogger::DEBUG);
+                $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
+                    'bdroppy-cron-' . date('y-m-d') . '.log';
+                self::$logger->setFilename($filename);
+            }
         }
 
         return self::$logger;
