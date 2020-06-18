@@ -92,6 +92,9 @@
 						<div class="col-lg-8">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
 							<br>
+							{if $bdroppy_maintenance_mode == false}
+								<div class="alert alert-danger">Catalog Update Don't Works In Maintenance Mode</div>
+							{/if}
 							<div id="div_status" style="display: inherit">
 								<p><strong>URL</strong> {$base_url|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
@@ -139,6 +142,9 @@
 			<form action="" method="post">
 				<fieldset id="my_catalogs" class="{$my_catalogs_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-ok-sign"></i>&nbsp;{l s='My Catalogs' mod='bdroppy'}</h3>
+					{if $bdroppy_maintenance_mode == false}
+						<div class="alert alert-danger">Catalog Update Don't Works In Maintenance Mode</div>
+					{/if}
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Catalog' mod='bdroppy'}:</label>
 						<div class="col-lg-7">

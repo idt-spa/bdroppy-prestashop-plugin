@@ -806,6 +806,7 @@ class Bdroppy extends Module
         if ($this->current_tab == '') {
             $this->current_tab = 'configurations';
         }
+        $bdroppy_maintenance_mode = (bool)Configuration::get('PS_SHOP_ENABLE', true);
         $tplVars = array(
             'module_display_name' => $this->displayName,
             'module_version' => $this->version,
@@ -847,6 +848,7 @@ class Bdroppy extends Module
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
+            'bdroppy_maintenance_mode' => $bdroppy_maintenance_mode,
         );
         $this->context->smarty->assign($tplVars);
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
