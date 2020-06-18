@@ -329,6 +329,22 @@
 							</select>
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Show debug messages in logs' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_log" id="bdroppy_log_on" value="1" {if $bdroppy_log}checked="checked"{/if} type="radio">
+								<label for="bdroppy_log_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_log" id="bdroppy_log_off" value="0" {if !$bdroppy_log}checked="checked"{/if} type="radio">
+								<label for="bdroppy_log_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
 					<div class="panel-footer">
 						<button type="submit" name="submitCatalogConfig" class="btn btn-default pull-right"><i class="icon-link"></i> {l s='Connect' mod='bdroppy'}</button>
 					</div>

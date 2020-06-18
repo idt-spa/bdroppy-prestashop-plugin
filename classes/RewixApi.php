@@ -796,24 +796,24 @@ class BdroppyRewixApi
             }
 
             $shippingAddress = new Address($order->id_address_delivery);
-            //$customer = new Customer((int)($shippingAddress->id_customer));
+            $customer = new Customer((int)($shippingAddress->id_customer));
             $recipient_details = $xmlOrder->addChild('recipient_details');
-            //$email = $recipient_details->addChild('email', $customer->email);
+            $recipient_details->addChild('email', $customer->email);
             $recipient_details->addChild('recipient', $shippingAddress->firstname.' '.
                 $shippingAddress->lastname);
             $recipient_details->addChild('careof', $shippingAddress->company);
-            //$cfpiva = $recipient_details->addChild('cfpiva');
-            //$customer_key = $recipient_details->addChild('customer_key', (int)($order->id_customer));
-            //$notes = $recipient_details->addChild('notes', $order->getFirstMessage());
+            $recipient_details->addChild('cfpiva');
+            $recipient_details->addChild('customer_key', (int)($order->id_customer));
+            $recipient_details->addChild('notes', $order->getFirstMessage());
 
             $phone = $recipient_details->addChild('phone');
-            //$phone_prifix = $phone->addChild('prefix');
+            $phone->addChild('prefix');
             $phone->addChild('number', $shippingAddress->phone);
 
             $address = $recipient_details->addChild('address');
-            //$street_type = $address->addChild('street_type');
-            $address->addChild('street_name', $shippingAddress->address1 . ' ' . $shippingAddress->address2);
-            //$address_number = $address->addChild('address_number');
+            $address->addChild('street_type');
+            $address->addChild('street_name', $shippingAddress->address1.' '.$shippingAddress->address2);
+            $address->addChild('address_number');
             $address->addChild('zip', $shippingAddress->postcode);
             $address->addChild('city', $shippingAddress->city);
 
