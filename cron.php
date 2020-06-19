@@ -281,10 +281,10 @@ class BdroppyCron
                                 "WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
                             $total = $db->ExecuteS($sql);
                             if ($total[0]['total'] == 0 || Tools::getIsset('dev')) {
-                                $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
+                                $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                                 if ($lastQuantitiesSync == 0) {
                                     $lastQuantitiesSync = time();
-                                    Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastQuantitiesSync);
+                                    Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', $lastQuantitiesSync);
                                 }
                                 $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
 

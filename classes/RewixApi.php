@@ -90,7 +90,6 @@ class BdroppyRewixApi
         set_time_limit(0);
         $ids = [];
         $db = Db::getInstance();
-        $pageSize = 100;
         $sql = "SELECT p.id_product FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
             `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) 
             WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
@@ -99,6 +98,7 @@ class BdroppyRewixApi
             $dp = new Product($item['id_product']);
             $dp->delete();
         }
+        $pageSize = 100;
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
@@ -208,6 +208,7 @@ class BdroppyRewixApi
                 }
                 BdroppyRemoteProduct::deleteByRewixId($id);
             }
+            $this->logger->logDebug('getProductsFull - done');
         } else {
             $this->logger->logDebug(
                 'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
@@ -241,7 +242,7 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code == 200) {
-            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+            Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
             $json = json_decode($data);
             foreach ($json->items as $item) {
                 $jsonProduct = json_encode(
@@ -258,6 +259,7 @@ class BdroppyRewixApi
                 $remoteProduct->reason = $item->lastUpdate;
                 $remoteProduct->data = $jsonProduct;
                 $remoteProduct->save();
+                $this->logger->logDebug('getProductsJsonSince - done');
             }
         } else {
             $this->logger->logDebug(
