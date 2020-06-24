@@ -283,12 +283,12 @@ class BdroppyCron
                             if ($total[0]['total'] == 0 || Tools::getIsset('dev')) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                                 if ($lastQuantitiesSync == 0) {
-                                    $lastQuantitiesSync = time();
+                                    $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                                     Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', $lastQuantitiesSync);
                                 }
-                                $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
 
                                 if ((time() - $lastQuantitiesSync) > 1800) {
+                                    $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
                                     $rewixApi = new BdroppyRewixApi();
                                     $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
                                 }
