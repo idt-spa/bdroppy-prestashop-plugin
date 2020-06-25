@@ -373,6 +373,9 @@
 						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Last Import Sync' mod='bdroppy'}</strong> {$last_import_sync|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Last Update Sync' mod='bdroppy'}</strong> {$last_update_sync|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Last Orders Sync' mod='bdroppy'}</strong> {$last_orders_sync|escape:'htmlall':'UTF-8'}</p>
 					</div>
 				</fieldset>
 			</form>

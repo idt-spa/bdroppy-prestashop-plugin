@@ -849,6 +849,9 @@ class Bdroppy extends Module
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
             'bdroppy_maintenance_mode' => $bdroppy_maintenance_mode,
+            'last_import_sync' => round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60,0). " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")",
+            'last_update_sync' => round(abs((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') - time()) / 60,0). " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")",
+            'last_orders_sync' => round(abs((int)Configuration::get('BDROPPY_LAST_CART_SYNC') - time()) / 60,0). " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")",
         );
         $this->context->smarty->assign($tplVars);
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
