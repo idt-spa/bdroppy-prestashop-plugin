@@ -267,8 +267,11 @@ class BdroppyImportTools
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
-                $imageUrl = "{$websiteUrl}{$image->url}";
-
+                if(substr($image->url, 0, 4 ) == "http") {
+                    $imageUrl = $image->url;
+                } else {
+                    $imageUrl = "{$websiteUrl}{$image->url}";
+                }
                 $ch = curl_init($imageUrl);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $content = curl_exec($ch);
