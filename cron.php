@@ -280,14 +280,16 @@ class BdroppyCron
                             $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
                                 "WHERE sync_status = 'queued' OR sync_status = 'importing' OR sync_status = 'failed';";
                             $total = $db->ExecuteS($sql);
-                            if ($total[0]['total'] == 0 || Tools::getIsset('dev')) {
+                            if ($total[0]['total'] == 0 || Tools::getIsset('since')) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                                 if ($lastQuantitiesSync == 0) {
                                     $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                                     Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', $lastQuantitiesSync);
                                 }
 
-                                if ((time() - $lastQuantitiesSync) > 1800) {
+                                if ((time() - $lastQuantitiesSync) > 1800 || Tools::getIsset('since')) {
+                                    if(Tools::getIsset('since'))
+                                        $lastQuantitiesSync = Tools::getValue('since');
                                     $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
                                     $rewixApi = new BdroppyRewixApi();
                                     $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
