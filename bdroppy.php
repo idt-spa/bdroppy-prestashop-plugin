@@ -675,6 +675,8 @@ class Bdroppy extends Module
             if ($res['http_code'] == 200) {
                 Configuration::updateValue('BDROPPY_CONNECT', true);
                 $connectCatalog = true;
+            } else {
+                Configuration::updateValue('BDROPPY_CONNECT', false);
             }
             Configuration::updateValue('BDROPPY_CRON', '');
             $cron = $rewixApi->setCronJob($cron_url);
@@ -845,24 +847,34 @@ class Bdroppy extends Module
             $warnings[] = "Cronjob Not Set In Bdroppy";
         }
 
+        $li = round(abs((int)Configuration::get('BDROPPY_LAST_CRON_TIME') - time()) / 60,0);
+        $last_cron_sync = $li. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CRON_TIME')) .")";
+        if($li>500)
+            $last_cron_sync = "Many Times Ago";
+        if((int)Configuration::get('BDROPPY_LAST_CRON_TIME') == 0)
+            $last_cron_sync = "Never";
+
         $li = round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60,0);
         $last_import_sync = $li. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
         if($li>500)
             $last_import_sync = "Many Times Ago";
         if((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') == 0)
             $last_import_sync = "Never";
+
         $lu = round(abs((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') - time()) / 60,0);
         $last_update_sync = $lu. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")";
         if($lu>500)
             $last_update_sync = "Many Times Ago";
         if((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') == 0)
             $last_update_sync = "Never";
+
         $lc = round(abs((int)Configuration::get('BDROPPY_LAST_CART_SYNC') - time()) / 60,0);
         $last_orders_sync = $lc. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")";
         if($lc>500)
             $last_orders_sync = "Many Times Ago";
         if((int)Configuration::get('BDROPPY_LAST_CART_SYNC') == 0)
             $last_orders_sync = "Never";
+
         $tplVars = array(
             'module_display_name' => $this->displayName,
             'module_version' => $this->version,
@@ -906,6 +918,7 @@ class Bdroppy extends Module
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
             'warnings' => $warnings,
             'successes' => $successes,
+            'last_cron_sync' => $last_cron_sync,
             'last_import_sync' => $last_import_sync,
             'last_update_sync' => $last_update_sync,
             'last_orders_sync' => $last_orders_sync,

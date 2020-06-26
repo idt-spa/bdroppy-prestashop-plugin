@@ -45,6 +45,7 @@ if (Tools::getIsset('no_import')) {
     }
 }
 if ($importFlag) {
+    Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
     BdroppyCron::importProducts();
 }
 //BdroppyCron::syncProducts();
