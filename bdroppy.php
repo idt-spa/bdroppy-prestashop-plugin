@@ -47,7 +47,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.9';
+        $this->version = '2.0.10';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -670,12 +670,16 @@ class Bdroppy extends Module
             Configuration::updateValue('BDROPPY_LOG', $bdroppy_log);
 
             $rewixApi = new BdroppyRewixApi();
+            Configuration::updateValue('BDROPPY_CONNECT', false);
             $res = $rewixApi->connectUserCatalog();
             if ($res['http_code'] == 200) {
+                Configuration::updateValue('BDROPPY_CONNECT', true);
                 $connectCatalog = true;
             }
+            Configuration::updateValue('BDROPPY_CRON', '');
             $cron = $rewixApi->setCronJob($cron_url);
             if ($cron['http_code'] == 200) {
+                Configuration::updateValue('BDROPPY_CRON', $cron_url);
                 if ($cron['data'] == 'url_already_exists') {
                     $connectCronTxt = 'Your CronJob Already Added, For Change Contact Please';
                 } else {
@@ -753,8 +757,10 @@ class Bdroppy extends Module
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
 
         $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs['http_code'] . '</span>';
+        $flgStatus = false;
         if ($catalogs['http_code'] == 200) {
             $txtStatus = '<span style="color: green;">Ok</span>';
+            $flgStatus = true;
         }
         $urls = array(
             'https://dev.bdroppy.com' => $this->l('Sandbox mode', 'main'),
@@ -806,7 +812,39 @@ class Bdroppy extends Module
         if ($this->current_tab == '') {
             $this->current_tab = 'configurations';
         }
-        $bdroppy_maintenance_mode = (bool)Configuration::get('PS_SHOP_ENABLE', true);
+        $warnings = [];
+        $successes = [];
+        if((bool)Configuration::get('PS_SHOP_ENABLE')) {
+            $successes[] = "Maintenance Mode Is Off";
+        } else {
+            $warnings[] = "Catalog Update Don't Works In Maintenance Mode";
+        }
+        if((bool)Configuration::get('PS_STOCK_MANAGEMENT')) {
+            $successes[] = "Stock Management Is Enabled";
+        } else {
+            $warnings[] = "Stock Management Is Disabled";
+        }
+        if($flgStatus) {
+            $successes[] = "You Are Login To Bdroppy";
+        } else {
+            $warnings[] = "You Are Not Login To Bdroppy Yet";
+        }
+        if(Configuration::get('BDROPPY_CATALOG') != '-1' && Configuration::get('BDROPPY_CATALOG') != '') {
+            $successes[] = "Catalog Selected";
+        } else {
+            $warnings[] = "Catalog Not Selected";
+        }
+        if((bool)Configuration::get('BDROPPY_CONNECT')) {
+            $successes[] = "You Are Connected To Bdroppy";
+        } else {
+            $warnings[] = "You Are Not Connected To Bdroppy";
+        }
+        if(Configuration::get('BDROPPY_CRON') != '' && Configuration::get('BDROPPY_CRON') != false) {
+            $successes[] = "Cronjob Set In Bdroppy (" . Configuration::get('BDROPPY_CRON') . ")";
+        } else {
+            $warnings[] = "Cronjob Not Set In Bdroppy";
+        }
+
         $li = round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60,0);
         $last_import_sync = $li. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
         if($li>500)
@@ -866,7 +904,8 @@ class Bdroppy extends Module
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
-            'bdroppy_maintenance_mode' => $bdroppy_maintenance_mode,
+            'warnings' => $warnings,
+            'successes' => $successes,
             'last_import_sync' => $last_import_sync,
             'last_update_sync' => $last_update_sync,
             'last_orders_sync' => $last_orders_sync,

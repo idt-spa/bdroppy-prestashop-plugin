@@ -91,16 +91,13 @@
 					<div class="row">
 						<div class="col-lg-8">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0">{l s='API Connection Status' mod='bdroppy'}</p>
-							<br>
-							{if $bdroppy_maintenance_mode == false}
-								<div class="alert alert-danger">Catalog Update Don't Works In Maintenance Mode</div>
-							{/if}
 							<div id="div_status" style="display: inherit">
 								<p><strong>URL</strong> {$base_url|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Status</strong> {$txtStatus}</p>
 								<p><button class="btn_change_token"><i class="icon-signout"></i> {l s='Disconnect' mod='bdroppy'}</button></p>
 							</div>
+
 							<div id="div_change_token" style="display: none">
 								<input type="hidden" name="bdroppy_api_url" value="https://prod.bdroppy.com" />
 								<div class="form-group">
@@ -123,6 +120,21 @@
 									</div>
 								</div>
 							</div>
+							<hr/>
+							{if $warnings}
+								<ul class="alert alert-danger" style="padding-left:70px;">
+									{foreach $warnings as $warning}
+										<li>{$warning|escape:'htmlall':'UTF-8'}</li>
+									{/foreach}
+								</ul>
+							{/if}
+							{if $successes}
+								<ul class="alert alert-success" style="padding-left:70px;">
+									{foreach $successes as $success}
+										<li>{$success|escape:'htmlall':'UTF-8'}</li>
+									{/foreach}
+								</ul>
+							{/if}
 						</div>
 						<div class="col-lg-4">
 							<p style="font-size: 1.5em; font-weight: bold; padding-bottom: 0"><img src="{$module_path|escape:'htmlall':'UTF-8'}logo.png" alt="{$module_display_name|escape:'htmlall':'UTF-8'}" style="float: left; padding-right: 1em"/>Bdroppy</p>
@@ -142,9 +154,6 @@
 			<form action="" method="post">
 				<fieldset id="my_catalogs" class="{$my_catalogs_form|escape:'htmlall':'UTF-8'}">
 					<h3 class="tab"> <i class="icon-ok-sign"></i>&nbsp;{l s='My Catalogs' mod='bdroppy'}</h3>
-					{if $bdroppy_maintenance_mode == false}
-						<div class="alert alert-danger">Catalog Update Don't Works In Maintenance Mode</div>
-					{/if}
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Catalog' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
