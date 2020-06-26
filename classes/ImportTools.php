@@ -1099,7 +1099,11 @@ class BdroppyImportTools
         try {
             $jsonModel = $jsonProduct->models[0];
             $product->minimal_quantity = 1;
-            $product->ean13 = (string)$jsonModel->barcode;
+            $ean13 = trim((string)$jsonModel->barcode);
+            if (Tools::strlen($ean13)>13) {
+                $ean13 = Tools::substr($ean13, 0, 13);
+            }
+            $product->ean13 = $ean13;
             $product->isbn = $jsonModel->id;
             $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);

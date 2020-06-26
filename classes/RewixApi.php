@@ -1122,7 +1122,6 @@ class BdroppyRewixApi
     public function syncBookedProducts()
     {
         $bookedProducts = $this->getGrowingOrderProducts();
-        echo "<pre>";
         var_dump('syncBookedProducts', $bookedProducts, '*********************************');
 
         $this->logger->logDebug('Syncing booked products ');
@@ -1168,7 +1167,6 @@ class BdroppyRewixApi
     public function sendMissingOrders()
     {
         $orderIds = BdroppyRemoteOrder::getMissingOrdersId();
-        echo "<pre>";
         var_dump('sendMissingOrders', $orderIds, '*********************************');
 
         foreach ($orderIds as $orderId) {

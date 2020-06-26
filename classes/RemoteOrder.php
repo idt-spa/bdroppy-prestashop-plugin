@@ -108,7 +108,7 @@ class BdroppyRemoteOrder extends ObjectModel
         $query = 'select o.id_order ' .
             'from `'._DB_PREFIX_.'orders` o ' .
             'where o.current_state in ' .
-            '(select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\') ) ' .
+            '(select value from `'._DB_PREFIX_.'configuration` where name in (\'PS_OS_PREPARATION\', \'PS_OS_PAYMENT\', \'PS_OS_WS_PAYMENT\') ) ' .
             'and o.id_order not in (select r.ps_order_id from `'._DB_PREFIX_.'bdroppy_remoteorder` r)';
         return Db::getInstance()->ExecuteS($query);
     }
