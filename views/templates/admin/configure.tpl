@@ -380,6 +380,7 @@
 						<h2>{l s='Import Queue Status' mod='bdroppy'}</h2>
 						<p><strong>{l s='Queued' mod='bdroppy'}</strong> {$queue_queued|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='Importing' mod='bdroppy'}</strong> {$queue_importing|escape:'htmlall':'UTF-8'}</p>
+						<p><strong>{l s='Deleting' mod='bdroppy'}</strong> {$queue_deleting|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all|escape:'htmlall':'UTF-8'}</p>
 						<hr/>

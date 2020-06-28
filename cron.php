@@ -230,12 +230,10 @@ class BdroppyCron
                         if (!$api_limit_count) {
                             $api_limit_count = 5;
                         }
-                        $api_limit_count = $api_limit_count;
-
                         //delete products
-                        /*$hourAgo = date('Y-m-d H:i:s', strtotime("-60 minutes"));
+                        $hourAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                        "WHERE last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
+                            "WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
@@ -243,7 +241,7 @@ class BdroppyCron
                                 $dp->delete();
                             }
                             BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
-                        }*/
+                        }
 
                         // change status of products
                         $fiveago = date('Y-m-d H:i:s', strtotime("-5 minutes"));
