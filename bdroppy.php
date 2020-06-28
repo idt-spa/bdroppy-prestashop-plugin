@@ -670,7 +670,6 @@ class Bdroppy extends Module
             Configuration::updateValue('BDROPPY_LOG', $bdroppy_log);
 
             $rewixApi = new BdroppyRewixApi();
-            Configuration::updateValue('BDROPPY_CONNECT', false);
             $res = $rewixApi->connectUserCatalog();
             if ($res['http_code'] == 200) {
                 Configuration::updateValue('BDROPPY_CONNECT', true);
