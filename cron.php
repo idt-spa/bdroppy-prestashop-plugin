@@ -218,9 +218,8 @@ class BdroppyCron
                     }
                     $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
                     $total = $db->ExecuteS($sql);
-                    if ((time() - $lastImportSync) >  3600 ||
+                    if (((time() - $lastImportSync) >  3600 && $total[0]['total'] == 0) ||
                         $devFlag ||
-                        $total[0]['total'] == 0 ||
                         $api_catalog_changed) {
                         $rewixApi = new BdroppyRewixApi();
                         $rewixApi->getProductsFull($acceptedlocales);
