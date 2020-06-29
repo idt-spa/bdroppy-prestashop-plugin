@@ -45,12 +45,12 @@ if (Tools::getIsset('no_import')) {
     }
 }
 if ($importFlag) {
-    Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
     BdroppyCron::importProducts();
 }
 //BdroppyCron::syncProducts();
 //BdroppyCron::syncQuantities();
 BdroppyCron::syncOrders();
+Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
 class BdroppyCron
 {
     public static $logger = null;
@@ -205,25 +205,14 @@ class BdroppyCron
             } else {
                 if ($api_catalog!="" && $api_catalog!="0" && $api_catalog!="-1" && Tools::strlen($api_catalog)>1) {
                     $lastImportSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
-                    if ($lastImportSync == 0) {
-                        $lastImportSync = time();
-                        Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', $lastImportSync);
-                    }
-
                     $devFlag = false;
                     if (Tools::getIsset('dev')) {
                         if (Tools::getValue('dev') == 'isaac') {
                             $devFlag = true;
                         }
                     }
-                    $sql = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
-                    $total = $db->ExecuteS($sql);
-                    $sql2 = "SELECT COUNT(id) as total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE 
-                    sync_status != 'updated';";
-                    $others = $db->ExecuteS($sql2);
-
-                    if (((time() - $lastImportSync) >  3600 && $others[0]['total'] == 0)||
-                        $total[0]['total'] == 0 ||
+                    if ((time() - $lastImportSync) >  3600 * 4 ||
+                        $lastImportSync == 0 ||
                         $devFlag ||
                         $api_catalog_changed) {
                         $rewixApi = new BdroppyRewixApi();
