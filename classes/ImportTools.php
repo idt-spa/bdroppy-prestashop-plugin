@@ -506,7 +506,8 @@ class BdroppyImportTools
         if (isset($product->descriptions->{$lang})) {
             return @$product->descriptions->{$lang};
         } else {
-            return "";
+            $lang = 'en_US';
+            return @$product->descriptions->{$lang};
         }
     }
 
