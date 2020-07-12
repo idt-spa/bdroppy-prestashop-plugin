@@ -24,8 +24,6 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-ini_set('max_execution_time', 0);
-set_time_limit(0);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -143,7 +141,11 @@ class BdroppyCron
                 $configurations['BDROPPY_LIMIT_COUNT'] : 5;
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ?
                 $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
-            $db = Db::getInstance();
+            /*var_dump($db->update(
+                'bdroppy_remoteproduct',
+                array('sync_status' => 'queued'),
+                "sync_status = 'importing' OR sync_status <= 'updated' OR sync_status <= 'delete'"
+            ));die;*/
 
             $acceptedlocales = '';
             $languages = Language::getLanguages();
@@ -191,7 +193,7 @@ class BdroppyCron
                     foreach ($delete_products as $item) {
                         if ($item['ps_product_id'] != '0') {
                             $dp = new Product($item['ps_product_id']);
-                            $dp->delete();
+                            //$dp->delete();
                         }
                         BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                     }
@@ -211,7 +213,7 @@ class BdroppyCron
                             $devFlag = true;
                         }
                     }
-                    if ((time() - $lastImportSync) >  3600 * 4 ||
+                    if ((time() - $lastImportSync) >  3600 * 6 ||
                         $lastImportSync == 0 ||
                         $devFlag ||
                         $api_catalog_changed) {
@@ -231,7 +233,7 @@ class BdroppyCron
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
                                 $dp = new Product($item['ps_product_id']);
-                                $dp->delete();
+                                //$dp->delete();
                             }
                             BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                         }

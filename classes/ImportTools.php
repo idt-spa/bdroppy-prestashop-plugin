@@ -157,9 +157,6 @@ class BdroppyImportTools
     public static function importProduct($item, $default_lang, $updateFlag)
     {
         try {
-            @set_time_limit(3600);
-            @ini_set('memory_limit', '1024M');
-
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
             $jsonProduct = json_decode($item['data']);
 
