@@ -47,7 +47,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.13';
+        $this->version = '2.0.14';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -119,6 +119,7 @@ class Bdroppy extends Module
         $lngSize['bg'] = 'размер';
         $lngSize['da'] = 'Størrelse';
         $lngSize['lt'] = 'Dydis';
+        $lngSize['el'] = 'Μέγεθος';
 
         $lngGender = [];
         $lngGender['it'] = 'Genere';
@@ -141,6 +142,7 @@ class Bdroppy extends Module
         $lngGender['bg'] = 'пол';
         $lngGender['da'] = 'Køn';
         $lngGender['lt'] = 'Lytis';
+        $lngGender['el'] = 'Γένος';
 
         $lngColor = [];
         $lngColor['it'] = 'Colore';
@@ -163,6 +165,7 @@ class Bdroppy extends Module
         $lngColor['bg'] = 'цвят';
         $lngColor['da'] = 'Farve';
         $lngColor['lt'] = 'Spalva';
+        $lngColor['el'] = 'Χρώμα';
 
         $lngSeason = [];
         $lngSeason['it'] = 'Stagione';
@@ -185,6 +188,7 @@ class Bdroppy extends Module
         $lngSeason['bg'] = 'сезон';
         $lngSeason['da'] = 'Sæson';
         $lngSeason['lt'] = 'Sezonas';
+        $lngSeason['el'] = 'Εποχή';
 
         $flgSize = true;
         $flgGender = true;
@@ -260,6 +264,7 @@ class Bdroppy extends Module
         $lngSize['bg'] = 'размер';
         $lngSize['da'] = 'Størrelse';
         $lngSize['lt'] = 'Dydis';
+        $lngSize['el'] = 'Μέγεθος';
 
         $lngGender = [];
         $lngGender['it'] = 'Genere';
@@ -282,6 +287,7 @@ class Bdroppy extends Module
         $lngGender['bg'] = 'пол';
         $lngGender['da'] = 'Køn';
         $lngGender['lt'] = 'Lytis';
+        $lngGender['el'] = 'Γένος';
 
         $lngColor = [];
         $lngColor['it'] = 'Colore';
@@ -304,6 +310,7 @@ class Bdroppy extends Module
         $lngColor['bg'] = 'цвят';
         $lngColor['da'] = 'Farve';
         $lngColor['lt'] = 'Spalva';
+        $lngColor['el'] = 'Χρώμα';
 
         $lngSeason = [];
         $lngSeason['it'] = 'Stagione';
@@ -326,6 +333,7 @@ class Bdroppy extends Module
         $lngSeason['bg'] = 'сезон';
         $lngSeason['da'] = 'Sæson';
         $lngSeason['lt'] = 'Sezonas';
+        $lngSeason['el'] = 'Εποχή';
 
         $flgSize = true;
         $flgGender = true;

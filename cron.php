@@ -105,6 +105,7 @@ class BdroppyCron
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
+            $langs['el'] = 'el_GR';
 
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
             $default_lang = $langs[$default_language['iso_code']];

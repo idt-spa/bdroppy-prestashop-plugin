@@ -162,6 +162,7 @@ class BdroppyRemoteCategory extends ObjectModel
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
+            $langs['el'] = 'el_GR';
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
