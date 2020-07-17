@@ -218,7 +218,7 @@ class BdroppyImportTools
                     'id = '.$item['id']
                 );
 
-                if (Configuration::get('BDROPPY_IMPORT_IMAGE') || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
+                if ($ps_product_id == 0 || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
                     self::getLogger()->logDebug('Importing images for product ' . $product->id .
                         ' (' . $jsonProduct->id . ')');
                     self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
@@ -325,7 +325,7 @@ class BdroppyImportTools
                                 $imageCount++;
                             }
                         }
-                        @unlink($tmpfile);
+                        unlink($tmpfile);
                     }
                     $i++;
                 } else {
@@ -354,7 +354,7 @@ class BdroppyImportTools
                             $imageCount++;
                         }
                     }
-                    @unlink($tmpfile);
+                    unlink($tmpfile);
                 }
                 $i++;
                 if ($count != 'all') {

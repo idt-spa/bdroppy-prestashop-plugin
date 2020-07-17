@@ -216,9 +216,12 @@ class BdroppyCron
                         $devFlag ||
                         $api_catalog_changed) {
                         $rewixApi = new BdroppyRewixApi();
-                        $rewixApi->getProductsFull($acceptedlocales);
+                        $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
-                        echo "Full Import";
+                        if($r == 200)
+                            echo "Full Import";
+                        else
+                            echo $r;
                     } else {
                         if (!$api_limit_count) {
                             $api_limit_count = 5;
