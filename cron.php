@@ -24,8 +24,6 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-ini_set('max_execution_time', 0);
-set_time_limit(0);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -107,6 +105,7 @@ class BdroppyCron
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
+            $langs['el'] = 'el_GR';
 
             $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
             $default_lang = $langs[$default_language['iso_code']];
@@ -143,7 +142,6 @@ class BdroppyCron
                 $configurations['BDROPPY_LIMIT_COUNT'] : 5;
             $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ?
                 $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
-            $db = Db::getInstance();
 
             $acceptedlocales = '';
             $languages = Language::getLanguages();
@@ -211,7 +209,7 @@ class BdroppyCron
                             $devFlag = true;
                         }
                     }
-                    if ((time() - $lastImportSync) >  3600 * 4 ||
+                    if ((time() - $lastImportSync) >  3600 * 6 ||
                         $lastImportSync == 0 ||
                         $devFlag ||
                         $api_catalog_changed) {

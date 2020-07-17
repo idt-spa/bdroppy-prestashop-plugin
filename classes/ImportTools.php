@@ -157,9 +157,6 @@ class BdroppyImportTools
     public static function importProduct($item, $default_lang, $updateFlag)
     {
         try {
-            @set_time_limit(3600);
-            @ini_set('memory_limit', '1024M');
-
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
             $jsonProduct = json_decode($item['data']);
 
@@ -675,6 +672,7 @@ class BdroppyImportTools
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
+            $langs['el'] = 'el_GR';
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
@@ -749,6 +747,7 @@ class BdroppyImportTools
             $lngSize['bg'] = 'размер';
             $lngSize['da'] = 'Størrelse';
             $lngSize['lt'] = 'Dydis';
+            $lngSize['el'] = 'Μέγεθος';
 
             $lngGender = [];
             $lngGender['it'] = 'Genere';
@@ -771,6 +770,7 @@ class BdroppyImportTools
             $lngGender['bg'] = 'пол';
             $lngGender['da'] = 'Køn';
             $lngGender['lt'] = 'Lytis';
+            $lngGender['el'] = 'Γένος';
 
             $lngColor = [];
             $lngColor['it'] = 'Colore';
@@ -793,6 +793,7 @@ class BdroppyImportTools
             $lngColor['bg'] = 'цвят';
             $lngColor['da'] = 'Farve';
             $lngColor['lt'] = 'Spalva';
+            $lngColor['el'] = 'Χρώμα';
 
             $lngSeason = [];
             $lngSeason['it'] = 'Stagione';
@@ -815,6 +816,7 @@ class BdroppyImportTools
             $lngSeason['bg'] = 'сезон';
             $lngSeason['da'] = 'Sæson';
             $lngSeason['lt'] = 'Sezonas';
+            $lngSeason['el'] = 'Εποχή';
 
             $product->deleteFeatures();
             foreach ($languages as $lang) {
@@ -957,6 +959,7 @@ class BdroppyImportTools
             $langs['bg'] = 'bg_BG';
             $langs['da'] = 'da_DK';
             $langs['lt'] = 'lt_LT';
+            $langs['el'] = 'el_GR';
 
             $languages = Language::getLanguages(false);
             $first = true;
