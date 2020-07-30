@@ -97,11 +97,26 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
                 ON DELETE CASCADE
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`
-            ADD `reference` VARCHAR(128) NULL;';
 
-$sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct`
-            ADD `data` TEXT NULL;';
+
+$query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
+WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."_bdroppy_remoteproduct'
+  AND column_name = 'reference'";
+
+$db_check = Db::getInstance()->executeS($query);
+if($db_check[0]['result'] != 'Exist'){
+    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD  `reference` VARCHAR(128) NULL;';
+}
+
+$query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
+WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."_bdroppy_remoteproduct'
+  AND column_name = 'data'";
+
+$db_check = Db::getInstance()->executeS($query);
+if($db_check[0]['result'] != 'Exist'){
+    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `data` TEXT NULL;';
+}
+
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

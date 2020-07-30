@@ -47,7 +47,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.15';
+        $this->version = '2.0.16';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -76,24 +76,30 @@ class Bdroppy extends Module
         $languages = Language::getLanguages();
         // Install Tabs:
         // parent tab
-        $parentTab = new Tab();
-        foreach ($languages as $lang) {
-            $parentTab->name[$lang['id_lang']] = $this->l('Bdroppy');
-        }
-        $parentTab->class_name = 'AdminBdroppy';
-        $parentTab->id_parent = 0; // Home tab
-        $parentTab->module = $this->name;
-        $parentTab->add();
+        try{
+            $parentTab = new Tab();
+            foreach ($languages as $lang) {
+                $parentTab->name[$lang['id_lang']] = $this->l('Bdroppy');
+            }
+            $parentTab->class_name = 'AdminBdroppy';
+            $parentTab->id_parent = 0; // Home tab
+            $parentTab->module = $this->name;
+            $parentTab->add();
 
-        // child tab settings
-        $importTab = new Tab();
-        foreach ($languages as $lang) {
-            $importTab->name[$lang['id_lang']] = $this->l('Settings');
+            // child tab settings
+            $importTab = new Tab();
+            foreach ($languages as $lang) {
+                $importTab->name[$lang['id_lang']] = $this->l('Settings');
+            }
+            $importTab->class_name = 'AdminSettingsBdroppy';
+            $importTab->id_parent = $parentTab->id;
+            $importTab->module = $this->name;
+            $importTab->add();
+        }catch (Exception $exception)
+        {
+
         }
-        $importTab->class_name = 'AdminSettingsBdroppy';
-        $importTab->id_parent = $parentTab->id;
-        $importTab->module = $this->name;
-        $importTab->add();
+
     }
 
     public function installFeatures()
