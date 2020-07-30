@@ -100,7 +100,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
 
 
 $query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
-WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."_bdroppy_remoteproduct'
+WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'reference'";
 
 $db_check = Db::getInstance()->executeS($query);
@@ -109,7 +109,7 @@ if($db_check[0]['result'] != 'Exist'){
 }
 
 $query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
-WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."_bdroppy_remoteproduct'
+WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'data'";
 
 $db_check = Db::getInstance()->executeS($query);
