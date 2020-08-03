@@ -202,8 +202,8 @@ class BdroppyRewixApi
 
                 $db->update(
                     'bdroppy_remoteproduct',
-                    array('sync_status' => 'delete'),
-                    "rewix_product_id IN (".implode(',', $delete_products).")"
+                    array('sync_status' => pSQL('delete')),
+                    "rewix_product_id IN (".pSQL(implode(',', $delete_products)).")"
                 );
                 $this->logger->logDebug('getProductsFull - done');
                 Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());

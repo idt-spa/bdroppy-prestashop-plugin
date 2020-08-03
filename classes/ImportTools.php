@@ -128,7 +128,7 @@ class BdroppyImportTools
                 if (count($items) == 0) {
                     //add product to queue
                     $db->insert('bdroppy_remoteproduct', array(
-                        'rewix_product_id' => pSQL($product->id),
+                        'rewix_product_id' => (int)$product->id,
                         'rewix_catalog_id' => pSQL($api_catalog),
                         'reference' => pSQL(self::fitReference($product->code, $product->id)),
                         'sync_status' => pSQL('queued'),
@@ -211,8 +211,8 @@ class BdroppyImportTools
                 $product->save();
                 Db::getInstance()->update(
                     'bdroppy_remoteproduct',
-                    array('ps_product_id'=>$product->id),
-                    'id = '.$item['id']
+                    array('ps_product_id'=>(int)$product->id),
+                    'id = '.(int)$item['id']
                 );
 
                 if ($ps_product_id == 0 || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
@@ -1065,7 +1065,7 @@ class BdroppyImportTools
                 $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
                 Db::getInstance()->update(
                     'product_attribute',
-                    array('wholesale_price'=>$wholesale_price),
+                    array('wholesale_price'=>(int)$wholesale_price),
                     'id_product_attribute = '.(int)$idProductAttribute
                 );
                 $first = false;
@@ -1251,7 +1251,7 @@ class BdroppyImportTools
     public static function sendOtherOrders()
     {
         $rewixApi = new BdroppyRewixApi();
-        $yesterday = date('Y-m-d H:i:s', strtotime("-1 hour"));
+        $yesterday = pSQL(date('Y-m-d H:i:s', strtotime("-1 hour")));
         $query = new DbQuery();
         $query->select("*")
             ->from("orders")
@@ -1261,7 +1261,7 @@ class BdroppyImportTools
             $oquery = new DbQuery();
             $oquery->select("*")
                 ->from("bdroppy_remoteorder")
-                ->where("ps_order_id = '".$item['id_order']."'");
+                ->where("ps_order_id = '".(int)$item['id_order']."'");
             $remoteOrder = Db::getInstance()->executeS($oquery);
             if (!$remoteOrder) {
                 $rewixApi->sendBdroppyOrder(new Order((int)$item['id_order']));

@@ -238,10 +238,10 @@ class BdroppyCron
                         }
 
                         // change status of products
-                        $fiveago = date('Y-m-d H:i:s', strtotime("-5 minutes"));
+                        $fiveago = pSQL(date('Y-m-d H:i:s', strtotime("-5 minutes")));
                         $db->update(
                             'bdroppy_remoteproduct',
-                            array('sync_status' => 'queued'),
+                            array('sync_status' => pSQL('queued')),
                             "sync_status = 'importing' AND last_sync_date <= '$fiveago'"
                         );
 
@@ -254,10 +254,10 @@ class BdroppyCron
                             $res = $db->update(
                                 'bdroppy_remoteproduct',
                                 array(
-                                    'sync_status' => 'importing',
-                                    'last_sync_date' => date('Y-m-d H:i:s')
+                                    'sync_status' => pSQL('importing'),
+                                    'last_sync_date' => pSQL(date('Y-m-d H:i:s'))
                                 ),
-                                'id = ' . $item['id']
+                                'id = ' . (int)$item['id']
                             );
                         }
                         echo "<pre>";
