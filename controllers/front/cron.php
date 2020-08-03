@@ -4,6 +4,8 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
     public function __construct()
     {
         parent::__construct();
+        $this->context = Context::getContext();
+        $this->ssl = true;
     }
 
     public function initContent()
@@ -34,7 +36,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         $this->syncOrders();
         Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
 
-        echo "Joon Baba";
+        $this->assignTpl();
     }
 
     public static $logger = null;
@@ -353,6 +355,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
             $rewixApi->sendMissingOrders();
             Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int)time());
         }
+    }
+
+    public function assignTpl()
+    {
+        $this->setTemplate('module:bdroppy/views/templates/front/cron.tpl');
     }
 
 }
