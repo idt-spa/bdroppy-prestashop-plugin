@@ -38,13 +38,9 @@ class BdroppyRewixApi
 
     private $processingCache;
     private $pendingCache;
-    private $logger;
 
     public function __construct()
     {
-        $this->logger = new FileLogger(AbstractLogger::DEBUG);
-        $this->logger->setFilename(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
-            'bdroppy-api-'.date('y-m-d').'.log');
     }
 
     private static function fitReference($ean, $id)
@@ -77,7 +73,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $logMsg = 'getProduct - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         $ret['http_code'] = $http_code;
         $ret['data'] = $data;
@@ -185,9 +182,8 @@ class BdroppyRewixApi
                                 $remoteProduct->save();
                             }
                         } else {
-                            $this->logger->logDebug(
-                                'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-                            );
+                            $logMsg = 'getProductsFull - http_code : '.$http_code.' - url : '.$url.' data : '.$data;
+                            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                         }
                     }
                 }
@@ -205,12 +201,12 @@ class BdroppyRewixApi
                     array('sync_status' => pSQL('delete')),
                     "rewix_product_id IN (".pSQL(implode(',', $delete_products)).")"
                 );
-                $this->logger->logDebug('getProductsFull - done');
+                $logMsg = 'getProductsFull - done';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
                 Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
             } else {
-                $this->logger->logDebug(
-                    'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-                );
+                $logMsg = 'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             }
             return $http_code;
         } catch (PrestaShopException $e) {
@@ -260,12 +256,12 @@ class BdroppyRewixApi
                 $remoteProduct->data = $jsonProduct;
                 $remoteProduct->save();
             }
-            $this->logger->logDebug('getProductsJsonSince - done');
+            $logMsg = 'getProductsJsonSince - done';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
             Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
         } else {
-            $this->logger->logDebug(
-                'getProductsJsonSince - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            BdroppyLogger::addLog(__METHOD__, 'http_code : ' . $http_code . ' - url : ' . $url .
+                ' data : '.$data, 2);
         }
         return $http_code;
     }
@@ -322,9 +318,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug(
-                'getProductsJson - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            $logMsg = 'getProductsJson - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         $ret['http_code'] = $http_code;
         $ret['data'] = $data;
@@ -354,9 +349,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug(
-                'getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            $logMsg = 'getUserInfo - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -396,7 +390,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('loginUser - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            $logMsg = 'loginUser - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -434,7 +429,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug('loginUser - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data);
+            BdroppyLogger::addLog(__METHOD__, 'loginUser - http_code : ' . $http_code . ' - url : ' .
+                $url . ' data : ' . $data, 1);
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -474,9 +470,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug(
-                'connectUserCatalog - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            $logMsg = 'connectUserCatalog - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         if ($http_code === 200) {
             $data = json_decode($data);
@@ -510,9 +505,8 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code != 200) {
-            $this->logger->logDebug(
-                'getUserCatalogs - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            $logMsg = 'getUserCatalogs - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         if ($http_code === 200) {
             $catalogs = json_decode($data);
@@ -550,9 +544,8 @@ class BdroppyRewixApi
         $response = json_decode($data);
 
         if ($http_code != 200) {
-            $this->logger->logDebug(
-                'getCatalogById2 - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data
-            );
+            $logMsg = 'getCatalogById2 - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
         if ($response === 500 || empty($response->userCatalog)) {
             return 500;
@@ -592,11 +585,11 @@ class BdroppyRewixApi
             if (isset($model)) {
                 $model->addAttribute('stock_id', $op['model_id']);
                 $model->addAttribute('quantity', $op['qty']);
-                $this->logger->logDebug(
-                    'Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type']
-                );
+                $logMsg = 'Model Ref.ID #'.$op['model_id'].', qty: '.$op['qty'].', operation type: '.$op['type'];
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             } else {
-                $this->logger->logInfo('Invalid operation type: ' . $op['type']);
+                $logMsg = 'Invalid operation type: ' . $op['type'];
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             }
         }
         $xmlText = $xml->asXML();
@@ -657,16 +650,18 @@ class BdroppyRewixApi
                 }
 
                 if (! $success) {
-                    $this->logger->logError('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
+                    $logMsg = 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
                         ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) .
                         ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' .
-                        $op['type'] . ' : OPERATION FAILED!');
+                        $op['type'] . ' : OPERATION FAILED!';
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     $errors[ $op['model_id'] ] = $op['qty'];
                 } else {
-                    $this->logger->logInfo('Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
+                    $logMsg = 'Model Ref.ID #' . $op['model_id'] . ', looked: ' . $product['locked'] .
                         ', qty: ' . $op['qty'] . ', pending: ' . $this->getPendingQtyByRewixModel($stock_id) .
                         ', processing: ' . $this->getPendingQtyByRewixModel($stock_id) . ', operation type: ' .
-                        $op['type']);
+                        $op['type'];
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
                 }
             } else {
                 $errors[ $op['model_id'] ] = $op['qty'];
@@ -680,7 +675,8 @@ class BdroppyRewixApi
     {
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
         if ($catalog_id != '' && $catalog_id != '-1') {
-            $this->logger->logInfo('Validating order');
+            $logMsg = 'Validating order';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
             $lines = $cart->getProducts(true);
 
             $operations = array();
@@ -738,7 +734,8 @@ class BdroppyRewixApi
     {
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
         if ($catalog_id != '' && $catalog_id != '-1') {
-            $this->logger->logInfo('Sending bdroppy order ' . $order->id);
+            $logMsg = 'Sending bdroppy order ' . $order->id;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
             $mixed = false;
             $lines = $order->getProductsDetail();
             $rewix_order_key = $catalog_id .$order->id . time();
@@ -774,7 +771,8 @@ class BdroppyRewixApi
                     $rewixId = $modelId > 0 ? $modelId : $product_isbn;
                     //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
                     if (!$rewixId && $rewixProduct > 0) {
-                        $this->logger->logError('Order #' . $order->id . ': Mixed Order');
+                        $logMsg = 'Order #' . $order->id . ': Mixed Order';
+                        BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
                         $mixed = true;
                     }
                     if ($rewixId) {
@@ -785,8 +783,8 @@ class BdroppyRewixApi
                         $item->addChild('price_currency', $currency->iso_code);
                         $item->addChild('stock_id', $rewixId);
                         $item->addChild('quantity', $orderedQty);
-                        $this->logger->logDebug('Creating bdroppy order with model ID#' . $rewixId .
-                            ' with quantity ' . $orderedQty);
+                        $logMsg = 'Creating bdroppy order with model ID#' . $rewixId .' with quantity ' . $orderedQty;
+                        BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     }
                 }
             }
@@ -794,7 +792,8 @@ class BdroppyRewixApi
                 return false;
             }
             if ($mixed) {
-                $this->logger->logError('Order #' . $order->get_order_number() . ': Mixed Order!!!');
+                $logMsg = 'Order #' . $order->get_order_number() . ': Mixed Order!!!';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
                 return false;
             }
 
@@ -852,7 +851,8 @@ class BdroppyRewixApi
             if (!$this->handleCurlError($httpCode)) {
                 return false;
             }
-            $this->logger->logInfo('Rewix order key: ' . $rewix_order_key . ' ' . $data);
+            $logMsg = 'Rewix order key: ' . $rewix_order_key . ' ' . $data;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
             $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.$rewix_order_key;
             $api_token = Configuration::get('BDROPPY_TOKEN');
@@ -867,11 +867,14 @@ class BdroppyRewixApi
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             if ($httpCode == 401) {
-                $this->logger->logError('Send dropshipping order: UNAUTHORIZED!!');
+                $logMsg = 'Send dropshipping order: UNAUTHORIZED!!';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
                 return false;
             } elseif ($httpCode == 500) {
-                $this->logger->logError('Exception: Order #'.$order->id.' does not exists on rewix platform');
-                $this->logger->logError('Bdroppy operation for order #'.$order->id.' failed!!');
+                $logMsg = 'Exception: Order #'.$order->id.' does not exists on rewix platform';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
+                $logMsg = 'Bdroppy operation for order #'.$order->id.' failed!!';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
 
                 $association    = new BdroppyRemoteOrder();
                 $association->rewix_order_key = $rewix_order_key;
@@ -881,11 +884,13 @@ class BdroppyRewixApi
                 $association->save();
                 return false;
             } elseif ($httpCode != 200) {
-                $this->logger->logError('Send dropshipping order - Url : ' . $rewix_order_key. ' - ERROR ' . $httpCode);
+                $logMsg = 'Send dropshipping order - Url : ' . $rewix_order_key. ' - ERROR ' . $httpCode;
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
                 return false;
             }
 
-            $this->logger->logInfo('Bdroppy order created successfully');
+            $logMsg = 'Bdroppy order created successfully';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
             $reader = new XMLReader();
             $reader->xml($data);
@@ -903,8 +908,10 @@ class BdroppyRewixApi
                     $association->ps_order_id = $orderId;
                     $association->status = $status;
                     $association->save();
-                    $this->logger->logInfo("Entry ($rewixOrderId, $orderId) in association table created");
-                    $this->logger->logInfo("Supplier order $rewixOrderId created successfully");
+                    $logMsg = "Entry ($rewixOrderId, $orderId) in association table created";
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
+                    $logMsg = "Supplier order $rewixOrderId created successfully";
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
                 }
             }
         }
@@ -913,17 +920,20 @@ class BdroppyRewixApi
     private function handleCurlError($httpCode)
     {
         if ($httpCode == 401) {
-            $this->logger->logError('UNAUTHORIZED!!');
+            $logMsg = 'UNAUTHORIZED!!';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
             Tools::displayError('You are NOT authorized to access this service. <br/> Please check your configuration'.
                 ' in System -> Configuration or contact your supplier.');
             return false;
         } elseif ($httpCode == 0) {
-            $this->logger->logError('HTTP Error 0!!');
+            $logMsg = 'HTTP Error 0!!';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
             Tools::displayError('There has been an error executing the request.<br/> Please check your configuration'.
                 ' in System -> Configuration');
             return false;
         } elseif ($httpCode != 200) {
-            $this->logger->logError('HTTP Error '.$httpCode.'!!');
+            $logMsg = 'HTTP Error '.$httpCode.'!!';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
             Tools::displayError('There has been an error executing the request.<br/> HTTP Error Code: '.$httpCode);
             return false;
         }
@@ -974,7 +984,8 @@ class BdroppyRewixApi
             return $rewixProduct['ps_product_id'];
         }
 
-        $this->logger->logError($modelId . " not found.");
+        $logMsg = $modelId . " not found.";
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
     }
 
     private function getRewixModelId($modelId)
@@ -989,7 +1000,8 @@ class BdroppyRewixApi
             return $product['rewix_product_id'];
         }
 
-        $this->logger->logError("Rewix " . $modelId . " not found.");
+        $logMsg = "Rewix " . $modelId . " not found.";
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
     }
 
     private function getProductNameFromRewixModelId($modelId)
@@ -1007,7 +1019,8 @@ class BdroppyRewixApi
             }
         }
 
-        $this->logger->logError("Rewix " . $modelId . " not found.");
+        $logMsg = "Rewix " . $modelId . " not found.";
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 4);
     }
 
     public function getProcessingQtyByRewixModel($modelId)
@@ -1037,7 +1050,8 @@ class BdroppyRewixApi
 
     public function updateOrderStatuses()
     {
-        $this->logger->logInfo('Order statuses update procedures STARTED!');
+        $logMsg = 'Order statuses update procedures STARTED!';
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
         $orders = BdroppyRemoteOrder::getOrdersByNotStatus((int) BdroppyRemoteOrder::STATUS_DISPATCHED);
 
@@ -1047,7 +1061,8 @@ class BdroppyRewixApi
                 continue;
             }
 
-            $this->logger->logInfo('Processing Order_id: #' . (int) $order['ps_order_id']);
+            $logMsg = 'Processing Order_id: #' . (int) $order['ps_order_id'];
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
             $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/clientorders/clientkey/'.
                 $order['rewix_order_key'];
@@ -1064,16 +1079,15 @@ class BdroppyRewixApi
             curl_close($ch);
 
             if ($httpCode == 401) {
-                $this->logger->logDebug('updateOrderStatuses - UNAUTHORIZED!!');
+                $logMsg = 'updateOrderStatuses - UNAUTHORIZED!!';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                 return false;
             } elseif ($httpCode == 500) {
-                $this->logger->logDebug(
-                    'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform'
-                );
+                $logMsg = 'Exception: Order #' . $order['ps_order_id'] . ' does not exists on rewix platform';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             } elseif ($httpCode != 200) {
-                $this->logger->logDebug(
-                    'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id']
-                );
+                $logMsg = 'ERROR ' . $httpCode . ' ' . $data . ' - Exception: Order #' . $order['ps_order_id'];
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             } else {
                 $reader = new \XMLReader();
                 $reader->xml($data);
@@ -1084,17 +1098,17 @@ class BdroppyRewixApi
                         $xml_order = simplexml_import_dom($doc->importNode($reader->expand(), true));
                         $status    = (int) $xml_order->status;
                         $order_id  = (int) $xml_order->order_id;
-                        $this->logger->logInfo(
-                            'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status']
-                        );
+                        $logMsg = 'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status'];
+                        BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
                         if ((int) $order['status'] != $status) {
                             $association    = new BdroppyRemoteOrder($order['id']);
                             $association->rewix_order_id = $order_id;
                             $association->status = $status;
                             $association->save();
 
-                            $this->logger->logInfo('Order status Update: WC ID #' .
-                                $order->wc_order_id . ': new status [' . $status . ']');
+                            $logMsg = 'Order status Update: WC ID #' .
+                                $order->wc_order_id . ': new status [' . $status . ']';
+                            BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
                             if ($status == BdroppyRemoteOrder::STATUS_DISPATCHED) {
                                 $carrier = new Carrier($ps_order->id_carrier, $ps_order->id_lang);
@@ -1116,7 +1130,8 @@ class BdroppyRewixApi
                 }
             }
         }
-        $this->logger->logInfo('Order statuses update procedures COMPLETED!');
+        $logMsg = 'Order statuses update procedures COMPLETED!';
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
         return true;
     }
 
@@ -1125,7 +1140,8 @@ class BdroppyRewixApi
         $bookedProducts = $this->getGrowingOrderProducts();
         var_dump('syncBookedProducts', $bookedProducts, '*********************************');
 
-        $this->logger->logDebug('Syncing booked products ');
+        $logMsg = 'Syncing booked products';
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
 
         $locked = 0;
         $operations = array();
@@ -1157,7 +1173,8 @@ class BdroppyRewixApi
                 }
             }
 
-            $this->logger->logDebug('Applying following operations to growing order '.print_r($operations, true));
+            $logMsg = 'Applying following operations to growing order '.print_r($operations, true);
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             if (sizeof($operations) > 0) {
                 $this->modifyGrowingOrder($operations);
             }
@@ -1179,7 +1196,8 @@ class BdroppyRewixApi
     public function getGrowingOrderProducts()
     {
         $url = Configuration::get('BDROPPY_API_URL')  . '/restful/ghost/orders/dropshipping/locked/';
-        $this->logger->logDebug('Retrieving growing order ' . $url);
+        $logMsg = 'Retrieving growing order ' . $url;
+        BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
 

@@ -1,4 +1,29 @@
 <?php
+/**
+ * 2007-2020 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
+ */
+
 class BdroppyCronModuleFrontController extends ModuleFrontController
 {
     public function __construct()
@@ -10,7 +35,6 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
 
     public function initContent()
     {
-
         ini_set('display_errors', 1);
         ini_set('display_startup_errors', 1);
         error_reporting(E_ALL);
@@ -39,21 +63,6 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         $this->assignTpl();
     }
 
-    public static $logger = null;
-    public static function getLogger()
-    {
-        if (self::$logger == null) {
-            $api_log = Configuration::get('BDROPPY_LOG', false);
-            if($api_log) {
-                self::$logger = new FileLogger(FileLogger::DEBUG);
-                $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
-                    'bdroppy-cron-' . date('y-m-d') . '.log';
-                self::$logger->setFilename($filename);
-            }
-        }
-
-        return self::$logger;
-    }
     private static function fitReference($ean, $id)
     {
         $ean = (string)$ean;
@@ -134,12 +143,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
             $acceptedlocales = '';
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                if(isset($langs[$lang['iso_code']])){
+                if (isset($langs[$lang['iso_code']])) {
                     $acceptedlocales .= $langs[$lang['iso_code']] . ',';
-                }else{
+                } else {
                     $acceptedlocales .= $langs['en'] . ',';
                 }
-
             }
             $acceptedlocales = rtrim($acceptedlocales, ',');
 
@@ -209,18 +217,19 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $rewixApi = new BdroppyRewixApi();
                         $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
-                        if($r == 200)
+                        if ($r == 200) {
                             echo "Full Import";
-                        else
+                        } else {
                             echo $r;
+                        }
                     } else {
                         if (!$api_limit_count) {
                             $api_limit_count = 5;
                         }
                         //delete products
                         $hourAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
-                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                            "WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT " . $api_limit_count . ";";
+                        $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` 
+                            WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT ".$api_limit_count.";";
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
@@ -270,8 +279,9 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                             }
 
                             if ((time() - $lastQuantitiesSync) > 1800 || Tools::getIsset('since')) {
-                                if(Tools::getIsset('since'))
+                                if (Tools::getIsset('since')) {
                                     $lastQuantitiesSync = Tools::getValue('since');
+                                }
                                 $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
                                 $rewixApi = new BdroppyRewixApi();
                                 $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
@@ -281,18 +291,19 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 }
             }
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('importProducts : ' . $e->getMessage());
+            $logMsg = 'importProducts : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             return false;
         }
     }
 
     public static function syncProducts()
     {
-        $logger = BdroppyImportTools::getLogger();
         $lock = BdroppyImportTools::tryLock();
 
         if (!$lock) {
-            $logger->logDebug('SYNCPRODUCTS: Cannot get lock file');
+            $logMsg = 'SYNCPRODUCTS: Cannot get lock file';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             throw new Exception('Sync failed. Check logs from more detail.');
         }
 
@@ -310,11 +321,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
 
     public static function syncQuantities()
     {
-        $logger = BdroppyImportTools::getLogger();
         $lock = BdroppyImportTools::tryLock();
 
         if (!$lock) {
-            $logger->logDebug('SYNCPRODUCTS: Cannot get lock file');
+            $logMsg = 'SYNCPRODUCTS: Cannot get lock file';
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
             throw new Exception('Sync failed. Check logs from more detail.');
         }
 
@@ -361,5 +372,4 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
     {
         $this->setTemplate('module:bdroppy/views/templates/front/cron.tpl');
     }
-
 }

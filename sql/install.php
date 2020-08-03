@@ -86,6 +86,15 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecategory`
             UNIQUE (`rewix_category_id`, `ps_category_id`)
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_log` (
+            `id` INT(10) UNSIGNED AUTO_INCREMENT,
+            `title` VARCHAR(128) NOT NULL,
+            `message` TEXT,
+            `type` INT(10) UNSIGNED NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombination` (
             `id` INT(10) UNSIGNED AUTO_INCREMENT,
             `rewix_product_id` INT(10) UNSIGNED NOT NULL,
@@ -99,21 +108,21 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
 
 
 
-$query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
+$query = "SELECT if (count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
 WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'reference'";
 
 $db_check = Db::getInstance()->executeS($query);
-if($db_check[0]['result'] != 'Exist'){
+if ($db_check[0]['result'] != 'Exist') {
     $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD  `reference` VARCHAR(128) NULL;';
 }
 
-$query = "SELECT IF(count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
+$query = "SELECT if (count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
 WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'data'";
 
 $db_check = Db::getInstance()->executeS($query);
-if($db_check[0]['result'] != 'Exist'){
+if ($db_check[0]['result'] != 'Exist') {
     $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `data` TEXT NULL;';
 }
 

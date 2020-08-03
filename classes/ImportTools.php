@@ -36,7 +36,6 @@ class BdroppyImportTools
     const DATA_SOURCE_PATH = 'rewix-sync-products.xml';
     const DATA_SOURCE_INCREMENTAL_PATH = 'rewix-sync-products-incremental.xml';
 
-    public static $logger = null;
     public static $products = array();
     public static $brands = array();
     public static $categories = array();
@@ -45,19 +44,6 @@ class BdroppyImportTools
     public static $partners = array();
 
     private static $categoryStructure = null;
-
-    public static function getLogger()
-    {
-        if (self::$logger == null) {
-            $verboseLog = true;
-            self::$logger = new FileLogger($verboseLog ? FileLogger::DEBUG : FileLogger::ERROR);
-            $filename = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .
-                'bdroppy-import-'.date('y-m-d').'.log';
-            self::$logger->setFilename($filename);
-        }
-
-        return self::$logger;
-    }
 
     public static function getProducts()
     {
@@ -193,13 +179,15 @@ class BdroppyImportTools
                     $logTxt = 'Updating product ' . $sku . ' with id ' . $jsonProduct->id;
                 }
 
-                self::getLogger()->logDebug($logTxt);
+                $logMsg = $logTxt;
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
 
                 // populate general common fields
                 self::populateProductAttributes($jsonProduct, $product, $default_lang);
                 if (self::checkSimpleImport($jsonProduct)) {
-                    self::getLogger()->logDebug('Product ' . $sku . ' with id ' . $jsonProduct->id .
-                        ' will be imported as simple product');
+                    $logMsg = 'Product ' . $sku . ' with id ' . $jsonProduct->id.' will be imported as simple product';
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+
                     self::importSimpleProduct($jsonProduct, $product);
                     $remoteProduct->simple = 1;
                     $remoteProduct->save();
@@ -216,8 +204,8 @@ class BdroppyImportTools
                 );
 
                 if ($ps_product_id == 0 || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
-                    self::getLogger()->logDebug('Importing images for product ' . $product->id .
-                        ' (' . $jsonProduct->id . ')');
+                    $logMsg = 'Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')';
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
                 }
 
@@ -230,7 +218,8 @@ class BdroppyImportTools
             if ($updateFlag) {
                 $logTxt = 'update - importProduct : ' . $e->getMessage();
             }
-            self::getLogger()->logDebug($logTxt);
+            $logMsg = $logTxt;
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 
@@ -264,7 +253,7 @@ class BdroppyImportTools
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
-                if(substr($image->url, 0, 4 ) == "http") {
+                if (Tools::substr($image->url, 0, 4) == "http") {
                     $imageUrl = $image->url;
                 } else {
                     $imageUrl = "{$websiteUrl}{$image->url}";
@@ -276,8 +265,9 @@ class BdroppyImportTools
                 $curlError = curl_error($ch);
                 curl_close($ch);
                 if ($httpCode != 200) {
-                    self::getLogger()->logDebug('Error loading Image: ' . $imageUrl . ' Code :' . $httpCode .
-                        '. Error:' . $curlError);
+                    $logMsg = 'Error loading Image: ' . $imageUrl.' Code :'.$httpCode.'. Error:' . $curlError;
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+
                     $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
                     if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
                         $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
@@ -293,9 +283,8 @@ class BdroppyImportTools
                     $curlError = curl_error($ch);
                     curl_close($ch);
                     if ($httpCode != 200) {
-                        self::getLogger()->logDebug(
-                            'Error loading Image: ' . $imageUrl . ' Code :' . $httpCode . '. Error:' . $curlError
-                        );
+                        $logMsg = 'Error loading Image: '.$imageUrl.' Code :'.$httpCode.'. Error:'.$curlError;
+                        BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     } else {
                         $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
                         $handle = fopen($tmpfile, "w");
@@ -361,7 +350,8 @@ class BdroppyImportTools
                 }
             }
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('importProductImages : ' . $e->getMessage());
+            $logMsg = 'importProductImages : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 
@@ -430,7 +420,8 @@ class BdroppyImportTools
             $remoteProduct->reason = '';
             $remoteProduct->save();
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('updateImportedProduct : ' . $e->getMessage());
+            $logMsg = 'updateImportedProduct : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 
@@ -449,8 +440,8 @@ class BdroppyImportTools
                 $product = self::populateProduct($jsonProduct);
 
                 if (!$product) {
-                    self::getLogger()->logDebug('Fail to load product!');
-
+                    $logMsg = 'Fail to load product!';
+                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     return false;
                 } else {
                     //save current product:
@@ -907,7 +898,8 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('populateProductAttributes : ' . $e->getMessage());
+            $logMsg = 'populateProductAttributes : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 
@@ -1073,7 +1065,8 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('importModels : ' . $e->getMessage());
+            $logMsg = 'importModels : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 
@@ -1116,7 +1109,8 @@ class BdroppyImportTools
 
             return $product;
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('importSimpleProduct : ' . $e->getMessage());
+            $logMsg = 'importSimpleProduct : ' . $e->getMessage();
+            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
         }
     }
 

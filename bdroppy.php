@@ -38,8 +38,6 @@ class Bdroppy extends Module
 {
     protected $config_form = false;
     private $errors = null;
-    private $logger;
-    private $orderLogger;
     public $current_tab = null;
 
     public function __construct()
@@ -47,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.18';
+        $this->version = '2.0.20';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -76,7 +74,7 @@ class Bdroppy extends Module
         $languages = Language::getLanguages();
         // Install Tabs:
         // parent tab
-        try{
+        try {
             $parentTab = new Tab();
             foreach ($languages as $lang) {
                 $parentTab->name[$lang['id_lang']] = $this->l('Bdroppy');
@@ -95,11 +93,8 @@ class Bdroppy extends Module
             $importTab->id_parent = $parentTab->id;
             $importTab->module = $this->name;
             $importTab->add();
-        }catch (Exception $exception)
-        {
-
+        } catch (Exception $exception) {
         }
-
     }
 
     public function installFeatures()
@@ -469,7 +464,7 @@ class Bdroppy extends Module
 
     public function getCronCommand()
     {
-        $result = '"' . _PS_MODULE_DIR_ . $this->name . DIRECTORY_SEPARATOR . 'cron.php" ';
+        $result = '"' . _PS_MODULE_DIR_ . $this->name . DIRECTORY_SEPARATOR . 'cron" ';
         return $result;
     }
 
@@ -821,64 +816,76 @@ class Bdroppy extends Module
         }
         $warnings = [];
         $successes = [];
-        if((bool)Configuration::get('PS_SHOP_ENABLE')) {
+        if ((bool)Configuration::get('PS_SHOP_ENABLE')) {
             $successes[] = "Maintenance Mode Is Off";
         } else {
             $warnings[] = "Catalog Update Don't Works In Maintenance Mode";
         }
-        if((bool)Configuration::get('PS_STOCK_MANAGEMENT')) {
+        if ((bool)Configuration::get('PS_STOCK_MANAGEMENT')) {
             $successes[] = "Stock Management Is Enabled";
         } else {
             $warnings[] = "Stock Management Is Disabled";
         }
-        if($flgStatus) {
+        if ($flgStatus) {
             $successes[] = "You Are Login To Bdroppy";
         } else {
             $warnings[] = "You Are Not Login To Bdroppy Yet";
         }
-        if(Configuration::get('BDROPPY_CATALOG') != '-1' && Configuration::get('BDROPPY_CATALOG') != '') {
+        if (Configuration::get('BDROPPY_CATALOG') != '-1' && Configuration::get('BDROPPY_CATALOG') != '') {
             $successes[] = "Catalog Selected";
         } else {
             $warnings[] = "Catalog Not Selected";
         }
-        if((bool)Configuration::get('BDROPPY_CONNECT')) {
+        if ((bool)Configuration::get('BDROPPY_CONNECT')) {
             $successes[] = "You Are Connected To Bdroppy";
         } else {
             $warnings[] = "You Are Not Connected To Bdroppy";
         }
-        if(Configuration::get('BDROPPY_CRON') != '' && Configuration::get('BDROPPY_CRON') != false) {
+        if (Configuration::get('BDROPPY_CRON') != '' && Configuration::get('BDROPPY_CRON') != false) {
             $successes[] = "Cronjob Set In Bdroppy (" . Configuration::get('BDROPPY_CRON') . ")";
         } else {
             $warnings[] = "Cronjob Not Set In Bdroppy";
         }
 
-        $li = round(abs((int)Configuration::get('BDROPPY_LAST_CRON_TIME') - time()) / 60,0);
-        $last_cron_sync = $li. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CRON_TIME')) .")";
-        if($li>500)
+        $li = round(abs((int)Configuration::get('BDROPPY_LAST_CRON_TIME') - time()) / 60, 0);
+        $last_cron_sync = $li. " Minutes Ago (" .
+            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CRON_TIME')) .")";
+        if ($li>500) {
             $last_cron_sync = "Many Times Ago";
-        if((int)Configuration::get('BDROPPY_LAST_CRON_TIME') == 0)
+        }
+        if ((int)Configuration::get('BDROPPY_LAST_CRON_TIME') == 0) {
             $last_cron_sync = "Never";
+        }
 
-        $li = round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60,0);
-        $last_import_sync = $li. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
-        if($li>500)
+        $li = round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60, 0);
+        $last_import_sync = $li. " Minutes Ago (" .
+            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
+        if ($li>500) {
             $last_import_sync = "Many Times Ago";
-        if((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') == 0)
+        }
+        if ((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') == 0) {
             $last_import_sync = "Never";
+        }
 
-        $lu = round(abs((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') - time()) / 60,0);
-        $last_update_sync = $lu. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")";
-        if($lu>500)
+        $lu = round(abs((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') - time()) / 60, 0);
+        $last_update_sync = $lu. " Minutes Ago (" .
+            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")";
+        if ($lu>500) {
             $last_update_sync = "Many Times Ago";
-        if((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') == 0)
+        }
+        if ((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') == 0) {
             $last_update_sync = "Never";
+        }
 
-        $lc = round(abs((int)Configuration::get('BDROPPY_LAST_CART_SYNC') - time()) / 60,0);
-        $last_orders_sync = $lc. " Minutes Ago (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")";
-        if($lc>500)
+        $lc = round(abs((int)Configuration::get('BDROPPY_LAST_CART_SYNC') - time()) / 60, 0);
+        $last_orders_sync = $lc. " Minutes Ago (" .
+            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")";
+        if ($lc>500) {
             $last_orders_sync = "Many Times Ago";
-        if((int)Configuration::get('BDROPPY_LAST_CART_SYNC') == 0)
+        }
+        if ((int)Configuration::get('BDROPPY_LAST_CART_SYNC') == 0) {
             $last_orders_sync = "Never";
+        }
 
         $tplVars = array(
             'module_display_name' => $this->displayName,
@@ -978,7 +985,6 @@ class Bdroppy extends Module
         try {
             return $rewixApi->validateOrder($params['cart']);
         } catch (Exception $e) {
-            //$this->orderLogger->logDebug($e->getMessage());
             $this->context->controller->errors[] = $this->l($e->getMessage());
             $this->context->controller->redirectWithNotifications("index.php");
         }
@@ -1001,7 +1007,6 @@ class Bdroppy extends Module
             }
             return true;
         } catch (Exception $e) {
-            //$this->orderLogger->logDebug($e->getMessage());
             $this->context->controller->errors[] = $this->l($e->getMessage());
             $this->context->controller->redirectWithNotifications("index.php");
         }
