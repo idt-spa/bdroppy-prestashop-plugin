@@ -203,7 +203,9 @@ class BdroppyImportTools
                     'id = '.(int)$item['id']
                 );
 
-                if (count($product->getImages(0)) == 0 || $ps_product_id == 0 || Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
+                if (count($product->getImages(0)) == 0 ||
+                    $ps_product_id == 0 ||
+                    Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
                     $logMsg = 'Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')';
                     BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));

@@ -24,7 +24,7 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-class bdroppyCronModuleFrontController extends ModuleFrontController
+class BdroppyCronModuleFrontController extends ModuleFrontController
 {
     public function __construct()
     {

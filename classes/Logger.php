@@ -49,8 +49,9 @@ class BdroppyLogger extends ObjectModel
             ),
         ),
     );
-    public static function addLog($method, $msg, $type) {
-        if((bool)Configuration::get('BDROPPY_LOG')) {
+    public static function addLog($method, $msg, $type)
+    {
+        if ((bool)Configuration::get('BDROPPY_LOG')) {
             $log = new BdroppyLogger();
             $log->title = $method;
             $log->message = $msg;
@@ -59,5 +60,4 @@ class BdroppyLogger extends ObjectModel
             $log->save();
         }
     }
-
 }

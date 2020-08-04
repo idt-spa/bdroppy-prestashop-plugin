@@ -197,7 +197,7 @@ class BdroppyRewixApi
                 }, $prds);
                 $delete_products = array_diff($products, $ids);
 
-                if(count($delete_products) > 0) {
+                if (count($delete_products) > 0) {
                     $db->update(
                         'bdroppy_remoteproduct',
                         array('sync_status' => pSQL('delete')),
@@ -1101,7 +1101,7 @@ class BdroppyRewixApi
                         $xml_order = simplexml_import_dom($doc->importNode($reader->expand(), true));
                         $status    = (int) $xml_order->status;
                         $order_id  = (int) $xml_order->order_id;
-                        $logMsg = 'Order_id: #' . $order_id . ' NEW Status:' . $status . ' OLD Status ' . $order['status'];
+                        $logMsg = 'Order_id: #'.$order_id.' NEW Status:'.$status.' OLD Status '.$order['status'];
                         BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
                         if ((int) $order['status'] != $status) {
                             $association    = new BdroppyRemoteOrder($order['id']);
