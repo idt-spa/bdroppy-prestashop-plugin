@@ -38,7 +38,7 @@
         $("#reimport").click(function(){
             $.ajax({
                 type: 'GET',
-                url: '/modules/bdroppy/cron?ps_product_id='+product_id+'&rewix_product_id='+rewix_product_id+'&reference='+reference,
+                url: '/index.php?fc=module&module=bdroppy&controller=cron&ps_product_id='+product_id+'&rewix_product_id='+rewix_product_id+'&reference='+reference,
                 cache: false,
                 beforeSend: function(){
                     $('#modal_res').html('<b>Updating ...</b>');

@@ -436,7 +436,7 @@ class Bdroppy extends Module
 
     public function getCronURL()
     {
-        return _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/" . $this->name . "/cron";
+        return _PS_BASE_URL_ . __PS_BASE_URI__ . "index.php?fc=module&module=bdroppy&controller=cron";
     }
 
     private function getCatalogs()
@@ -901,7 +901,6 @@ class Bdroppy extends Module
             'base_url' => $base_url,
             'api_key' => $api_key,
             'ordersHtml' => $renderedOrders,
-            'cron_command' => $this->getCronCommand(),
             'active_tab' => $this->current_tab,
             'api_token' => $api_token,
             'cron_url' => $cron_url,

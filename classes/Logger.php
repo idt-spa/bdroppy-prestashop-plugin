@@ -35,7 +35,7 @@ class BdroppyLogger extends ObjectModel
     public static $definition = array(
         'table'     => 'bdroppy_log',
         'primary'   => 'id',
-        'multilang' => true,
+        'multilang' => false,
         'fields'    => array(
             'id'               => array(
                 'type'     => self::TYPE_INT,

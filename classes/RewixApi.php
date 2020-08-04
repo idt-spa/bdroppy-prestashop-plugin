@@ -29,6 +29,7 @@ use BDroppy\Includes\WC\Models\ProductModel;
 include_once dirname(__FILE__).'/ImportTools.php';
 include_once dirname(__FILE__).'/RemoteOrder.php';
 include_once dirname(__FILE__).'/ConfigKeys.php';
+include_once dirname(__FILE__).'/Logger.php';
 
 class BdroppyRewixApi
 {
@@ -196,11 +197,13 @@ class BdroppyRewixApi
                 }, $prds);
                 $delete_products = array_diff($products, $ids);
 
-                $db->update(
-                    'bdroppy_remoteproduct',
-                    array('sync_status' => pSQL('delete')),
-                    "rewix_product_id IN (".pSQL(implode(',', $delete_products)).")"
-                );
+                if(count($delete_products) > 0) {
+                    $db->update(
+                        'bdroppy_remoteproduct',
+                        array('sync_status' => pSQL('delete')),
+                        "rewix_product_id IN (" . pSQL(implode(',', $delete_products)) . ")"
+                    );
+                }
                 $logMsg = 'getProductsFull - done';
                 BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
                 Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
