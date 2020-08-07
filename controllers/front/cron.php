@@ -189,7 +189,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 if ($delete_products) {
                     foreach ($delete_products as $item) {
                         if ($item['ps_product_id'] != '0') {
-                            $dp = new Product($item['ps_product_id']);
+                            $dp = new Product((int)$item['ps_product_id']);
                             $dp->delete();
                         }
                         BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
@@ -198,7 +198,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
                 $delete_products = $db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
-                    $product = new Product($item['id_product']);
+                    $product = new Product((int)$item['id_product']);
                     $product->delete();
                 }
             } else {
@@ -233,7 +233,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
-                                $dp = new Product($item['ps_product_id']);
+                                $dp = new Product((int)$item['ps_product_id']);
                                 $dp->delete();
                             }
                             BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
@@ -259,7 +259,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                                     'sync_status' => 'importing',
                                     'last_sync_date' => date('Y-m-d H:i:s')
                                 ),
-                                'id = ' . $item['id']
+                                'id = ' . (int)$item['id']
                             );
                         }
                         echo "<pre>";

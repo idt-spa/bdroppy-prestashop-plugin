@@ -200,7 +200,7 @@ class BdroppyRewixApi
                 if (count($delete_products) > 0) {
                     $db->update(
                         'bdroppy_remoteproduct',
-                        array('sync_status' => pSQL('delete')),
+                        array('sync_status' => 'delete'),
                         "rewix_product_id IN (" . pSQL(implode(',', $delete_products)) . ")"
                     );
                 }
@@ -1153,7 +1153,7 @@ class BdroppyRewixApi
                 $productId = BdroppyRemoteCombination::getIdByRewixId($bookedProduct['stock_id']);
                 $productId = 0;
                 $sql = "SELECT id_product FROM `" . _DB_PREFIX_ . "product_attribute` " .
-                    "WHERE isbn = '". $bookedProduct['stock_id'] ."';";
+                    "WHERE isbn = '". (int)$bookedProduct['stock_id'] ."';";
                 $product_attribute = Db::getInstance()->ExecuteS($sql);
                 if ($product_attribute) {
                     $productId = $product_attribute[0]['id_product'];

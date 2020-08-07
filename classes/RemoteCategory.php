@@ -75,7 +75,7 @@ class BdroppyRemoteCategory extends ObjectModel
         $query = new DbQuery();
         $query->select('id');
         $query->from('bdroppy_remotecategory');
-        $query->where('ps_category_id = \''.pSQL($id).'\'');
+        $query->where('ps_category_id = '.(int)$id);
 
         $result = Db::getInstance()->getValue($query);
 
@@ -95,7 +95,7 @@ class BdroppyRemoteCategory extends ObjectModel
         $query = new DbQuery();
         $query->select('id');
         $query->from('bdroppy_remotecategory');
-        $query->where('rewix_category_id = \''.pSQL($id).'\'');
+        $query->where('rewix_category_id = '.(int)$id);
 
         $result = Db::getInstance()->getValue($query);
 
@@ -200,7 +200,7 @@ class BdroppyRemoteCategory extends ObjectModel
         $query = new DbQuery();
         $query->type('DELETE');
         $query->from('bdroppy_remotecategory');
-        $query->where('ps_category_id = '.(int) pSQL($id));
+        $query->where('ps_category_id = '.(int)$id);
         $query->limit(1);
 
         return Db::getInstance()->execute($query);

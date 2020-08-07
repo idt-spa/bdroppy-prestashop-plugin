@@ -108,7 +108,7 @@ class BdroppyImportTools
                 $json = json_encode($jsonProduct);
                 $product = json_decode($json);
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '".
-                    $product->id ."';";
+                    (int)$product->id ."';";
                 $items = $db->ExecuteS($sql);
                 $updateFlag = 3;
                 if (count($items) == 0) {
@@ -120,7 +120,7 @@ class BdroppyImportTools
                         'sync_status' => pSQL('queued'),
                     ));
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` WHERE rewix_product_id = '".
-                        $product->id ."';";
+                        (int)$product->id ."';";
                     $items = $db->ExecuteS($sql);
                     foreach ($items as $item) {
                         self::importProduct($item, $default_lang, false, $acceptedlocales);
@@ -155,7 +155,7 @@ class BdroppyImportTools
 
                 if ($item['ps_product_id'] == '0') {
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE reference='" .
-                        $reference."' AND unity='bdroppy-$api_catalog';";
+                        pSQL($reference)."' AND unity='". pSQL('bdroppy-'.$api_catalog)."';";
                     $prds = Db::getInstance()->ExecuteS($sql);
                     if (count($prds)>0) {
                         $ps_product_id = $prds[0]['id_product'];
@@ -165,8 +165,8 @@ class BdroppyImportTools
                 }
 
                 $product = new Product($ps_product_id);
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'" . $ps_product_id .
-                    "' AND reference='$reference' AND unity='bdroppy-$api_catalog';";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'" . (int)$ps_product_id .
+                    "' AND reference='$reference' AND unity='". pSQL('bdroppy-'.$api_catalog)."';";
                 $dps = Db::getInstance()->ExecuteS($sql);
                 foreach ($dps as $d) {
                     $dp = new Product($d['id_product']);
@@ -815,7 +815,7 @@ class BdroppyImportTools
             foreach ($languages as $lang) {
                 $langCode = $langs[$lang['iso_code']];
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
-                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
+                    "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . (int)$lang['id_lang'] .
                     ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
                 $sizeFeature = Db::getInstance()->executeS($sql);
 

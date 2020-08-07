@@ -96,7 +96,7 @@ class BdroppyRemoteCombination extends ObjectModel
         $query = new DbQuery();
         $query->select('*');
         $query->from('bdroppy_remotecombination');
-        $query->where('`rewix_product_id` = '.pSQL($rewix_product_id));
+        $query->where('`rewix_product_id` = '.(int)$rewix_product_id);
 
         return Db::getInstance()->executeS($query);
     }
@@ -108,7 +108,7 @@ class BdroppyRemoteCombination extends ObjectModel
      */
     public static function getRewixModelIdByProductAndModelId($ps_product_id)
     {
-        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_products` WHERE ps_product_id=$ps_product_id;";
+        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_products` WHERE ps_product_id=".(int)$ps_product_id.";";
         return Db::getInstance()->getValue($sql);
     }
 
@@ -136,7 +136,7 @@ class BdroppyRemoteCombination extends ObjectModel
         $query = new DbQuery();
         $query->type('DELETE');
         $query->from('bdroppy_remotecombination');
-        $query->where('rewix_product_id = ' . (int)pSQL($id));
+        $query->where('rewix_product_id = ' . (int)$id);
 
         return Db::getInstance()->execute($query);
     }

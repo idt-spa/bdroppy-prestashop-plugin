@@ -212,7 +212,7 @@ class BdroppyRemoteProduct extends ObjectModel
         $query = new DbQuery();
         $query->type('DELETE');
         $query->from('bdroppy_remoteproduct');
-        $query->where('ps_product_id = ' . (int)pSQL($id));
+        $query->where('ps_product_id = ' . (int)$id);
         $query->limit(1);
 
         return Db::getInstance()->execute($query);
@@ -244,7 +244,7 @@ class BdroppyRemoteProduct extends ObjectModel
         $query = new DbQuery();
         $query->type('DELETE');
         $query->from('bdroppy_remoteproduct');
-        $query->where('rewix_product_id = ' . (int)pSQL($id));
+        $query->where('rewix_product_id = ' . (int)$id);
         $query->limit(1);
         return Db::getInstance()->execute($query);
     }
