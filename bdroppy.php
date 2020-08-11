@@ -94,7 +94,6 @@ class Bdroppy extends Module
             $importTab->module = $this->name;
             $importTab->add();
         } catch (Exception $exception) {
-
         }
     }
 
@@ -106,10 +105,9 @@ class Bdroppy extends Module
         $query->select('name');
         $query->from('feature_lang');
         $query->where('`id_lang` = ' . (int) $default_language['id_lang']);
-        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"' );
+        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"');
 
-        if(Db::getInstance()->getValue($query) === false){
-
+        if (Db::getInstance()->getValue($query) === false) {
             $languages = Language::getLanguages();
 
             $feature = new Feature();
@@ -118,18 +116,16 @@ class Bdroppy extends Module
             }
             $feature->add();
         }
-
     }
 
     public function installFeatures()
     {
-        try{
+        try {
             $this->createFeature('Size');
             $this->createFeature('Gender');
             $this->createFeature('Color');
             $this->createFeature('Season');
         } catch (Exception $exception) {
-
         }
     }
 
@@ -157,7 +153,7 @@ class Bdroppy extends Module
         $lngSize['da'] = 'Størrelse';
         $lngSize['lt'] = 'Dydis';
 
-        $lang = strtolower($lang);
+        $lang = Tools::strtolower($lang);
         return isset($lngSize[$lang])? $lngSize[$lang] : $lngSize['en'];
     }
 
@@ -185,7 +181,7 @@ class Bdroppy extends Module
         $lngGender['da'] = 'Køn';
         $lngGender['lt'] = 'Lytis';
 
-        $lang = strtolower($lang);
+        $lang = Tools::strtolower($lang);
         return isset($lngGender[$lang])? $lngGender[$lang] : $lngGender['en'];
     }
 
@@ -213,7 +209,7 @@ class Bdroppy extends Module
         $lngColor['da'] = 'Farve';
         $lngColor['lt'] = 'Spalva';
 
-        $lang = strtolower($lang);
+        $lang = Tools::strtolower($lang);
         return isset($lngColor[$lang])? $lngColor[$lang] : $lngColor['en'];
     }
 
@@ -241,7 +237,7 @@ class Bdroppy extends Module
         $lngSeason['da'] = 'Sæson';
         $lngSeason['lt'] = 'Sezonas';
 
-        $lang = strtolower($lang);
+        $lang = Tools::strtolower($lang);
         return isset($lngSeason[$lang])? $lngSeason[$lang] : $lngSeason['en'];
     }
 
@@ -253,10 +249,9 @@ class Bdroppy extends Module
         $query->select('name');
         $query->from('attribute_group_lang');
         $query->where('`id_lang` = ' . (int) $default_language['id_lang']);
-        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"' );
+        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"');
 
-        if(Db::getInstance()->getValue($query) === false){
-
+        if (Db::getInstance()->getValue($query) === false) {
             $languages = Language::getLanguages();
             $newGroup = new AttributeGroup();
             foreach ($languages as $lang) {
@@ -266,12 +261,11 @@ class Bdroppy extends Module
             $newGroup->group_type = 'select';
             $newGroup->save();
         }
-
     }
 
     public function installAttributes()
     {
-        try{
+        try {
             $this->createAttribute('Size');
             $this->createAttribute('Gender');
             $this->createAttribute('Color');
@@ -282,7 +276,7 @@ class Bdroppy extends Module
 
     public function install()
     {
-        try{
+        try {
             $this->installAttributes();
             $this->installFeatures();
             $this->installTabs();
@@ -303,14 +297,13 @@ class Bdroppy extends Module
                 return false;
             }
         } catch (Exception $exception) {
-
         }
         return true;
     }
 
     public function uninstall()
     {
-        try{
+        try {
             // Uninstall Tabs
             $moduleTabs = Tab::getCollectionFromModule($this->name);
             if (!empty($moduleTabs)) {
@@ -325,7 +318,6 @@ class Bdroppy extends Module
                 return false;
             }
         } catch (Exception $exception) {
-
         }
         return true;
     }

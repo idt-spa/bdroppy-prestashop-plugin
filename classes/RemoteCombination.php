@@ -108,8 +108,10 @@ class BdroppyRemoteCombination extends ObjectModel
      */
     public static function getRewixModelIdByProductAndModelId($ps_product_id)
     {
-        $sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_products` WHERE ps_product_id=".(int)$ps_product_id.";";
-        return Db::getInstance()->getValue($sql);
+        return $ps_product_id;
+        //$sql = "SELECT rewix_product_id FROM `" . _DB_PREFIX_ . "bdroppy_products` WHERE ps_product_id=".
+        //    (int)$ps_product_id.";";
+        //return Db::getInstance()->getValue($sql);
     }
 
     /**
