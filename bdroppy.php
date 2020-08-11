@@ -71,10 +71,10 @@ class Bdroppy extends Module
      */
     public function installTabs()
     {
-        $languages = Language::getLanguages();
-        // Install Tabs:
-        // parent tab
         try {
+            $languages = Language::getLanguages();
+            // Install Tabs:
+            // parent tab
             $parentTab = new Tab();
             foreach ($languages as $lang) {
                 $parentTab->name[$lang['id_lang']] = $this->l('Bdroppy');
@@ -99,338 +99,348 @@ class Bdroppy extends Module
 
     public function installFeatures()
     {
-        $lngSize = [];
-        $lngSize['it'] = 'Taglia';
-        $lngSize['en'] = 'Size';
-        $lngSize['gb'] = 'Size';
-        $lngSize['fr'] = 'Taille';
-        $lngSize['pl'] = 'Rozmiar';
-        $lngSize['es'] = 'Talla';
-        $lngSize['de'] = 'Größe';
-        $lngSize['ru'] = 'Размер';
-        $lngSize['nl'] = 'Grootte';
-        $lngSize['ro'] = 'Mărimea';
-        $lngSize['et'] = 'Suurus';
-        $lngSize['hu'] = 'Méret';
-        $lngSize['sv'] = 'Storlek';
-        $lngSize['sk'] = 'veľkosť';
-        $lngSize['cs'] = 'Velikost';
-        $lngSize['pt'] = 'Tamanho';
-        $lngSize['fi'] = 'Koko';
-        $lngSize['bg'] = 'размер';
-        $lngSize['da'] = 'Størrelse';
-        $lngSize['lt'] = 'Dydis';
+        try{
+            $lngSize = [];
+            $lngSize['it'] = 'Taglia';
+            $lngSize['en'] = 'Size';
+            $lngSize['gb'] = 'Size';
+            $lngSize['fr'] = 'Taille';
+            $lngSize['pl'] = 'Rozmiar';
+            $lngSize['es'] = 'Talla';
+            $lngSize['de'] = 'Größe';
+            $lngSize['ru'] = 'Размер';
+            $lngSize['nl'] = 'Grootte';
+            $lngSize['ro'] = 'Mărimea';
+            $lngSize['et'] = 'Suurus';
+            $lngSize['hu'] = 'Méret';
+            $lngSize['sv'] = 'Storlek';
+            $lngSize['sk'] = 'veľkosť';
+            $lngSize['cs'] = 'Velikost';
+            $lngSize['pt'] = 'Tamanho';
+            $lngSize['fi'] = 'Koko';
+            $lngSize['bg'] = 'размер';
+            $lngSize['da'] = 'Størrelse';
+            $lngSize['lt'] = 'Dydis';
 
-        $lngGender = [];
-        $lngGender['it'] = 'Genere';
-        $lngGender['en'] = 'Gender';
-        $lngGender['gb'] = 'Gender';
-        $lngGender['fr'] = 'Le sexe';
-        $lngGender['pl'] = 'Płeć';
-        $lngGender['es'] = 'Género';
-        $lngGender['de'] = 'Geschlecht';
-        $lngGender['ru'] = 'Пол';
-        $lngGender['nl'] = 'Geslacht';
-        $lngGender['ro'] = 'Sex';
-        $lngGender['et'] = 'Sugu';
-        $lngGender['hu'] = 'Nem';
-        $lngGender['sv'] = 'Kön';
-        $lngGender['sk'] = 'Rod';
-        $lngGender['cs'] = 'Rod';
-        $lngGender['pt'] = 'Gênero';
-        $lngGender['fi'] = 'sukupuoli';
-        $lngGender['bg'] = 'пол';
-        $lngGender['da'] = 'Køn';
-        $lngGender['lt'] = 'Lytis';
+            $lngGender = [];
+            $lngGender['it'] = 'Genere';
+            $lngGender['en'] = 'Gender';
+            $lngGender['gb'] = 'Gender';
+            $lngGender['fr'] = 'Le sexe';
+            $lngGender['pl'] = 'Płeć';
+            $lngGender['es'] = 'Género';
+            $lngGender['de'] = 'Geschlecht';
+            $lngGender['ru'] = 'Пол';
+            $lngGender['nl'] = 'Geslacht';
+            $lngGender['ro'] = 'Sex';
+            $lngGender['et'] = 'Sugu';
+            $lngGender['hu'] = 'Nem';
+            $lngGender['sv'] = 'Kön';
+            $lngGender['sk'] = 'Rod';
+            $lngGender['cs'] = 'Rod';
+            $lngGender['pt'] = 'Gênero';
+            $lngGender['fi'] = 'sukupuoli';
+            $lngGender['bg'] = 'пол';
+            $lngGender['da'] = 'Køn';
+            $lngGender['lt'] = 'Lytis';
 
-        $lngColor = [];
-        $lngColor['it'] = 'Colore';
-        $lngColor['en'] = 'Color';
-        $lngColor['gb'] = 'Color';
-        $lngColor['fr'] = 'Couleur';
-        $lngColor['pl'] = 'Kolor';
-        $lngColor['es'] = 'Color';
-        $lngColor['de'] = 'Farbe';
-        $lngColor['ru'] = 'цвет';
-        $lngColor['nl'] = 'Kleur';
-        $lngColor['ro'] = 'Culoare';
-        $lngColor['et'] = 'Värv';
-        $lngColor['hu'] = 'Szín';
-        $lngColor['sv'] = 'Färg';
-        $lngColor['sk'] = 'Farba';
-        $lngColor['cs'] = 'Barva';
-        $lngColor['pt'] = 'Cor';
-        $lngColor['fi'] = 'Väri';
-        $lngColor['bg'] = 'цвят';
-        $lngColor['da'] = 'Farve';
-        $lngColor['lt'] = 'Spalva';
+            $lngColor = [];
+            $lngColor['it'] = 'Colore';
+            $lngColor['en'] = 'Color';
+            $lngColor['gb'] = 'Color';
+            $lngColor['fr'] = 'Couleur';
+            $lngColor['pl'] = 'Kolor';
+            $lngColor['es'] = 'Color';
+            $lngColor['de'] = 'Farbe';
+            $lngColor['ru'] = 'цвет';
+            $lngColor['nl'] = 'Kleur';
+            $lngColor['ro'] = 'Culoare';
+            $lngColor['et'] = 'Värv';
+            $lngColor['hu'] = 'Szín';
+            $lngColor['sv'] = 'Färg';
+            $lngColor['sk'] = 'Farba';
+            $lngColor['cs'] = 'Barva';
+            $lngColor['pt'] = 'Cor';
+            $lngColor['fi'] = 'Väri';
+            $lngColor['bg'] = 'цвят';
+            $lngColor['da'] = 'Farve';
+            $lngColor['lt'] = 'Spalva';
 
-        $lngSeason = [];
-        $lngSeason['it'] = 'Stagione';
-        $lngSeason['en'] = 'Season';
-        $lngSeason['gb'] = 'Season';
-        $lngSeason['fr'] = 'Saison';
-        $lngSeason['pl'] = 'Pora roku';
-        $lngSeason['es'] = 'Temporada';
-        $lngSeason['de'] = 'Jahreszeit';
-        $lngSeason['ru'] = 'Время года';
-        $lngSeason['nl'] = 'Seizoen';
-        $lngSeason['ro'] = 'Sezon';
-        $lngSeason['et'] = 'Hooaeg';
-        $lngSeason['hu'] = 'Évszak';
-        $lngSeason['sv'] = 'Säsong';
-        $lngSeason['sk'] = 'Sezóna';
-        $lngSeason['cs'] = 'Sezóna';
-        $lngSeason['pt'] = 'Estação';
-        $lngSeason['fi'] = 'Kausi';
-        $lngSeason['bg'] = 'сезон';
-        $lngSeason['da'] = 'Sæson';
-        $lngSeason['lt'] = 'Sezonas';
+            $lngSeason = [];
+            $lngSeason['it'] = 'Stagione';
+            $lngSeason['en'] = 'Season';
+            $lngSeason['gb'] = 'Season';
+            $lngSeason['fr'] = 'Saison';
+            $lngSeason['pl'] = 'Pora roku';
+            $lngSeason['es'] = 'Temporada';
+            $lngSeason['de'] = 'Jahreszeit';
+            $lngSeason['ru'] = 'Время года';
+            $lngSeason['nl'] = 'Seizoen';
+            $lngSeason['ro'] = 'Sezon';
+            $lngSeason['et'] = 'Hooaeg';
+            $lngSeason['hu'] = 'Évszak';
+            $lngSeason['sv'] = 'Säsong';
+            $lngSeason['sk'] = 'Sezóna';
+            $lngSeason['cs'] = 'Sezóna';
+            $lngSeason['pt'] = 'Estação';
+            $lngSeason['fi'] = 'Kausi';
+            $lngSeason['bg'] = 'сезон';
+            $lngSeason['da'] = 'Sæson';
+            $lngSeason['lt'] = 'Sezonas';
 
-        $flgSize = true;
-        $flgGender = true;
-        $flgColor = true;
-        $flgSeason = true;
-        $languages = Language::getLanguages();
-        $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-        $features = Feature::getFeatures($default_language['id_lang']);
-        foreach ($features as $feature) {
-            if ($feature['name'] == $lngSize[$default_language['iso_code']]) {
-                $flgSize = false;
+            $flgSize = true;
+            $flgGender = true;
+            $flgColor = true;
+            $flgSeason = true;
+            $languages = Language::getLanguages();
+            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+            $features = Feature::getFeatures($default_language['id_lang']);
+            foreach ($features as $feature) {
+                if ($feature['name'] == $lngSize[$default_language['iso_code']]) {
+                    $flgSize = false;
+                }
+                if ($feature['name'] == $lngGender[$default_language['iso_code']]) {
+                    $flgGender = false;
+                }
+                if ($feature['name'] == $lngColor[$default_language['iso_code']]) {
+                    $flgColor = false;
+                }
+                if ($feature['name'] == $lngSeason[$default_language['iso_code']]) {
+                    $flgSeason = false;
+                }
             }
-            if ($feature['name'] == $lngGender[$default_language['iso_code']]) {
-                $flgGender = false;
+            if ($flgSize) {
+                $feature = new Feature();
+                foreach ($languages as $language) {
+                    $feature->name[$language['id_lang']] = $lngSize[$language['iso_code']];
+                }
+                $feature->add();
             }
-            if ($feature['name'] == $lngColor[$default_language['iso_code']]) {
-                $flgColor = false;
+            if ($flgGender) {
+                $feature = new Feature();
+                foreach ($languages as $language) {
+                    $feature->name[$language['id_lang']] = $lngGender[$language['iso_code']];
+                }
+                $feature->add();
             }
-            if ($feature['name'] == $lngSeason[$default_language['iso_code']]) {
-                $flgSeason = false;
+            if ($flgColor) {
+                $feature = new Feature();
+                foreach ($languages as $language) {
+                    $feature->name[$language['id_lang']] = $lngColor[$language['iso_code']];
+                }
+                $feature->add();
             }
-        }
-        if ($flgSize) {
-            $feature = new Feature();
-            foreach ($languages as $language) {
-                $feature->name[$language['id_lang']] = $lngSize[$language['iso_code']];
+            if ($flgSeason) {
+                $feature = new Feature();
+                foreach ($languages as $language) {
+                    $feature->name[$language['id_lang']] = $lngSeason[$language['iso_code']];
+                }
+                $feature->add();
             }
-            $feature->add();
-        }
-        if ($flgGender) {
-            $feature = new Feature();
-            foreach ($languages as $language) {
-                $feature->name[$language['id_lang']] = $lngGender[$language['iso_code']];
-            }
-            $feature->add();
-        }
-        if ($flgColor) {
-            $feature = new Feature();
-            foreach ($languages as $language) {
-                $feature->name[$language['id_lang']] = $lngColor[$language['iso_code']];
-            }
-            $feature->add();
-        }
-        if ($flgSeason) {
-            $feature = new Feature();
-            foreach ($languages as $language) {
-                $feature->name[$language['id_lang']] = $lngSeason[$language['iso_code']];
-            }
-            $feature->add();
+        } catch (Exception $exception) {
         }
     }
 
     public function installAttributes()
     {
-        $lngSize = [];
-        $lngSize['it'] = 'Taglia';
-        $lngSize['en'] = 'Size';
-        $lngSize['gb'] = 'Size';
-        $lngSize['fr'] = 'Taille';
-        $lngSize['pl'] = 'Rozmiar';
-        $lngSize['es'] = 'Talla';
-        $lngSize['de'] = 'Größe';
-        $lngSize['ru'] = 'Размер';
-        $lngSize['nl'] = 'Grootte';
-        $lngSize['ro'] = 'Mărimea';
-        $lngSize['et'] = 'Suurus';
-        $lngSize['hu'] = 'Méret';
-        $lngSize['sv'] = 'Storlek';
-        $lngSize['sk'] = 'veľkosť';
-        $lngSize['cs'] = 'Velikost';
-        $lngSize['pt'] = 'Tamanho';
-        $lngSize['fi'] = 'Koko';
-        $lngSize['bg'] = 'размер';
-        $lngSize['da'] = 'Størrelse';
-        $lngSize['lt'] = 'Dydis';
+        try{
+            $lngSize = [];
+            $lngSize['it'] = 'Taglia';
+            $lngSize['en'] = 'Size';
+            $lngSize['gb'] = 'Size';
+            $lngSize['fr'] = 'Taille';
+            $lngSize['pl'] = 'Rozmiar';
+            $lngSize['es'] = 'Talla';
+            $lngSize['de'] = 'Größe';
+            $lngSize['ru'] = 'Размер';
+            $lngSize['nl'] = 'Grootte';
+            $lngSize['ro'] = 'Mărimea';
+            $lngSize['et'] = 'Suurus';
+            $lngSize['hu'] = 'Méret';
+            $lngSize['sv'] = 'Storlek';
+            $lngSize['sk'] = 'veľkosť';
+            $lngSize['cs'] = 'Velikost';
+            $lngSize['pt'] = 'Tamanho';
+            $lngSize['fi'] = 'Koko';
+            $lngSize['bg'] = 'размер';
+            $lngSize['da'] = 'Størrelse';
+            $lngSize['lt'] = 'Dydis';
 
-        $lngGender = [];
-        $lngGender['it'] = 'Genere';
-        $lngGender['en'] = 'Gender';
-        $lngGender['gb'] = 'Gender';
-        $lngGender['fr'] = 'Le sexe';
-        $lngGender['pl'] = 'Płeć';
-        $lngGender['es'] = 'Género';
-        $lngGender['de'] = 'Geschlecht';
-        $lngGender['ru'] = 'Пол';
-        $lngGender['nl'] = 'Geslacht';
-        $lngGender['ro'] = 'Sex';
-        $lngGender['et'] = 'Sugu';
-        $lngGender['hu'] = 'Nem';
-        $lngGender['sv'] = 'Kön';
-        $lngGender['sk'] = 'Rod';
-        $lngGender['cs'] = 'Rod';
-        $lngGender['pt'] = 'Gênero';
-        $lngGender['fi'] = 'sukupuoli';
-        $lngGender['bg'] = 'пол';
-        $lngGender['da'] = 'Køn';
-        $lngGender['lt'] = 'Lytis';
+            $lngGender = [];
+            $lngGender['it'] = 'Genere';
+            $lngGender['en'] = 'Gender';
+            $lngGender['gb'] = 'Gender';
+            $lngGender['fr'] = 'Le sexe';
+            $lngGender['pl'] = 'Płeć';
+            $lngGender['es'] = 'Género';
+            $lngGender['de'] = 'Geschlecht';
+            $lngGender['ru'] = 'Пол';
+            $lngGender['nl'] = 'Geslacht';
+            $lngGender['ro'] = 'Sex';
+            $lngGender['et'] = 'Sugu';
+            $lngGender['hu'] = 'Nem';
+            $lngGender['sv'] = 'Kön';
+            $lngGender['sk'] = 'Rod';
+            $lngGender['cs'] = 'Rod';
+            $lngGender['pt'] = 'Gênero';
+            $lngGender['fi'] = 'sukupuoli';
+            $lngGender['bg'] = 'пол';
+            $lngGender['da'] = 'Køn';
+            $lngGender['lt'] = 'Lytis';
 
-        $lngColor = [];
-        $lngColor['it'] = 'Colore';
-        $lngColor['en'] = 'Color';
-        $lngColor['gb'] = 'Color';
-        $lngColor['fr'] = 'Couleur';
-        $lngColor['pl'] = 'Kolor';
-        $lngColor['es'] = 'Color';
-        $lngColor['de'] = 'Farbe';
-        $lngColor['ru'] = 'цвет';
-        $lngColor['nl'] = 'Kleur';
-        $lngColor['ro'] = 'Culoare';
-        $lngColor['et'] = 'Värv';
-        $lngColor['hu'] = 'Szín';
-        $lngColor['sv'] = 'Färg';
-        $lngColor['sk'] = 'Farba';
-        $lngColor['cs'] = 'Barva';
-        $lngColor['pt'] = 'Cor';
-        $lngColor['fi'] = 'Väri';
-        $lngColor['bg'] = 'цвят';
-        $lngColor['da'] = 'Farve';
-        $lngColor['lt'] = 'Spalva';
+            $lngColor = [];
+            $lngColor['it'] = 'Colore';
+            $lngColor['en'] = 'Color';
+            $lngColor['gb'] = 'Color';
+            $lngColor['fr'] = 'Couleur';
+            $lngColor['pl'] = 'Kolor';
+            $lngColor['es'] = 'Color';
+            $lngColor['de'] = 'Farbe';
+            $lngColor['ru'] = 'цвет';
+            $lngColor['nl'] = 'Kleur';
+            $lngColor['ro'] = 'Culoare';
+            $lngColor['et'] = 'Värv';
+            $lngColor['hu'] = 'Szín';
+            $lngColor['sv'] = 'Färg';
+            $lngColor['sk'] = 'Farba';
+            $lngColor['cs'] = 'Barva';
+            $lngColor['pt'] = 'Cor';
+            $lngColor['fi'] = 'Väri';
+            $lngColor['bg'] = 'цвят';
+            $lngColor['da'] = 'Farve';
+            $lngColor['lt'] = 'Spalva';
 
-        $lngSeason = [];
-        $lngSeason['it'] = 'Stagione';
-        $lngSeason['en'] = 'Season';
-        $lngSeason['gb'] = 'Season';
-        $lngSeason['fr'] = 'Saison';
-        $lngSeason['pl'] = 'Pora roku';
-        $lngSeason['es'] = 'Temporada';
-        $lngSeason['de'] = 'Jahreszeit';
-        $lngSeason['ru'] = 'Время года';
-        $lngSeason['nl'] = 'Seizoen';
-        $lngSeason['ro'] = 'Sezon';
-        $lngSeason['et'] = 'Hooaeg';
-        $lngSeason['hu'] = 'Évszak';
-        $lngSeason['sv'] = 'Säsong';
-        $lngSeason['sk'] = 'Sezóna';
-        $lngSeason['cs'] = 'Sezóna';
-        $lngSeason['pt'] = 'Estação';
-        $lngSeason['fi'] = 'Kausi';
-        $lngSeason['bg'] = 'сезон';
-        $lngSeason['da'] = 'Sæson';
-        $lngSeason['lt'] = 'Sezonas';
+            $lngSeason = [];
+            $lngSeason['it'] = 'Stagione';
+            $lngSeason['en'] = 'Season';
+            $lngSeason['gb'] = 'Season';
+            $lngSeason['fr'] = 'Saison';
+            $lngSeason['pl'] = 'Pora roku';
+            $lngSeason['es'] = 'Temporada';
+            $lngSeason['de'] = 'Jahreszeit';
+            $lngSeason['ru'] = 'Время года';
+            $lngSeason['nl'] = 'Seizoen';
+            $lngSeason['ro'] = 'Sezon';
+            $lngSeason['et'] = 'Hooaeg';
+            $lngSeason['hu'] = 'Évszak';
+            $lngSeason['sv'] = 'Säsong';
+            $lngSeason['sk'] = 'Sezóna';
+            $lngSeason['cs'] = 'Sezóna';
+            $lngSeason['pt'] = 'Estação';
+            $lngSeason['fi'] = 'Kausi';
+            $lngSeason['bg'] = 'сезон';
+            $lngSeason['da'] = 'Sæson';
+            $lngSeason['lt'] = 'Sezonas';
 
-        $flgSize = true;
-        $flgGender = true;
-        $flgColor = true;
-        $flgSeason = true;
-        $languages = Language::getLanguages();
-        $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-        $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
-        foreach ($attributes as $attribute) {
-            if ($attribute['name'] == $lngSize[$default_language['iso_code']]) {
-                $flgSize = false;
+            $flgSize = true;
+            $flgGender = true;
+            $flgColor = true;
+            $flgSeason = true;
+            $languages = Language::getLanguages();
+            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+            $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
+            foreach ($attributes as $attribute) {
+                if ($attribute['name'] == $lngSize[$default_language['iso_code']]) {
+                    $flgSize = false;
+                }
+                if ($attribute['name'] == $lngGender[$default_language['iso_code']]) {
+                    $flgGender = false;
+                }
+                if ($attribute['name'] == $lngColor[$default_language['iso_code']]) {
+                    $flgColor = false;
+                }
+                if ($attribute['name'] == $lngSeason[$default_language['iso_code']]) {
+                    $flgSeason = false;
+                }
             }
-            if ($attribute['name'] == $lngGender[$default_language['iso_code']]) {
-                $flgGender = false;
+            if ($flgSize) {
+                $newGroup = new AttributeGroup();
+                foreach ($languages as $lang) {
+                    $newGroup->name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
+                    $newGroup->public_name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
+                }
+                $newGroup->group_type = 'select';
+                $newGroup->save();
             }
-            if ($attribute['name'] == $lngColor[$default_language['iso_code']]) {
-                $flgColor = false;
-            }
-            if ($attribute['name'] == $lngSeason[$default_language['iso_code']]) {
-                $flgSeason = false;
-            }
-        }
-        if ($flgSize) {
-            $newGroup = new AttributeGroup();
-            foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
-                $newGroup->public_name[$lang['id_lang']] = $lngSize[$lang['iso_code']];
-            }
-            $newGroup->group_type = 'select';
-            $newGroup->save();
-        }
 
-        if ($flgGender) {
-            $newGroup = new AttributeGroup();
-            foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
-                $newGroup->public_name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
+            if ($flgGender) {
+                $newGroup = new AttributeGroup();
+                foreach ($languages as $lang) {
+                    $newGroup->name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
+                    $newGroup->public_name[$lang['id_lang']] = $lngGender[$lang['iso_code']];
+                }
+                $newGroup->group_type = 'select';
+                $newGroup->save();
             }
-            $newGroup->group_type = 'select';
-            $newGroup->save();
-        }
 
-        if ($flgColor) {
-            $newGroup = new AttributeGroup();
-            foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
-                $newGroup->public_name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
+            if ($flgColor) {
+                $newGroup = new AttributeGroup();
+                foreach ($languages as $lang) {
+                    $newGroup->name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
+                    $newGroup->public_name[$lang['id_lang']] = $lngColor[$lang['iso_code']];
+                }
+                $newGroup->group_type = 'color';
+                $newGroup->save();
             }
-            $newGroup->group_type = 'color';
-            $newGroup->save();
-        }
 
-        if ($flgSeason) {
-            $newGroup = new AttributeGroup();
-            foreach ($languages as $lang) {
-                $newGroup->name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
-                $newGroup->public_name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
+            if ($flgSeason) {
+                $newGroup = new AttributeGroup();
+                foreach ($languages as $lang) {
+                    $newGroup->name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
+                    $newGroup->public_name[$lang['id_lang']] = $lngSeason[$lang['iso_code']];
+                }
+                $newGroup->group_type = 'select';
+                $newGroup->save();
             }
-            $newGroup->group_type = 'select';
-            $newGroup->save();
+        } catch (Exception $exception) {
         }
     }
 
     public function install()
     {
-        $this->installAttributes();
-        $this->installFeatures();
-        $this->installTabs();
+        try{
+            $this->installAttributes();
+            $this->installFeatures();
+            $this->installTabs();
 
-        //Init default value:
+            //Init default value:
 
-        include(dirname(__FILE__) . '/sql/install.php');
+            include(dirname(__FILE__) . '/sql/install.php');
 
-        if (!parent::install() ||
-            !$this->registerHook('header') &&
-            !$this->registerHook('displayBackOfficeHeader') ||
-            !$this->registerHook('actionProductDelete') ||
-            !$this->registerHook('actionCategoryDelete') ||
-            !$this->registerHook('actionPaymentConfirmation') ||
-            !$this->registerHook('actionAdminProductsListingFieldsModifier') ||
-            !$this->registerHook('actionObjectOrderAddBefore')
-        ) {
-            return false;
+            if (!parent::install() ||
+                !$this->registerHook('header') &&
+                !$this->registerHook('displayBackOfficeHeader') ||
+                !$this->registerHook('actionProductDelete') ||
+                !$this->registerHook('actionCategoryDelete') ||
+                !$this->registerHook('actionPaymentConfirmation') ||
+                !$this->registerHook('actionAdminProductsListingFieldsModifier') ||
+                !$this->registerHook('actionObjectOrderAddBefore')
+            ) {
+                return false;
+            }
+        } catch (Exception $exception) {
         }
-
         return true;
     }
 
     public function uninstall()
     {
-        // Uninstall Tabs
-        $moduleTabs = Tab::getCollectionFromModule($this->name);
-        if (!empty($moduleTabs)) {
-            foreach ($moduleTabs as $moduleTab) {
-                $moduleTab->delete();
+        try{
+            // Uninstall Tabs
+            $moduleTabs = Tab::getCollectionFromModule($this->name);
+            if (!empty($moduleTabs)) {
+                foreach ($moduleTabs as $moduleTab) {
+                    $moduleTab->delete();
+                }
             }
+
+            //include(dirname(__FILE__).'/sql/uninstall.php');
+
+            if (!parent::uninstall()) {
+                return false;
+            }
+        } catch (Exception $exception) {
         }
-
-        //include(dirname(__FILE__).'/sql/uninstall.php');
-
-        if (!parent::uninstall()) {
-            return false;
-        }
-
         return true;
     }
 
