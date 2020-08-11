@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.0.21';
+        $this->version = '2.1.0';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -94,49 +94,42 @@ class Bdroppy extends Module
             $importTab->module = $this->name;
             $importTab->add();
         } catch (Exception $exception) {
+
         }
+    }
+
+    public function createFeature($name)
+    {
+        $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+
+        $query = new DbQuery();
+        $query->select('name');
+        $query->from('feature_lang');
+        $query->where('`id_lang` = ' . (int) $default_language['id_lang']);
+        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"' );
+
+        if(Db::getInstance()->getValue($query) === false){
+
+            $languages = Language::getLanguages();
+
+            $feature = new Feature();
+            foreach ($languages as $language) {
+                $feature->name[$language['id_lang']] = $this->{'get'.$name.'NameLanguage'}($language['iso_code']);
+            }
+            $feature->add();
+        }
+
     }
 
     public function installFeatures()
     {
         try{
-            $languages = Language::getLanguages();
-            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-            $features = Feature::getFeatures($default_language['id_lang']);
-            foreach ($features as $feature)
-            {
-                if ($feature['name'] !== $this->getSizeNameLanguage($default_language['iso_code']))
-                {
-                    $feature = new Feature();
-                    foreach ($languages as $language) {
-                        $feature->name[$language['id_lang']] = $this->getSizeNameLanguage($language['iso_code']);
-                    }
-                    $feature->add();
-                }
-                if ($feature['name'] !== $this->getGenderNameLanguage($default_language['iso_code'])) {
-                    $feature = new Feature();
-                    foreach ($languages as $language) {
-                        $feature->name[$language['id_lang']] = $this->getGenderNameLanguage($language['iso_code']);
-                    }
-                    $feature->add();
-                }
-                if ($feature['name'] !== $this->getColorNameLanguage($default_language['iso_code'])) {
-                    $feature = new Feature();
-                    foreach ($languages as $language) {
-                        $feature->name[$language['id_lang']] = $this->getColorNameLanguage($language['iso_code']);
-                    }
-                    $feature->add();
-                }
-                if ($feature['name'] !== $this->getSeasonNameLanguage($default_language['iso_code']))
-                {
-                    $feature = new Feature();
-                    foreach ($languages as $language) {
-                        $feature->name[$language['id_lang']] = $this->getSeasonNameLanguage($language['iso_code']);
-                    }
-                    $feature->add();
-                }
-            }
+            $this->createFeature('Size');
+            $this->createFeature('Gender');
+            $this->createFeature('Color');
+            $this->createFeature('Season');
         } catch (Exception $exception) {
+
         }
     }
 
@@ -252,51 +245,37 @@ class Bdroppy extends Module
         return isset($lngSeason[$lang])? $lngSeason[$lang] : $lngSeason['en'];
     }
 
+    public function createAttribute($name)
+    {
+        $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
+
+        $query = new DbQuery();
+        $query->select('name');
+        $query->from('attribute_group_lang');
+        $query->where('`id_lang` = ' . (int) $default_language['id_lang']);
+        $query->where('`name` = "' . pSQL($this->{'get'.$name.'NameLanguage'}($default_language['iso_code'])).'"' );
+
+        if(Db::getInstance()->getValue($query) === false){
+
+            $languages = Language::getLanguages();
+            $newGroup = new AttributeGroup();
+            foreach ($languages as $lang) {
+                $newGroup->name[$lang['id_lang']] = $this->{'get'.$name.'NameLanguage'}($lang['iso_code']);
+                $newGroup->public_name[$lang['id_lang']] = $this->{'get'.$name.'NameLanguage'}($lang['iso_code']);
+            }
+            $newGroup->group_type = 'select';
+            $newGroup->save();
+        }
+
+    }
 
     public function installAttributes()
     {
         try{
-            $languages = Language::getLanguages();
-            $default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
-            $attributes = AttributeGroup::getAttributesGroups($default_language['id_lang']);
-            foreach ($attributes as $attribute) {
-                if ($attribute['name'] !== $this->getSizeNameLanguage($default_language['iso_code'])) {
-                    $newGroup = new AttributeGroup();
-                    foreach ($languages as $lang) {
-                        $newGroup->name[$lang['id_lang']] = $this->getSizeNameLanguage($lang['iso_code']);
-                        $newGroup->public_name[$lang['id_lang']] = $this->getSizeNameLanguage($lang['iso_code']);
-                    }
-                    $newGroup->group_type = 'select';
-                    $newGroup->save();
-                }
-                if ($attribute['name'] !== $this->getGenderNameLanguage($default_language['iso_code'])) {
-                    $newGroup = new AttributeGroup();
-                    foreach ($languages as $lang) {
-                        $newGroup->name[$lang['id_lang']] = $this->getGenderNameLanguage($lang['iso_code']);
-                        $newGroup->public_name[$lang['id_lang']] = $this->getGenderNameLanguage($lang['iso_code']);
-                    }
-                    $newGroup->group_type = 'select';
-                    $newGroup->save();
-                }
-                if ($attribute['name'] !== $this->getColorNameLanguage($default_language['iso_code'])) {
-                    $newGroup = new AttributeGroup();
-                    foreach ($languages as $lang) {
-                        $newGroup->name[$lang['id_lang']] = $this->getColorNameLanguage($lang['iso_code']);
-                        $newGroup->public_name[$lang['id_lang']] = $this->getColorNameLanguage($lang['iso_code']);
-                    }
-                    $newGroup->group_type = 'color';
-                    $newGroup->save();
-                }
-                if ($attribute['name'] !== $this->getSeasonNameLanguage($default_language['iso_code'])) {
-                    $newGroup = new AttributeGroup();
-                    foreach ($languages as $lang) {
-                        $newGroup->name[$lang['id_lang']] = $this->getSeasonNameLanguage($lang['iso_code']);
-                        $newGroup->public_name[$lang['id_lang']] = $this->getSeasonNameLanguage($lang['iso_code']);
-                    }
-                    $newGroup->group_type = 'select';
-                    $newGroup->save();
-                }
-            }
+            $this->createAttribute('Size');
+            $this->createAttribute('Gender');
+            $this->createAttribute('Color');
+            $this->createAttribute('Season');
         } catch (Exception $exception) {
         }
     }
@@ -324,6 +303,7 @@ class Bdroppy extends Module
                 return false;
             }
         } catch (Exception $exception) {
+
         }
         return true;
     }
@@ -345,6 +325,7 @@ class Bdroppy extends Module
                 return false;
             }
         } catch (Exception $exception) {
+
         }
         return true;
     }
