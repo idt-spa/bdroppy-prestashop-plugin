@@ -958,6 +958,7 @@ class BdroppyImportTools
             $languages = Language::getLanguages(false);
             $first = true;
             $product->deleteProductAttributes();
+            Db::getInstance()->delete('stock_available', 'id_product = ' . $product->id);
             foreach ($jsonModels as $model) {
                 self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
