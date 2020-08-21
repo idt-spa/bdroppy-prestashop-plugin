@@ -689,10 +689,11 @@ class BdroppyRewixApi
             foreach ($lines as $line) {
                 if ($line['unity'] == $catalog_id || $line['unity'] == "bdroppy-$catalog_id") {
                     $modelId = 0;
-                    if(isset($line['product_attribute_id']))
+                    if (isset($line['product_attribute_id'])) {
                         $attributeId = (int)$line['product_attribute_id'];
-                    else
+                    } else {
                         $attributeId = (int)$line['id_product_attribute'];
+                    }
                     $product_isbn = (int)$line['isbn'];
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
@@ -766,10 +767,11 @@ class BdroppyRewixApi
             foreach ($lines as $line) {
                 if ($line['unity'] == $catalog_id || $line['unity'] == "bdroppy-$catalog_id") {
                     $modelId = 0;
-                    if(isset($line['product_attribute_id']))
+                    if (isset($line['product_attribute_id'])) {
                         $attributeId = (int)$line['product_attribute_id'];
-                    else
+                    } else {
                         $attributeId = (int)$line['id_product_attribute'];
+                    }
                     $product_isbn = (int)$line['isbn'];
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
