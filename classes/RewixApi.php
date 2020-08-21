@@ -89,18 +89,21 @@ class BdroppyRewixApi
             set_time_limit(0);
             $ids = [];
             $db = Db::getInstance();
-            $sql = "SELECT p.id_product FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
+            $api_catalog = Configuration::get('BDROPPY_CATALOG');
+            $sql = "SELECT p.id_product, p.unity FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
             `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) 
             WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
             $items = $db->ExecuteS($sql);
             foreach ($items as $item) {
-                $dp = new Product($item['id_product']);
-                $dp->delete();
+                if (strpos($item['unity'], $api_catalog) !== false) {
+                    $dp = new Product($item['id_product']);
+                    $dp->delete();
+                }
             }
             $pageSize = 100;
             $base_url = Configuration::get('BDROPPY_API_URL');
             $api_token = Configuration::get('BDROPPY_TOKEN');
-            $api_catalog = Configuration::get('BDROPPY_CATALOG');
+            $api_catalog = $api_catalog;
             $url = $base_url . "/restful/export/api/products.json?pageSize=".
                 "$pageSize&page=1&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
