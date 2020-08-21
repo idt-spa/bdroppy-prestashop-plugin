@@ -256,7 +256,9 @@ class BdroppyImportTools
             } else {
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
-            $d = $product->deleteImages();
+            $product->deleteImages();
+            Db::getInstance()->delete('image', 'id_product = 4911');
+            Db::getInstance()->delete('image_shop', 'id_product = 4911');
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
