@@ -196,6 +196,8 @@ class BdroppyImportTools
                     self::importModels($jsonProduct, $product, $default_lang);
                 }
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+                if($product->price == 0)
+                    $product->active = false;
                 $product->save();
                 Db::getInstance()->update(
                     'bdroppy_remoteproduct',
@@ -516,6 +518,8 @@ class BdroppyImportTools
 
         $name = (string)$json->name;
         $price = (float)$json->sellPrice;
+        if($price < 0)
+            $price = 0;
         $priceTax = (float)$json->sellPrice;
         $bestTaxable = (float)$json->bestTaxable;
         $taxable = (float)$json->taxable;
@@ -657,6 +661,8 @@ class BdroppyImportTools
             $product->id_category_default = $categoryDefaultId;
 
             $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+            if($product->price == 0)
+                $product->active = false;
             $product->save();
 
             // updateCategories requires the product to have an id already set
