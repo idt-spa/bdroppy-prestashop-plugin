@@ -210,7 +210,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                             $devFlag = true;
                         }
                     }
-                    if ((time() - $lastImportSync) >  3600 * 6 ||
+                    if ((time() - $lastImportSync) >  3600 * 12 ||
                         $lastImportSync == 0 ||
                         $devFlag ||
                         $api_catalog_changed) {
@@ -278,7 +278,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                                 Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', $lastQuantitiesSync);
                             }
 
-                            if ((time() - $lastQuantitiesSync) > 1800 || Tools::getIsset('since')) {
+                            if ((time() - $lastQuantitiesSync) > 3600 || Tools::getIsset('since')) {
                                 if (Tools::getIsset('since')) {
                                     $lastQuantitiesSync = Tools::getValue('since');
                                 }

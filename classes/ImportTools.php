@@ -203,9 +203,14 @@ class BdroppyImportTools
                     'id = '.(int)$item['id']
                 );
 
-                if (count($product->getImages(0)) == 0 ||
+                $product_images_count = count($product->getImages(0));
+
+                if ($product_images_count == 0 ||
                     $ps_product_id == 0 ||
-                    Configuration::get('BDROPPY_REIMPORT_IMAGE')) {
+                    (Configuration::get('BDROPPY_REIMPORT_IMAGE') != '0' &&
+                        $product_images_count < Configuration::get('BDROPPY_REIMPORT_IMAGE')) ||
+                    (Configuration::get('BDROPPY_REIMPORT_IMAGE') == '0' &&
+                        $product_images_count < count($jsonProduct->pictures))) {
                     $logMsg = 'Importing images for product ' . $product->id . ' (' . $jsonProduct->id . ')';
                     BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
                     self::importProductImages($jsonProduct, $product, Configuration::get('BDROPPY_IMPORT_IMAGE'));
@@ -251,7 +256,7 @@ class BdroppyImportTools
             } else {
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
-            $product->deleteImages();
+            $d = $product->deleteImages();
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
@@ -260,89 +265,26 @@ class BdroppyImportTools
                 } else {
                     $imageUrl = "{$websiteUrl}{$image->url}";
                 }
-                $ch = curl_init($imageUrl);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $content = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlError = curl_error($ch);
-                curl_close($ch);
-                if ($httpCode != 200) {
-                    $logMsg = 'Error loading Image: ' . $imageUrl.' Code :'.$httpCode.'. Error:' . $curlError;
-                    BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+                $image = new Image();
+                $image->id_product = $product->id;
+                $image->position = $imageCount;
+                $image->cover = (int)$imageCount === 1;
 
-                    $websiteUrl = 'https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/';
-                    if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
-                        $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto-dev/prod/";
+                if (($image->validateFields(false, true)) === true &&
+                    ($image->validateFieldsLang(false, true)) === true &&
+                    $image->add()
+                ) {
+                    if (!BdroppyImportHelper::copyImg(
+                        $product->id,
+                        $image->id,
+                        $imageUrl,
+                        'products',
+                        true
+                    )) {
+                        $image->delete();
                     } else {
-                        $websiteUrl = "https://branddistributionproddia.blob.core.windows.net/storage-foto/prod/";
+                        $imageCount++;
                     }
-                    $imageUrl = "{$websiteUrl}{$image->url}";
-
-                    $ch = curl_init($imageUrl);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    $content = curl_exec($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    $curlError = curl_error($ch);
-                    curl_close($ch);
-                    if ($httpCode != 200) {
-                        $logMsg = 'Error loading Image: '.$imageUrl.' Code :'.$httpCode.'. Error:'.$curlError;
-                        BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
-                    } else {
-                        $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
-                        $handle = fopen($tmpfile, "w");
-                        fwrite($handle, $content);
-                        fclose($handle);
-                        $image = new Image();
-                        $image->id_product = $product->id;
-                        $image->position = $imageCount;
-                        $image->cover = (int)$imageCount === 1;
-
-                        if (($image->validateFields(false, true)) === true &&
-                            ($image->validateFieldsLang(false, true)) === true &&
-                            $image->add()
-                        ) {
-                            if (!BdroppyImportHelper::copyImg(
-                                $product->id,
-                                $image->id,
-                                $tmpfile,
-                                'products',
-                                true
-                            )) {
-                                $image->delete();
-                            } else {
-                                $imageCount++;
-                            }
-                        }
-                        unlink($tmpfile);
-                    }
-                    $i++;
-                } else {
-                    $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'bdroppy_import');
-                    $handle = fopen($tmpfile, "w");
-                    fwrite($handle, $content);
-                    fclose($handle);
-                    $image = new Image();
-                    $image->id_product = $product->id;
-                    $image->position = $imageCount;
-                    $image->cover = (int)$imageCount === 1;
-
-                    if (($image->validateFields(false, true)) === true &&
-                        ($image->validateFieldsLang(false, true)) === true &&
-                        $image->add()
-                    ) {
-                        if (!BdroppyImportHelper::copyImg(
-                            $product->id,
-                            $image->id,
-                            $tmpfile,
-                            'products',
-                            true
-                        )) {
-                            $image->delete();
-                        } else {
-                            $imageCount++;
-                        }
-                    }
-                    unlink($tmpfile);
                 }
                 $i++;
                 if ($count != 'all') {
@@ -352,8 +294,7 @@ class BdroppyImportTools
                 }
             }
         } catch (PrestaShopException $e) {
-            $logMsg = 'importProductImages : ' . $e->getMessage();
-            BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+            self::getLogger()->logDebug('importProductImages : ' . $e->getMessage());
         }
     }
 
