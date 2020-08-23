@@ -207,7 +207,8 @@ class BdroppyImportTools
 
                 $product_images_count = count($product->getImages(0));
 
-                if ($product_images_count == 0 ||
+                if ($updateFlag ||
+                    $product_images_count == 0 ||
                     $ps_product_id == 0 ||
                     (Configuration::get('BDROPPY_REIMPORT_IMAGE') != '0' &&
                         $product_images_count < Configuration::get('BDROPPY_REIMPORT_IMAGE')) ||
@@ -259,8 +260,8 @@ class BdroppyImportTools
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
             $product->deleteImages();
-            Db::getInstance()->delete('image', 'id_product = 4911');
-            Db::getInstance()->delete('image_shop', 'id_product = 4911');
+            Db::getInstance()->delete('image', 'id_product = ' . $product->id);
+            Db::getInstance()->delete('image_shop', 'id_product = ' . $product->id);
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
