@@ -370,6 +370,10 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
 
     public function assignTpl()
     {
-        $this->setTemplate('module:bdroppy/views/templates/front/cron.tpl');
+        if (Tools::substr(_PS_VERSION_, 0, 3) == '1.7') {
+            $this->setTemplate('module:bdroppy/views/templates/front/cron.tpl');
+        } else {
+            $this->setTemplate('cron.tpl');
+        }
     }
 }
