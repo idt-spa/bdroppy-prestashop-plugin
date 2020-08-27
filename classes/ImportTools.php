@@ -785,22 +785,22 @@ class BdroppyImportTools
                 }
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . (int)$lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langSize';";
                 $sizeFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngColor[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langColor';";
                 $colorFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngGender[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langGender';";
                 $genderFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langSeason';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
                 $sizeFeatureId = '';
