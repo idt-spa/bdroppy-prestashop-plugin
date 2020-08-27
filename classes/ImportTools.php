@@ -619,7 +619,11 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                $langCode = $langs[$lang['iso_code']];
+                if (isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                }
                 $name = '';
                 if (Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
                     $name = $productData['brand'] . ' - ' . $productData['name'];
@@ -766,7 +770,19 @@ class BdroppyImportTools
 
             $product->deleteFeatures();
             foreach ($languages as $lang) {
-                $langCode = $langs[$lang['iso_code']];
+                if (isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                    $langSize = $lngSize[$lang['iso_code']];
+                    $langColor = $lngColor[$lang['iso_code']];
+                    $langGender = $lngGender[$lang['iso_code']];
+                    $langSeason = $lngSeason[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                    $langSize = $lngSize['en'];
+                    $langColor = $lngColor['en'];
+                    $langGender = $lngGender['en'];
+                    $langSeason = $lngSeason['en'];
+                }
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . (int)$lang['id_lang'] .
                     ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
