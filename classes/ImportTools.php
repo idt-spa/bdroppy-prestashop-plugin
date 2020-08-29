@@ -208,7 +208,8 @@ class BdroppyImportTools
 
                 $product_images_count = count($product->getImages(0));
 
-                if ($product_images_count == 0 ||
+                if ($updateFlag ||
+                    $product_images_count == 0 ||
                     $ps_product_id == 0 ||
                     (Configuration::get('BDROPPY_REIMPORT_IMAGE') != '0' &&
                         $product_images_count < Configuration::get('BDROPPY_REIMPORT_IMAGE')) ||
@@ -260,8 +261,8 @@ class BdroppyImportTools
                 $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
             }
             $product->deleteImages();
-            Db::getInstance()->delete('image', 'id_product = 4911');
-            Db::getInstance()->delete('image_shop', 'id_product = 4911');
+            Db::getInstance()->delete('image', 'id_product = ' . $product->id);
+            Db::getInstance()->delete('image_shop', 'id_product = ' . $product->id);
 
             $i = 0;
             foreach ($jsonProduct->pictures as $image) {
@@ -618,7 +619,11 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                $langCode = $langs[$lang['iso_code']];
+                if (isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                }
                 $name = '';
                 if (Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE')) {
                     $name = $productData['brand'] . ' - ' . $productData['name'];
@@ -765,25 +770,37 @@ class BdroppyImportTools
 
             $product->deleteFeatures();
             foreach ($languages as $lang) {
-                $langCode = $langs[$lang['iso_code']];
+                if (isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                    $langSize = $lngSize[$lang['iso_code']];
+                    $langColor = $lngColor[$lang['iso_code']];
+                    $langGender = $lngGender[$lang['iso_code']];
+                    $langSeason = $lngSeason[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                    $langSize = $lngSize['en'];
+                    $langColor = $lngColor['en'];
+                    $langGender = $lngGender['en'];
+                    $langSeason = $lngSeason['en'];
+                }
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . (int)$lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngSize[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langSize';";
                 $sizeFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngColor[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langColor';";
                 $colorFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngGender[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langGender';";
                 $genderFeature = Db::getInstance()->executeS($sql);
 
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "feature` f LEFT JOIN `" . _DB_PREFIX_ .
                     "feature_lang` fl ON (f.id_feature = fl.id_feature AND fl.`id_lang` = " . $lang['id_lang'] .
-                    ") WHERE fl.name = '".$lngSeason[$lang['iso_code']]."';";
+                    ") WHERE fl.name = '$langSeason';";
                 $seasonFeature = Db::getInstance()->executeS($sql);
 
                 $sizeFeatureId = '';
