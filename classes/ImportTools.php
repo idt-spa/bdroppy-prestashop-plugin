@@ -960,7 +960,11 @@ class BdroppyImportTools
                     } else {
                         $attribute = new Attribute();
                         foreach ($languages as $lang) {
-                            $langCode = $langs[$lang['iso_code']];
+                            if(isset($langs[$lang['iso_code']])) {
+                                $langCode = $langs[$lang['iso_code']];
+                            } else {
+                                $langCode = $langs['en'];
+                            }
                             $attribute->name[$lang['id_lang']] = self::getColor($jsonProduct, $langCode);
                         }
                         $attribute->color = self::getColor($jsonProduct, 'en_US');
@@ -1011,7 +1015,7 @@ class BdroppyImportTools
 
                 $impact_on_price_per_unit = 0;
                 $impact_on_price = 0;
-                $impact_on_weight = $jsonProduct->weight;
+                $impact_on_weight = 0;
                 $isbn_code = $model->id;
                 $id_supplier = null;
                 $default = $first;

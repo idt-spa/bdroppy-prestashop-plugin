@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.9';
+        $this->version = '2.1.10';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -736,41 +736,41 @@ class Bdroppy extends Module
         }
 
         $li = round(abs((int)Configuration::get('BDROPPY_LAST_CRON_TIME') - time()) / 60, 0);
-        $last_cron_sync = $li. " Minutes Ago (" .
-            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CRON_TIME')) .")";
-        if ($li>500) {
+        $last_cron_sync = $li. " Minutes Ago";
+        if ($li>1440) {
             $last_cron_sync = "Many Times Ago";
         }
+        $last_cron_sync .= " (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CRON_TIME')) .")";
         if ((int)Configuration::get('BDROPPY_LAST_CRON_TIME') == 0) {
             $last_cron_sync = "Never";
         }
 
         $li = round(abs((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') - time()) / 60, 0);
-        $last_import_sync = $li. " Minutes Ago (" .
-            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
-        if ($li>500) {
+        $last_import_sync = $li. " Minutes Ago";
+        if ($li>1440) {
             $last_import_sync = "Many Times Ago";
         }
+        $last_import_sync .= " (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC')) .")";
         if ((int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC') == 0) {
             $last_import_sync = "Never";
         }
 
         $lu = round(abs((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') - time()) / 60, 0);
-        $last_update_sync = $lu. " Minutes Ago (" .
-            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")";
-        if ($lu>500) {
+        $last_update_sync = $lu. " Minutes Ago";
+        if ($lu>1440) {
             $last_update_sync = "Many Times Ago";
         }
+        $last_update_sync .= " (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC')) .")";
         if ((int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC') == 0) {
             $last_update_sync = "Never";
         }
 
         $lc = round(abs((int)Configuration::get('BDROPPY_LAST_CART_SYNC') - time()) / 60, 0);
-        $last_orders_sync = $lc. " Minutes Ago (" .
-            date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")";
-        if ($lc>500) {
+        $last_orders_sync = $lc. " Minutes Ago";
+        if ($lc>1440) {
             $last_orders_sync = "Many Times Ago";
         }
+        $last_orders_sync .= " (" . date('Y-m-d H:i:s', (int)Configuration::get('BDROPPY_LAST_CART_SYNC')) .")";
         if ((int)Configuration::get('BDROPPY_LAST_CART_SYNC') == 0) {
             $last_orders_sync = "Never";
         }
