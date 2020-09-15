@@ -144,7 +144,17 @@ class BdroppyImportTools
     {
         try {
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
-            $jsonProduct = json_decode($item['data']);
+            if ($updateFlag) {
+                $rewixApi = new BdroppyRewixApi();
+                $res = $rewixApi->getProductJson($item['rewix_product_id'], $api_catalog);
+                if ($res['http_code'] == 200) {
+                    $jsonProduct = json_decode($res['data']);
+                } else {
+                    return '0';
+                }
+            } else {
+                $jsonProduct = json_decode($item['data']);
+            }
 
             if ($jsonProduct) {
                 $refId = (int)$jsonProduct->id;
