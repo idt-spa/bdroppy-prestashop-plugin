@@ -166,7 +166,11 @@ class BdroppyRemoteCategory extends ObjectModel
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
-                $langCode = $langs[$lang['iso_code']];
+                if(isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                }
                 $catTxt = '';
                 if ($tagId == self::REWIX_GENDER_ID) {
                     $catTxt = self::getTagValue($xmlProduct, 'gender', $langCode);
