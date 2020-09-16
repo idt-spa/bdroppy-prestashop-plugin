@@ -960,7 +960,7 @@ class BdroppyImportTools
                     } else {
                         $attribute = new Attribute();
                         foreach ($languages as $lang) {
-                            if(isset($langs[$lang['iso_code']])) {
+                            if (isset($langs[$lang['iso_code']])) {
                                 $langCode = $langs[$lang['iso_code']];
                             } else {
                                 $langCode = $langs['en'];
