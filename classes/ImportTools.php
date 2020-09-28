@@ -665,7 +665,8 @@ class BdroppyImportTools
                     "{$productData['brand']}-{$productData['code']}"
                 );
                 $product->description[$lang['id_lang']] = $desc;
-                $product->description_short[$lang['id_lang']] = Tools::substr($desc, 0, 800);
+                $desc_short_limit = Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
+                $product->description_short[$lang['id_lang']] = Tools::substr($desc, 0, $desc_short_limit);
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
