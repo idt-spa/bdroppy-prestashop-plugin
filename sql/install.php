@@ -70,6 +70,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` 
             `ps_product_id` INT(10) UNSIGNED NOT NULL,
             `sync_status` VARCHAR(128) NOT NULL,
             `reason` TEXT,
+            `data` LONGTEXT,
             `simple` INT(10) UNSIGNED NOT NULL,
             `last_sync_date` TIMESTAMP NOT NULL,
             `priority` INT(10) NOT NULL DEFAULT \'0\',
