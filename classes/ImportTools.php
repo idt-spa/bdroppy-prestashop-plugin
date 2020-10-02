@@ -183,6 +183,7 @@ class BdroppyImportTools
                     $dp->delete();
                 }
                 $product->unity = 'bdroppy-' . $api_catalog;
+                $product->online_only = (bool)Configuration::get('BDROPPY_ONLINE_ONLY');
 
                 $logTxt = 'Importing product ' . $sku . ' with id ' . $jsonProduct->id;
                 if ($updateFlag) {

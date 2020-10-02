@@ -360,6 +360,22 @@
 							</span>
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Only on the web' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_online_only" id="bdroppy_online_only_on" value="1" {if $bdroppy_online_only}checked="checked"{/if} type="radio">
+								<label for="bdroppy_online_only_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_online_only" id="bdroppy_online_only_off" value="0" {if !$bdroppy_online_only}checked="checked"{/if} type="radio">
+								<label for="bdroppy_online_only_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
 					<div class="panel-footer">
 						<button type="submit" name="submitCatalogConfig" class="btn btn-default pull-right"><i class="icon-link"></i> {l s='Connect' mod='bdroppy'}</button>
 					</div>

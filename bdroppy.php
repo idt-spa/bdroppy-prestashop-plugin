@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.13';
+        $this->version = '2.1.14';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -558,6 +558,9 @@ class Bdroppy extends Module
             $bdroppy_log = (int)Tools::getValue('bdroppy_log');
             Configuration::updateValue('BDROPPY_LOG', $bdroppy_log);
 
+            $bdroppy_online_only = (int)Tools::getValue('bdroppy_online_only');
+            Configuration::updateValue('BDROPPY_ONLINE_ONLY', $bdroppy_online_only);
+
             $rewixApi = new BdroppyRewixApi();
             $res = $rewixApi->connectUserCatalog();
             if ($res['http_code'] == 200) {
@@ -633,6 +636,10 @@ class Bdroppy extends Module
         $bdroppy_log = Configuration::get('BDROPPY_LOG');
         if ($bdroppy_log == '') {
             $bdroppy_log = '0';
+        }
+        $bdroppy_online_only = Configuration::get('BDROPPY_ONLINE_ONLY');
+        if ($bdroppy_online_only == '') {
+            $bdroppy_online_only = '0';
         }
         $bdroppy_auto_update_name = Configuration::get('BDROPPY_AUTO_UPDATE_NAME');
         if ($bdroppy_auto_update_name == '') {
@@ -811,6 +818,7 @@ class Bdroppy extends Module
             'bdroppy_active_product' => $bdroppy_active_product,
             'bdroppy_custom_feature' => $bdroppy_custom_feature,
             'bdroppy_log' => $bdroppy_log,
+            'bdroppy_online_only' => $bdroppy_online_only,
             'bdroppy_import_brand_to_title' => $bdroppy_import_brand_to_title,
             'bdroppy_reimport_image' => $bdroppy_reimport_image,
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
