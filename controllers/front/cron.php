@@ -271,7 +271,10 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         }
 
                         //get update products since
-                        if ($bdroppy_auto_update_prices) {
+                        $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
+                            "WHERE sync_status <> '".BdroppyRemoteProduct::SYNC_STATUS_UPDATED."';";
+                        $total = $db->ExecuteS($sql);
+                        if ($total[0]['total'] == 0 && $bdroppy_auto_update_prices) {
                             $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                             if ($lastQuantitiesSync == 0) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');

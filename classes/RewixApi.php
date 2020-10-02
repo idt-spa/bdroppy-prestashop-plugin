@@ -209,6 +209,7 @@ class BdroppyRewixApi
                 }
                 $logMsg = 'getProductsFull - done';
                 BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
+                Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
                 Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
             } else {
                 $logMsg = 'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
