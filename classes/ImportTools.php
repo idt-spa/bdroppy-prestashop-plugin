@@ -1023,7 +1023,7 @@ class BdroppyImportTools
                 $default = $first;
                 $location = null;
                 $id_images = null;
-                $upc = null;
+                $upc = $model->id;
                 $minimal_quantity = 1;
                 $idProductAttribute = $product->addProductAttribute(
                     (float)$impact_on_price,
@@ -1090,6 +1090,7 @@ class BdroppyImportTools
             }
             $product->ean13 = $ean13;
             $product->isbn = $jsonModel->id;
+            $product->upc = $jsonModel->id;
             $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);
 
