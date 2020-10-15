@@ -696,15 +696,17 @@ class BdroppyRewixApi
                         $attributeId = (int)$line['id_product_attribute'];
                     }
                     $product_isbn = (int)$line['isbn'];
-                    if($product_isbn == 0)
+                    if ($product_isbn == 0) {
                         $product_isbn = (int)$line['upc'];
+                    }
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
                     $product_attribute = Db::getInstance()->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = (int)$product_attribute[0]['isbn'];
-                        if($modelId == 0)
+                        if ($modelId == 0) {
                             $modelId = (int)$product_attribute[0]['upc'];
+                        }
                     }
                     if ($product_isbn <= 0) {
                         $product_isbn = (int)$line['product_isbn'];
@@ -778,15 +780,17 @@ class BdroppyRewixApi
                         $attributeId = (int)$line['id_product_attribute'];
                     }
                     $product_isbn = (int)$line['isbn'];
-                    if($product_isbn == 0)
+                    if ($product_isbn == 0) {
                         $product_isbn = (int)$line['upc'];
+                    }
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
                     $product_attribute = Db::getInstance()->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = $product_attribute[0]['isbn'];
-                        if($modelId == 0)
+                        if ($modelId == 0) {
                             $modelId = (int)$product_attribute[0]['upc'];
+                        }
                     }
                     if ($product_isbn <= 0) {
                         $product_isbn = (int)$line['product_isbn'];
