@@ -222,6 +222,7 @@ class BdroppyImportTools
                 if ($updateFlag ||
                     $product_images_count == 0 ||
                     $ps_product_id == 0 ||
+                    Configuration::get('BDROPPY_REIMPORT_IMAGE') ||
                     (Configuration::get('BDROPPY_REIMPORT_IMAGE') != '0' &&
                         $product_images_count < Configuration::get('BDROPPY_REIMPORT_IMAGE')) ||
                     (Configuration::get('BDROPPY_REIMPORT_IMAGE') == '0' &&
