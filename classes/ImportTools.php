@@ -206,8 +206,10 @@ class BdroppyImportTools
                     $product->save();
                     self::importModels($jsonProduct, $product, $default_lang);
                 }
-                $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
-                if ($product->price == 0) {
+                if (!$product->id) {
+                    $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+                }
+                if ($product->price <= 0) {
                     $product->active = false;
                 }
                 $product->save();
@@ -680,8 +682,10 @@ class BdroppyImportTools
             list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
             $product->id_category_default = $categoryDefaultId;
 
-            $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
-            if ($product->price == 0) {
+            if (!$product->id) {
+                $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+            }
+            if ($product->price <= 0) {
                 $product->active = false;
             }
             $product->save();
