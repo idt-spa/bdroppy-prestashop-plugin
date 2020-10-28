@@ -115,7 +115,9 @@ WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_r
 
 $db_check = Db::getInstance()->executeS($query);
 if ($db_check[0]['result'] != 'Exist') {
-    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD  `reference` VARCHAR(128) NULL;';
+    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `reference` VARCHAR(128) NULL;';
+} else {
+    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` MODIFY `reference` VARCHAR(128) NULL;';
 }
 
 $query = "SELECT if (count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
@@ -125,6 +127,8 @@ WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_r
 $db_check = Db::getInstance()->executeS($query);
 if ($db_check[0]['result'] != 'Exist') {
     $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `data` LONGTEXT NULL;';
+} else {
+    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` MODIFY `data` LONGTEXT NULL;';
 }
 
 
