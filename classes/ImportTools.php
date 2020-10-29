@@ -601,10 +601,15 @@ class BdroppyImportTools
             $product->weight = (float)$jsonProduct->weight;
 
             $tax = new Tax(Configuration::get('BDROPPY_TAX_RATE'));
-            $product->wholesale_price = round($productData['best_taxable'], 3);
             $price = $productData['proposed_price'];
             $price = $price / (1 + $tax->rate / 100);
-            $product->price = round($price, 3);
+            $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES', null);
+            if ($bdroppy_auto_update_prices || $product->price == 0) {
+                $product->price = round($price, 3);
+            }
+            if ($bdroppy_auto_update_prices || $product->wholesale_price == 0) {
+                $product->wholesale_price = round($productData['best_taxable'], 3);
+            }
             $product->id_tax_rules_group = Configuration::get('BDROPPY_TAX_RULE');
             $product->tax_rate = $tax->rate;
 
@@ -1015,11 +1020,7 @@ class BdroppyImportTools
                     $combinationAttributes[] = $attribute->id_attribute;
                 }
 
-                //$tax = new Tax(Configuration::get('BDROPPY_TAX_RULE'));
-                //$rate = 1+$tax->rate/100;
-                //$user_tax = Configuration::get('BDROPPY_USER_TAX');
-                $wholesale_price = round($jsonProduct->bestTaxable, 3);
-
+                $wholesale_price = $product->price;
                 $impact_on_price_per_unit = 0;
                 $impact_on_price = 0;
                 $impact_on_weight = 0;

@@ -137,8 +137,6 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 $configurations['BDROPPY_CATALOG_CHANGED'] : false;
             $api_limit_count = isset($configurations['BDROPPY_LIMIT_COUNT']) ?
                 $configurations['BDROPPY_LIMIT_COUNT'] : 5;
-            $bdroppy_auto_update_prices = isset($configurations['BDROPPY_AUTO_UPDATE_PRICES']) ?
-                $configurations['BDROPPY_AUTO_UPDATE_PRICES'] : '';
 
             $acceptedlocales = '';
             $languages = Language::getLanguages();
@@ -274,7 +272,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
                             "WHERE sync_status <> '".BdroppyRemoteProduct::SYNC_STATUS_UPDATED."';";
                         $total = $db->ExecuteS($sql);
-                        if ($total[0]['total'] == 0 && $bdroppy_auto_update_prices) {
+                        if ($total[0]['total'] == 0) {
                             $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                             if ($lastQuantitiesSync == 0) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
@@ -287,7 +285,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                                 }
                                 $iso8601 = date('Y-m-d\TH:i:s.v', $lastQuantitiesSync) . 'Z';
                                 $rewixApi = new BdroppyRewixApi();
-                                $res = $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
+                                $rewixApi->getProductsJsonSince($api_catalog, $acceptedlocales, $iso8601);
                             }
                         }
                     }
