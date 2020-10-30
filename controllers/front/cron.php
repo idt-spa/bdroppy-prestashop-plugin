@@ -188,7 +188,15 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                     foreach ($delete_products as $item) {
                         if ($item['ps_product_id'] != '0') {
                             $dp = new Product((int)$item['ps_product_id']);
-                            $dp->delete();
+                            $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE " .
+                            "id_product='" . (int)$dp->id . "';";
+                            $total = $db->ExecuteS($sql);
+                            if ($total[0]['total'] == 0) {
+                                $dp->delete();
+                            } else {
+                                $dp->active = false;
+                                $dp->save();
+                            }
                         }
                         BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                     }
@@ -196,8 +204,16 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
                 $delete_products = $db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
-                    $product = new Product((int)$item['id_product']);
-                    $product->delete();
+                    $dp = new Product((int)$item['id_product']);
+                    $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE id_product='" .
+                        (int)$dp->id."';";
+                    $total = $db->ExecuteS($sql);
+                    if ($total[0]['total'] == 0) {
+                        $dp->delete();
+                    } else {
+                        $dp->active = false;
+                        $dp->save();
+                    }
                 }
             } else {
                 if ($api_catalog!="" && $api_catalog!="0" && $api_catalog!="-1" && Tools::strlen($api_catalog)>1) {
@@ -232,7 +248,15 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
                                 $dp = new Product((int)$item['ps_product_id']);
-                                $dp->delete();
+                                $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE ".
+                                    "id_product='" . (int)$dp->id . "';";
+                                $total = $db->ExecuteS($sql);
+                                if ($total[0]['total'] == 0) {
+                                    $dp->delete();
+                                } else {
+                                    $dp->active = false;
+                                    $dp->save();
+                                }
                             }
                             BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                         }

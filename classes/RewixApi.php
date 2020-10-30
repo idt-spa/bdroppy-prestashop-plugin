@@ -97,7 +97,15 @@ class BdroppyRewixApi
             foreach ($items as $item) {
                 if (strpos($item['unity'], $api_catalog) !== false) {
                     $dp = new Product($item['id_product']);
-                    $dp->delete();
+                    $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE id_product='" .
+                        (int)$dp->id."';";
+                    $total = $db->ExecuteS($sql);
+                    if ($total[0]['total'] == 0) {
+                        $dp->delete();
+                    } else {
+                        $dp->active = false;
+                        $dp->save();
+                    }
                 }
             }
             $pageSize = 100;
@@ -680,6 +688,7 @@ class BdroppyRewixApi
 
     public function validateOrder($cart)
     {
+        $db = Db::getInstance();
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
         if ($catalog_id != '' && $catalog_id != '-1') {
             $logMsg = 'Validating order';
@@ -701,7 +710,7 @@ class BdroppyRewixApi
                     }
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
-                    $product_attribute = Db::getInstance()->ExecuteS($sql);
+                    $product_attribute = $db->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = (int)$product_attribute[0]['isbn'];
                         if ($modelId == 0) {
@@ -749,6 +758,7 @@ class BdroppyRewixApi
 
     public function sendBdroppyOrder($order)
     {
+        $db = Db::getInstance();
         $catalog_id =  Configuration::get('BDROPPY_CATALOG');
         if ($catalog_id != '' && $catalog_id != '-1') {
             $logMsg = 'Sending bdroppy order ' . $order->id;
@@ -785,7 +795,7 @@ class BdroppyRewixApi
                     }
                     $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product_attribute` ".
                         "WHERE id_product_attribute = '$attributeId';";
-                    $product_attribute = Db::getInstance()->ExecuteS($sql);
+                    $product_attribute = $db->ExecuteS($sql);
                     if (count($product_attribute)) {
                         $modelId = $product_attribute[0]['isbn'];
                         if ($modelId == 0) {
@@ -979,7 +989,7 @@ class BdroppyRewixApi
 
     public function getPendingQty($productId)
     {
-
+        $db = Db::getInstance();
         if (is_null($this->pendingCache)) {
             $query = "select od.product_id, sum(od.product_quantity) as ordered_qty " .
                 "from `"._DB_PREFIX_."order_detail` od " .
@@ -988,7 +998,7 @@ class BdroppyRewixApi
                 "'PS_OS_BANKWIRE', 'PS_OS_WS_PAYMENT', 'PS_OS_COD_VALIDATION'))) " .
                 "and od.id_order not in (select x.ps_order_id from `"._DB_PREFIX_."bdroppy_remoteorder` x) " .
                 "group by od.product_id ";
-            $this->pendingCache = Db::getInstance()->ExecuteS($query);
+            $this->pendingCache = $db->ExecuteS($query);
         }
 
         foreach ($this->pendingCache as $pendingItem) {
@@ -1001,11 +1011,12 @@ class BdroppyRewixApi
 
     private function getPsModelId($modelId)
     {
+        $db = Db::getInstance();
         $query = 'select p.ps_product_id ' .
             'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
             'where p.rewix_product_id = ' . (int) $modelId;
 
-        $rewixProducts = Db::getInstance()->ExecuteS($query);
+        $rewixProducts = $db->ExecuteS($query);
 
         foreach ($rewixProducts as $rewixProduct) {
             return $rewixProduct['ps_product_id'];
@@ -1017,11 +1028,12 @@ class BdroppyRewixApi
 
     private function getRewixModelId($modelId)
     {
+        $db = Db::getInstance();
         $query = 'select p.rewix_product_id ' .
             'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
             'where p.ps_product_id = ' . (int) $modelId;
 
-        $products = Db::getInstance()->ExecuteS($query);
+        $products = $db->ExecuteS($query);
 
         foreach ($products as $product) {
             return $product['rewix_product_id'];
@@ -1033,11 +1045,12 @@ class BdroppyRewixApi
 
     private function getProductNameFromRewixModelId($modelId)
     {
+        $db = Db::getInstance();
         $query = 'select p.rewix_product_id ' .
             'from `'._DB_PREFIX_.'bdroppy_remoteproduct` p ' .
             'where p.ps_product_id = ' . (int) $modelId;
 
-        $products = Db::getInstance()->ExecuteS($query);
+        $products = $db->ExecuteS($query);
 
         foreach ($products as $product) {
             $prd = new Product($product['rewix_product_id']);
@@ -1057,6 +1070,7 @@ class BdroppyRewixApi
 
     public function getProcessingQty($productId)
     {
+        $db = Db::getInstance();
         if (is_null($this->pendingCache)) {
             $query = "select od.product_id, sum(od.product_quantity) as ordered_qty " .
                 "from `"._DB_PREFIX_."order_detail` od " .
@@ -1064,7 +1078,7 @@ class BdroppyRewixApi
                 "(select value from `"._DB_PREFIX_."configuration` where name in ('PS_OS_PREPARATION'))) " .
                 "and od.id_order not in (select r.ps_order_id from `"._DB_PREFIX_."bdroppy_remoteorder` r) " .
                 "group by od.product_id ";
-            $this->pendingCache = Db::getInstance()->ExecuteS($query);
+            $this->pendingCache = $db->ExecuteS($query);
         }
 
         foreach ($this->pendingCache as $pendingItem) {
@@ -1164,6 +1178,7 @@ class BdroppyRewixApi
 
     public function syncBookedProducts()
     {
+        $db = Db::getInstance();
         $bookedProducts = $this->getGrowingOrderProducts();
         var_dump('syncBookedProducts', $bookedProducts, '*********************************');
 
@@ -1178,7 +1193,7 @@ class BdroppyRewixApi
                 $productId = 0;
                 $sql = "SELECT id_product FROM `" . _DB_PREFIX_ . "product_attribute` " .
                     "WHERE isbn = '". (int)$bookedProduct['stock_id'] ."';";
-                $product_attribute = Db::getInstance()->ExecuteS($sql);
+                $product_attribute = $db->ExecuteS($sql);
                 if ($product_attribute) {
                     $productId = $product_attribute[0]['id_product'];
                 }

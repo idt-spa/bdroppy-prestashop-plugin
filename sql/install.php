@@ -112,8 +112,9 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bdroppy_remotecombinati
 $query = "SELECT if (count(*) = 1, 'Exist','Not Exist') AS result FROM  information_schema.columns
 WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'reference'";
+$db = Db::getInstance();
 
-$db_check = Db::getInstance()->executeS($query);
+$db_check = $db->executeS($query);
 if ($db_check[0]['result'] != 'Exist') {
     $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `reference` VARCHAR(128) NULL;';
 } else {
@@ -124,7 +125,7 @@ $query = "SELECT if (count(*) = 1, 'Exist','Not Exist') AS result FROM  informat
 WHERE table_schema = '"._DB_NAME_."' AND table_name = '"._DB_PREFIX_ ."bdroppy_remoteproduct'
   AND column_name = 'data'";
 
-$db_check = Db::getInstance()->executeS($query);
+$db_check = $db->executeS($query);
 if ($db_check[0]['result'] != 'Exist') {
     $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'bdroppy_remoteproduct` ADD `data` LONGTEXT NULL;';
 } else {
@@ -133,7 +134,7 @@ if ($db_check[0]['result'] != 'Exist') {
 
 
 foreach ($sql as $query) {
-    if (Db::getInstance()->execute($query) == false) {
+    if ($db->execute($query) == false) {
         echo "false";
     }
 }
