@@ -1079,12 +1079,16 @@ class BdroppyImportTools
     private static function checkNosizeModel($jsonProduct, Product $product)
     {
         if (BdroppyRemoteCombination::countByRewixProductId($product->id) == 0) {
-            self::insertNosizeModel($jsonProduct);
+            self::insertNosizeModel($product, $jsonProduct);
         }
     }
 
-    private static function insertNosizeModel($jsonProduct)
+    private static function insertNosizeModel(Product $product, $jsonProduct)
     {
+        $db = Db::getInstance();
+        $product->deleteProductAttributes();
+        $db->delete('stock_available', 'id_product = ' . $product->id);
+
         $jsonModel = $jsonProduct->models[0];
 
         $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$jsonModel->id);
@@ -1100,6 +1104,9 @@ class BdroppyImportTools
     private static function importSimpleProduct($jsonProduct, Product $product)
     {
         try {
+            $db = Db::getInstance();
+            $product->deleteProductAttributes();
+            $db->delete('stock_available', 'id_product = ' . $product->id);
             $jsonModel = $jsonProduct->models[0];
             $product->minimal_quantity = 1;
             $ean13 = trim((string)$jsonModel->barcode);
@@ -1112,7 +1119,7 @@ class BdroppyImportTools
             $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);
 
-            //self::insertNosizeModel($jsonProduct);
+            //self::insertNosizeModel($product, $jsonProduct);
 
             return $product;
         } catch (PrestaShopException $e) {
