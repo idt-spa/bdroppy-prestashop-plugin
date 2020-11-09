@@ -324,7 +324,7 @@ class BdroppyImportTools
                 }
             }
         } catch (PrestaShopException $e) {
-            self::getLogger()->logDebug('importProductImages : ' . $e->getMessage());
+            BdroppyLogger::addLog(__METHOD__, 'importProductImages : ' . $e->getMessage(), 1);
         }
     }
 
