@@ -33,6 +33,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         $this->ssl = true;
     }
 
+    public function getLanguages()
+    {
+        return Language::getLanguages();
+    }
+
     public function initContent()
     {
         ini_set('display_errors', 1);
