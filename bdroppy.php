@@ -287,6 +287,7 @@ class Bdroppy extends Module
 
             if (!parent::install() ||
                 !$this->registerHook('header') &&
+                !$this->registerHook('backOfficeHeader') ||
                 !$this->registerHook('displayBackOfficeHeader') ||
                 !$this->registerHook('actionProductDelete') ||
                 !$this->registerHook('actionCategoryDelete') ||
@@ -621,7 +622,7 @@ class Bdroppy extends Module
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
 
-        $stripeBOCssUrl = '/modules/' . $this->name . '/views/css/bdroppy.css';
+        $stripeBOCssUrl = __PS_BASE_URI__ . '/modules/' . $this->name . '/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
         $api_token = "Unkown";
@@ -854,9 +855,10 @@ class Bdroppy extends Module
      */
     public function hookBackOfficeHeader()
     {
-        if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path . 'views/js/back.js');
-            $this->context->controller->addCSS($this->_path . 'views/css/back.css');
+
+        if (Tools::getValue('configure') == $this->name) {
+            $this->context->controller->addJS($this->_path.'views/js/back.js');
+            $this->context->controller->addCSS($this->_path.'views/css/back.css');
         }
     }
 
