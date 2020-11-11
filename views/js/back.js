@@ -25,5 +25,36 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
-alert(1);
-console.log('sadas');
+$( document ).ready(function() {
+    console.log( "ready!" );
+    $.ajax({
+        type: 'GET',
+        url: './index.php?fc=module&module=bdroppy&controller=category',
+        cache: false,
+        beforeSend: function(){
+            console.log('before sending');
+            $('#modal_res').html('<b>Updating ...</b>');
+            $("#reimport").prop('disabled', true);
+        },
+        error: function(err) {
+            console.log('error');
+            console.log(err);
+
+            $('#modal_res').html('Result : <b>Failed</b>');
+            $("#reimport").prop('disabled', false);
+        },
+        success: function(data) {
+
+            console.log('success');
+            console.log(data);
+
+            if (data == '1' || data == 'true') {
+                $('#modal_res').html('Result : <b>Successful</b>');
+                location.reload();
+            } else {
+                $('#modal_res').html('Result : <b>Failed</b>');
+                $("#reimport").prop('disabled', false);
+            }
+        },
+    });
+});

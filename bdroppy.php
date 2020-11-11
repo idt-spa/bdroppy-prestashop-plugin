@@ -857,6 +857,7 @@ class Bdroppy extends Module
     {
 
         if (Tools::getValue('configure') == $this->name) {
+            $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path.'views/js/back.js');
             $this->context->controller->addCSS($this->_path.'views/css/back.css');
         }
