@@ -29,7 +29,7 @@ $( document ).ready(function() {
     console.log( "ready!" );
     $.ajax({
         type: 'GET',
-        url: './index.php?fc=module&module=bdroppy&controller=category',
+        url: category_url,
         cache: false,
         beforeSend: function(){
             console.log('before sending');

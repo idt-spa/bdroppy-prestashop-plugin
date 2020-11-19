@@ -31,33 +31,19 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
         parent::__construct();
         $this->context = Context::getContext();
         $this->ssl = true;
-        echo 2;
-        die;
+        $this->ajax = true;
     }
-    protected function ajaxRender($value = null, $controller = null, $method = null)
-    {
-        return 12;
-    }
-
-    public function index()
-    {
-        echo '21';
-    }
-    public function getLanguages()
-    {
-        return Language::getLanguages();
-    }
+    
 
     public function initContent()
     {
-
-
-        $this->assignTpl();
+        echo '12';
+        return 12;
     }
 
     public function assignTpl()
     {
-
+        echo 12;
         return 1;
     }
 }

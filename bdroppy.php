@@ -857,7 +857,14 @@ class Bdroppy extends Module
     {
 
         if (Tools::getValue('configure') == $this->name) {
+            $link = new Link;
+            $ajax_link = $link->getModuleLink('bdroppy','category');
+            Media::addJsDef(array(
+                "category_url" => $ajax_link
+            ));
+
             $this->context->controller->addJquery();
+
             $this->context->controller->addJS($this->_path.'views/js/back.js');
             $this->context->controller->addCSS($this->_path.'views/css/back.css');
         }
