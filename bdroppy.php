@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.22';
+        $this->version = '2.1.23';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -858,7 +858,7 @@ class Bdroppy extends Module
 
         if (Tools::getValue('configure') == $this->name) {
             $link = new Link;
-            $ajax_link = $link->getModuleLink('bdroppy','category');
+            $ajax_link = $link->getModuleLink('bdroppy', 'category');
             Media::addJsDef(array(
                 "category_url" => $ajax_link
             ));

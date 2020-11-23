@@ -224,15 +224,19 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 if ($api_catalog!="" && $api_catalog!="0" && $api_catalog!="-1" && Tools::strlen($api_catalog)>1) {
                     $lastImportSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
                     $devFlag = false;
-                    if (Tools::getIsset('dev')) {
-                        if (Tools::getValue('dev') == 'isaac') {
+                    //get update products since
+                    $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
+                        "WHERE sync_status <> '".BdroppyRemoteProduct::SYNC_STATUS_UPDATED."';";
+                    $total_queue = $db->ExecuteS($sql);
+                    if (Tools::getIsset('action')) {
+                        if (Tools::getValue('action') == 'restart') {
                             $devFlag = true;
                         }
                     }
-                    if ((time() - $lastImportSync) >  3600 * 12 ||
+                    if ($total_queue[0]['total'] == 0 && ((time() - $lastImportSync) >  3600 * 12 ||
                         $lastImportSync == 0 ||
                         $devFlag ||
-                        $api_catalog_changed) {
+                        $api_catalog_changed)) {
                         $rewixApi = new BdroppyRewixApi();
                         $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
@@ -297,11 +301,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                             }
                         }
 
-                        //get update products since
-                        $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                            "WHERE sync_status <> '".BdroppyRemoteProduct::SYNC_STATUS_UPDATED."';";
-                        $total = $db->ExecuteS($sql);
-                        if ($total[0]['total'] == 0) {
+                        if ($total_queue[0]['total'] == 0) {
                             $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_QUANTITIES_SYNC');
                             if ($lastQuantitiesSync == 0) {
                                 $lastQuantitiesSync = (int)Configuration::get('BDROPPY_LAST_IMPORT_SYNC');
