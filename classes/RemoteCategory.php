@@ -129,11 +129,26 @@ class BdroppyRemoteCategory extends ObjectModel
 
     public static function getCategory($parent, $tagId, $value, $xmlProduct)
     {
+        $query = new DbQuery();
+        $query->select('id');
+        $query->from('category_lang');
+        $query->where("name = '" . pSQL($value) . "'");
+        $result = Db::getInstance()->getValue($query);
+
         $tag = $tagId.'-'.$value;
         $parentTag = new self(self::getIdByPsId($parent->id));
 
         if ($parentTag->id > 0) {
             $tag = $parentTag->rewix_category_id.'-'.$tag;
+        }
+
+        if ($result > 0) {
+            $category = new Category($result);
+            $remoteCategory = self::fromRewixTag($tag);
+            $remoteCategory->ps_category_id = $category->id;
+            $remoteCategory->rewix_category_id = $tag;
+            $remoteCategory->save();
+            return $category;
         }
 
         $remoteCategory = self::fromRewixTag($tag);
