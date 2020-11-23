@@ -228,15 +228,14 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                     $sql = "SELECT COUNT(id) AS total FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
                         "WHERE sync_status <> '".BdroppyRemoteProduct::SYNC_STATUS_UPDATED."';";
                     $total_queue = $db->ExecuteS($sql);
-                    if (Tools::getIsset('action')) {
-                        if (Tools::getValue('action') == 'restart') {
+                    if (Tools::getIsset('op')) {
+                        if (Tools::getValue('op') == 'restart') {
                             $devFlag = true;
                         }
                     }
-                    if ($total_queue[0]['total'] == 0 && ((time() - $lastImportSync) >  3600 * 12 ||
+                    if ($devFlag || ($total_queue[0]['total'] == 0 && ((time() - $lastImportSync) >  3600 * 12 ||
                         $lastImportSync == 0 ||
-                        $devFlag ||
-                        $api_catalog_changed)) {
+                        $api_catalog_changed))) {
                         $rewixApi = new BdroppyRewixApi();
                         $r = $rewixApi->getProductsFull($acceptedlocales);
                         Configuration::updateValue('BDROPPY_CATALOG_CHANGED', false);
