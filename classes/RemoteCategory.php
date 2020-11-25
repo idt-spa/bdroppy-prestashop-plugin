@@ -130,7 +130,7 @@ class BdroppyRemoteCategory extends ObjectModel
     public static function getCategory($parent, $tagId, $value, $xmlProduct)
     {
         $query = new DbQuery();
-        $query->select('id');
+        $query->select('id_category');
         $query->from('category_lang');
         $query->where("name = '" . pSQL($value) . "'");
         $result = Db::getInstance()->getValue($query);
