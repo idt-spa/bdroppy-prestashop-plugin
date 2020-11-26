@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.25';
+        $this->version = '2.1.26';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -622,7 +622,7 @@ class Bdroppy extends Module
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
 
-        $stripeBOCssUrl = _PS_BASE_URL_ . __PS_BASE_URI__ . '/modules/' . $this->name . '/views/css/bdroppy.css';
+        $stripeBOCssUrl = str_replace('http://','https://',_PS_BASE_URL_) . '/modules/bdroppy/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
         $api_token = "Unkown";

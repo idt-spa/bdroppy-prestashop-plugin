@@ -176,7 +176,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                     $query = new DbQuery();
                     $query->select('*')
                         ->from('bdroppy_remoteproduct')
-                        ->where('reference = ' . (int)Tools::getValue('reference'));
+                        ->where("reference = '" . Tools::getValue('reference') . "'");
                     $items = $db->executeS($query);
                 }
                 foreach ($items as $item) {
