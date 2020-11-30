@@ -678,15 +678,25 @@ class BdroppyImportTools
                     $product->name[$lang['id_lang']] = $name;
                 }
                 $desc  = self::getDescriptions($jsonProduct, $langCode);
-                $desc = str_replace("</div>", "<br>", $desc);
-                $desc = strip_tags($desc, "<br>");
-
+                $desc = str_replace('</div>', '<br>', $desc);
+                $desc = strip_tags($desc, '<br>');
+                $strLines = explode('<br>', $desc);
+                $finalDesc = '';
+                foreach ($strLines as $strLine) {
+                    $line = explode(':', $strLine);
+                    if (count($line) <= 1) {
+                        $finalDesc .= $strLine . '<br>';
+                    }
+                    if (count($line) > 1) {
+                        $finalDesc .= trim($line[0]) . ' : ' . trim($line[1]) . '<br>';
+                    }
+                }
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
                     "{$productData['brand']}-{$productData['code']}"
                 );
-                $product->description[$lang['id_lang']] = $desc;
+                $product->description[$lang['id_lang']] = $finalDesc;
                 $desc_short_limit = Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
-                $product->description_short[$lang['id_lang']] = Tools::substr($desc, 0, $desc_short_limit);
+                $product->description_short[$lang['id_lang']] = Tools::substr($finalDesc, 0, $desc_short_limit);
             }
 
             if (!isset($product->date_add) || empty($product->date_add)) {
