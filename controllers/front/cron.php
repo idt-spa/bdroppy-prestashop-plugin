@@ -137,6 +137,12 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
             );
 
             $db = Db::getInstance();
+            if (Tools::getIsset('truncate')) {
+                $sql = "TRUNCATE TABLE ps_bdroppy_remotecategory;";
+                var_dump($db->Execute($sql));
+                die;
+            }
+
             $api_catalog = isset($configurations['BDROPPY_CATALOG']) ? $configurations['BDROPPY_CATALOG'] : '';
             $api_catalog_changed = isset($configurations['BDROPPY_CATALOG_CHANGED']) ?
                 $configurations['BDROPPY_CATALOG_CHANGED'] : false;
