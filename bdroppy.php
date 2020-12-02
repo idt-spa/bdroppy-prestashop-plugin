@@ -622,7 +622,8 @@ class Bdroppy extends Module
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();
 
-        $stripeBOCssUrl = str_replace('http://','https://',_PS_BASE_URL_.__PS_BASE_URI__) . '/modules/bdroppy/views/css/bdroppy.css';
+        $stripeBOCssUrl = str_replace('http://', 'https://', _PS_BASE_URL_ . __PS_BASE_URI__) .
+            '/modules/bdroppy/views/css/bdroppy.css';
         $base_url = "Unkown";
         $api_key = "Unkown";
         $api_token = "Unkown";
