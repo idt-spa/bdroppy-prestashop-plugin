@@ -222,6 +222,10 @@ class BdroppyRewixApi
             } else {
                 $logMsg = 'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
                 BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+                $r = $this->loginUser();
+                if ($r['http_code'] == 200) {
+                    Configuration::updateValue('BDROPPY_TOKEN', $r['data']->token);
+                }
             }
             return $http_code;
         } catch (PrestaShopException $e) {
@@ -277,6 +281,10 @@ class BdroppyRewixApi
         } else {
             BdroppyLogger::addLog(__METHOD__, 'http_code : ' . $http_code . ' - url : ' . $url .
                 ' data : '.$data, 2);
+            $r = $this->loginUser();
+            if ($r['http_code'] == 200) {
+                Configuration::updateValue('BDROPPY_TOKEN', $r['data']->token);
+            }
         }
         return $http_code;
     }
