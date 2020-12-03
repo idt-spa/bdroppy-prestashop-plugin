@@ -39,13 +39,14 @@ class Bdroppy extends Module
     protected $config_form = false;
     private $errors = null;
     public $current_tab = null;
+    public $categories = [];
 
     public function __construct()
     {
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.29';
+        $this->version = '2.1.30';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -462,6 +463,18 @@ class Bdroppy extends Module
         return $helper_list->generateList($users, $fields_list);
     }
 
+    public function getNestedCategories($parentName, $categories)
+    {
+        foreach ($categories as $category) {
+            $this->categories[$category['id_category']] = $parentName . ' > ' . $category['name'];
+            if($category['children']) {
+                if(count($category['children']) > 0) {
+                    $this->getNestedCategories($parentName . ' > ' . $category['name'], $category['children']);
+                }
+            }
+        }
+    }
+
     public function getContent()
     {
         $output = '';
@@ -525,6 +538,9 @@ class Bdroppy extends Module
 
             $bdroppy_season = (string)Tools::getValue('bdroppy_season');
             Configuration::updateValue('BDROPPY_SEASON', $bdroppy_season);
+
+            $bdroppy_category_root = (string)Tools::getValue('bdroppy_category_root');
+            Configuration::updateValue('BDROPPY_CATEGORY_ROOT', $bdroppy_category_root);
 
             $bdroppy_category_structure = (string)Tools::getValue('bdroppy_category_structure');
             Configuration::updateValue('BDROPPY_CATEGORY_STRUCTURE', $bdroppy_category_structure);
@@ -677,6 +693,11 @@ class Bdroppy extends Module
             '4' => $this->l('4 Picture', 'main'),
             'all' => $this->l('All Pictures', 'main'),
         );
+        $bdroppy_category_root = Configuration::get('BDROPPY_CATEGORY_ROOT');
+        if ($bdroppy_category_root == '') {
+            $bdroppy_category_root = '0';
+        }
+
         $category_structure = array(
             '1' => $this->l('Category > Subcategory', 'main'),
             '2' => $this->l('Gender > Category > Subcategory', 'main'),
@@ -784,6 +805,11 @@ class Bdroppy extends Module
             $last_orders_sync = "Never";
         }
 
+        $rootCategory = Category::getRootCategory();
+        $this->categories[$rootCategory->id] = $rootCategory->name;
+        $cats = Category::getNestedCategories($rootCategory->id, $this->context->language->id);
+        $this->getNestedCategories($rootCategory->name, $cats[$rootCategory->id]['children']);
+
         $base_uri = '';
         if(__PS_BASE_URI__ != '/')
             $base_uri = __PS_BASE_URI__;
@@ -794,7 +820,7 @@ class Bdroppy extends Module
             'description' => '',
             'home_url' => $home_url,
             'urls' => $urls,
-            'urls' => $urls,
+            'categories' => $this->categories,
             'erros' => $errors,
             'confirmations' => $confirmations,
             'module_path' => $base_uri . '/modules/bdroppy/',
@@ -809,6 +835,7 @@ class Bdroppy extends Module
             'import_image' => $import_image,
             'tax_rule' => $tax_rules,
             'tax_rate' => $tax_rates,
+            'bdroppy_category_root' => $bdroppy_category_root,
             'category_structure' => $category_structure,
             'stripeBOCssUrl' => $stripeBOCssUrl,
             'base_url' => $base_url,

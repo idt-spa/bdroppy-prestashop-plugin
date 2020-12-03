@@ -335,7 +335,12 @@ class BdroppyImportTools
      */
     private static function getCategoryIds($tags, $jsonProduct)
     {
-        $rootCategory = Category::getRootCategory();
+        $bdroppy_category_root = (int)Configuration::get('BDROPPY_CATEGORY_ROOT');
+        if($bdroppy_category_root == 0) {
+            $rootCategory = Category::getRootCategory();
+        } else {
+            $rootCategory = new Category($bdroppy_category_root);
+        }
         $categoryIds = array($rootCategory->id);
         $deepestCategory = $rootCategory->id;
         $currentDeepness = $maxDeepness = 0;

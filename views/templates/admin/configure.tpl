@@ -234,6 +234,14 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Root Category' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<select name="bdroppy_category_root" id="bdroppy_category_root">
+								{html_options options=$categories selected=Configuration::get('BDROPPY_CATEGORY_ROOT')}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Category Structure' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<select name="bdroppy_category_structure" id="bdroppy_category_structure">
@@ -497,6 +505,8 @@
 						<p><strong>{l s='Deleting' mod='bdroppy'}</strong> {$queue_deleting|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='Imported' mod='bdroppy'}</strong> {$queue_imported|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='All' mod='bdroppy'}</strong> {$queue_all|escape:'htmlall':'UTF-8'}</p>
+						<hr/>
+						<a target="_blank" href="{$cron_url}&op=restart" class="btn btn-danger">{l s='Restart Importing' mod='bdroppy'}</a>
 						<hr/>
 						<p><strong>{l s='Last Cron Sync' mod='bdroppy'}</strong> {$last_cron_sync|escape:'htmlall':'UTF-8'}</p>
 						<p><strong>{l s='Last Import Sync' mod='bdroppy'}</strong> {$last_import_sync|escape:'htmlall':'UTF-8'}</p>
