@@ -519,9 +519,31 @@ class BdroppyRewixApi
         $http_code  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         //$curl_error = curl_error($ch);
         curl_close($ch);
+
         if ($http_code != 200) {
             $logMsg = 'getUserCatalogs - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
             BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+            $r = $this->loginUser();
+            if ($r['http_code'] == 200) {
+                Configuration::updateValue('BDROPPY_TOKEN', $r['data']->token);
+                $api_token = $r['data']->token;
+                $url = $base_url . '/restful/user_catalog/list';
+
+                $header = "Authorization: Bearer " . $api_token;
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'accept: application/json',
+                    'Content-Type: application/json',
+                    $header));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+                $data  = curl_exec($ch);
+                $http_code  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                //$curl_error = curl_error($ch);
+                curl_close($ch);
+            }
         }
         if ($http_code === 200) {
             $catalogs = json_decode($data);

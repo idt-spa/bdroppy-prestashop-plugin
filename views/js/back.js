@@ -26,8 +26,7 @@
 * to avoid any conflicts with others containers.
 */
 $( document ).ready(function() {
-    console.log( "ready!" );
-    $.ajax({
+    /*$.ajax({
         type: 'GET',
         url: category_url,
         cache: false,
@@ -56,5 +55,5 @@ $( document ).ready(function() {
                 $("#reimport").prop('disabled', false);
             }
         },
-    });
+    });*/
 });

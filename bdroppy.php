@@ -45,7 +45,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.1.28';
+        $this->version = '2.1.29';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -784,6 +784,9 @@ class Bdroppy extends Module
             $last_orders_sync = "Never";
         }
 
+        $base_uri = '';
+        if(__PS_BASE_URI__ != '/')
+            $base_uri = __PS_BASE_URI__;
         $tplVars = array(
             'module_display_name' => $this->displayName,
             'module_version' => $this->version,
@@ -794,7 +797,7 @@ class Bdroppy extends Module
             'urls' => $urls,
             'erros' => $errors,
             'confirmations' => $confirmations,
-            'module_path' => __PS_BASE_URI__ . '/modules/bdroppy/',
+            'module_path' => $base_uri . '/modules/bdroppy/',
             'base_url' => $base_url,
             'api_key' => $api_key,
             'ordersHtml' => $renderedOrders,
