@@ -336,7 +336,7 @@ class BdroppyImportTools
     private static function getCategoryIds($tags, $jsonProduct)
     {
         $bdroppy_category_root = (int)Configuration::get('BDROPPY_CATEGORY_ROOT');
-        if($bdroppy_category_root == 0) {
+        if ($bdroppy_category_root == 0) {
             $rootCategory = Category::getRootCategory();
         } else {
             $rootCategory = new Category($bdroppy_category_root);

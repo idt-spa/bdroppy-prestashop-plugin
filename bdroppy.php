@@ -467,8 +467,8 @@ class Bdroppy extends Module
     {
         foreach ($categories as $category) {
             $this->categories[$category['id_category']] = $parentName . ' > ' . $category['name'];
-            if($category['children']) {
-                if(count($category['children']) > 0) {
+            if ($category['children']) {
+                if (count($category['children']) > 0) {
                     $this->getNestedCategories($parentName . ' > ' . $category['name'], $category['children']);
                 }
             }
@@ -807,12 +807,13 @@ class Bdroppy extends Module
 
         $rootCategory = Category::getRootCategory();
         $this->categories[$rootCategory->id] = $rootCategory->name;
-        $cats = Category::getNestedCategories($rootCategory->id, $this->context->language->id);
+        $cats = Category::getNestedCategories();
         $this->getNestedCategories($rootCategory->name, $cats[$rootCategory->id]['children']);
 
         $base_uri = '';
-        if(__PS_BASE_URI__ != '/')
+        if (__PS_BASE_URI__ != '/') {
             $base_uri = __PS_BASE_URI__;
+        }
         $tplVars = array(
             'module_display_name' => $this->displayName,
             'module_version' => $this->version,
