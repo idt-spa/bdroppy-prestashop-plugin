@@ -79,7 +79,7 @@
 				<a class="list-group-item{$confirmations_tab|escape:'htmlall':'UTF-8'}" data-id="configurations" href="#configurations"><i class="icon-gear"></i> {l s='Configurations' mod='bdroppy'}</a>
 				<a class="list-group-item{$my_catalogs_tab|escape:'htmlall':'UTF-8'}" data-id="my_catalogs" href="#my_catalogs"><i class="icon-ok-sign"></i> {l s='My Catalogs' mod='bdroppy'}</a>
 				<a class="list-group-item{$orders_tab|escape:'htmlall':'UTF-8'}" data-id="orders" href="#orders"><i class="icon-list"></i> {l s='Orders' mod='bdroppy'}</a>
-				{*<a class="list-group-item" data-id="category_mapping" href="#category_mapping"><i class="icon-collapse"></i> {l s='Category Mapping' mod='bdroppy'}</a>*}
+				<a class="list-group-item" data-id="category_mapping" href="#category_mapping"><i class="icon-collapse"></i> {l s='Category Mapping' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="status" href="#status"><i class="icon-question-sign"></i> {l s='Status' mod='bdroppy'}</a>
 				<a class="list-group-item" data-id="about" href="#about"><i class="icon-info-sign"></i> {l s='About' mod='bdroppy'}</a>
 			</nav>
@@ -407,7 +407,7 @@
 				</fieldset>
 			</form>
 
-			{*<fieldset id="category_mapping" class="{'htmlall'}">
+			<fieldset id="category_mapping" class="{'htmlall'}">
 				<h3 class="tab"> <i class="icon-list"></i>&nbsp;{l s='Category Mapping' mod='bdroppy'}</h3>
 				<div class='api-setting-info'>
 					<div class="bdroppy_card">
@@ -502,7 +502,7 @@
 						<input type="button" class="button" id="add_category_mapping" value="add">
 					</div>
 				</div>
-			</fieldset>*}
+			</fieldset>
 
 			<form action="" method="post">
 				<fieldset id="orders" class="{$orders_form|escape:'htmlall':'UTF-8'}">

@@ -25,35 +25,110 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
-$( document ).ready(function() {
-    /*$.ajax({
-        type: 'GET',
-        url: category_url,
-        cache: false,
-        beforeSend: function(){
-            console.log('before sending');
-            $('#modal_res').html('<b>Updating ...</b>');
-            $("#reimport").prop('disabled', true);
-        },
-        error: function(err) {
-            console.log('error');
-            console.log(err);
 
-            $('#modal_res').html('Result : <b>Failed</b>');
-            $("#reimport").prop('disabled', false);
-        },
+
+let siteIds = {
+    gender : '#category_select_Gender',
+    category : '#category_select_Category',
+    subcategory : '#category_select_SubCategory',
+};
+let bdroppyIds = {
+    gender : '#category_select_bdGender',
+    category : '#category_select_bdCategory',
+    subcategory : '#category_select_bdSubCategory',
+};
+let categoryType = "#category_type";
+let remove_item = "#remove_item";
+
+
+function getCategoryMappingList()
+{
+    let ListId = "#categoryMappingList";
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'getCategoryList',data: null},
+        cache: false,
         success: function(data) {
 
             console.log('success');
             console.log(data);
-
-            if (data == '1' || data == 'true') {
-                $('#modal_res').html('Result : <b>Successful</b>');
-                location.reload();
-            } else {
-                $('#modal_res').html('Result : <b>Failed</b>');
-                $("#reimport").prop('disabled', false);
-            }
+            $(ListId).html('');
+            $.each(data,function (key,item) {
+                $(ListId).append("<tr>" +
+                    "<td>"+$.map(item.bdroppyNames, e => e).join(' > ')+"</td>" +
+                    "<td>"+$.map(item.siteNames, e => e).join(' > ')+"</td>" +
+                    "<td><a class='deleteItemByKey' data-target='"+ key +"' >Delete</a></td>" +
+                    "</tr>");
+            });
         },
-    });*/
+    });
+}
+
+
+function bdCategory(e)
+{
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'getBdCategory',data: null},
+        cache: false,
+        success: function(data) {
+
+            console.log('getBdCategory success');
+            console.log(data);
+            $('#category_select_bdCategory').html("");
+            $('#category_select_bdCategory').append("<option selected disabled>- - - Select - - -</option>");
+            $.each( data, function( key, value ) {
+                $('#category_select_bdCategory').append(new Option(value, key));
+            });
+        },
+    });
+
+}
+
+function bdSubCategory(e)
+{
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'getBdSubCategory',data: {
+                category : e.target.value
+            }},
+        cache: false,
+        success: function(data) {
+
+            console.log('getBdSubCategory success');
+            console.log(data);
+            $('#category_select_bdSubCategory').html("");
+            $('#category_select_bdSubCategory').append("<option selected disabled>- - - Select - - -</option>");
+            $.each( data, function( key, value ) {
+                $('#category_select_bdSubCategory').append(new Option(value, key));
+            });
+        },
+    });
+
+}
+
+
+
+
+$( document ).ready(function() {
+
+    $('#category_type').change(function () {
+        if ($(this).val() == 1){
+            $('#category_gender_row').show();
+            $(siteIds.gender).html($(siteIds.category).html());
+            $(siteIds.category).html("<option selected disabled>- - - Select - - -</option>");
+        }else{
+            $('#category_gender_row').hide();
+            $(siteIds.category).html($(siteIds.gender).html());
+            $(siteIds.gender).html("<option selected disabled>- - - Select - - -</option>");
+        }
+        $("#category_select_SubCategory").html("<option selected disabled>- - - Select - - -</option>");
+    });
+    bdCategory();
+    $(bdroppyIds.category).on('change',bdSubCategory);
+
+    getCategoryMappingList();
 });

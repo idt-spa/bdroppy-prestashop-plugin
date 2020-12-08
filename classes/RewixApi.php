@@ -40,8 +40,31 @@ class BdroppyRewixApi
     private $processingCache;
     private $pendingCache;
 
+    private $langs;
+
     public function __construct()
     {
+        $this->langs['en'] = 'en_US';
+        $this->langs['gb'] = 'en_US';
+        $this->langs['it'] = 'it_IT';
+        $this->langs['fr'] = 'fr_FR';
+        $this->langs['pl'] = 'pl_PL';
+        $this->langs['es'] = 'es_ES';
+        $this->langs['de'] = 'de_DE';
+        $this->langs['ru'] = 'ru_RU';
+        $this->langs['nl'] = 'nl_NL';
+        $this->langs['ro'] = 'ro_RO';
+        $this->langs['et'] = 'et_EE';
+        $this->langs['hu'] = 'hu_HU';
+        $this->langs['sv'] = 'sv_SE';
+        $this->langs['sk'] = 'sk_SK';
+        $this->langs['cs'] = 'cs_CZ';
+        $this->langs['pt'] = 'pt_PT';
+        $this->langs['fi'] = 'fi_FI';
+        $this->langs['bg'] = 'bg_BG';
+        $this->langs['da'] = 'da_DK';
+        $this->langs['lt'] = 'lt_LT';
+        $this->langs['el'] = 'el_GR';
     }
 
     private static function fitReference($ean, $id)
@@ -111,7 +134,6 @@ class BdroppyRewixApi
             $pageSize = 100;
             $base_url = Configuration::get('BDROPPY_API_URL');
             $api_token = Configuration::get('BDROPPY_TOKEN');
-            $api_catalog = $api_catalog;
             $url = $base_url . "/restful/export/api/products.json?pageSize=".
                 "$pageSize&page=1&acceptedlocales=$acceptedlocales&user_catalog=$api_catalog";
 
@@ -1307,4 +1329,98 @@ class BdroppyRewixApi
         }
         return $bookedProducts;
     }
+
+
+
+    public function getCategories()
+    {
+        $acceptedlocales = '';
+        $languages = Language::getLanguages();
+        $lang = '';
+        foreach ($languages as $lang) {
+            if (isset($langs[$lang['iso_code']])) {
+                $lang = $this->langs[$lang['iso_code']];
+            } else {
+                $lang = $this->langs['en'];
+            }
+        }
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $url = $base_url . "/restful/category";
+
+        $header = "Authorization: Bearer " . $api_token;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array('accept: application/json', 'Content-Type: application/json', $header)
+        );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //$curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($http_code == 200) {
+            $data = json_decode($data);
+            $result = [];
+            foreach ($data as $item){
+                $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
+                $result[$item->code] = $value;
+            }
+            return json_encode($result);
+        }
+    }
+
+    public function getSubCategories($category)
+    {
+        $lang = '';
+        $languages = Language::getLanguages();
+        foreach ($languages as $lang) {
+            if (isset($langs[$lang['iso_code']])) {
+                $lang = $this->langs[$lang['iso_code']];
+            } else {
+                $lang = $this->langs['en'] ;
+            }
+        }
+
+        $base_url = Configuration::get('BDROPPY_API_URL');
+        $api_token = Configuration::get('BDROPPY_TOKEN');
+        $url = $base_url . "/restful/subcategory?tag_4=". $category;
+
+        $header = "Authorization: Bearer " . $api_token;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array('accept: application/json', 'Content-Type: application/json', $header)
+        );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+        $data = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //$curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($http_code == 200) {
+            $data = json_decode($data);
+            $result = [];
+            foreach ($data as $item){
+                $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
+                $result[$item->code] = $value;
+            }
+            return $result;
+        }
+    }
+
+
 }
