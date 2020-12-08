@@ -710,11 +710,15 @@ class BdroppyImportTools
             $product->date_upd = date('Y-m-d H:i:s');
 
             $product->id_manufacturer = self::getManufacturer($productData['brand']);
-            list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
-            $product->id_category_default = $categoryDefaultId;
 
             if (!$product->id) {
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
+            }
+            if (!$product->id || (bool)Configuration::get('BDROPPY_AUTO_UPDATE_CATEGORIES')) {
+                // updateCategories requires the product to have an id already set
+                list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
+                $product->id_category_default = $categoryDefaultId;
+                $product->updateCategories($categories);
             }
             if ($product->price <= 0) {
                 $product->active = false;

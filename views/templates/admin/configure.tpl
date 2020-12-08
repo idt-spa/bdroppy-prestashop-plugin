@@ -234,6 +234,22 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="control-label col-lg-3" for="simple_product">{l s='Auto Update Categories' mod='bdroppy'}:</label>
+						<div class="col-lg-7">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input name="bdroppy_auto_update_categories" id="bdroppy_auto_update_categories_on" value="1" {if $bdroppy_auto_update_categories}checked="checked"{/if} type="radio">
+								<label for="bdroppy_auto_update_categories_on" class="radioCheck">
+								Yes
+								</label>
+								<input name="bdroppy_auto_update_categories" id="bdroppy_auto_update_categories_off" value="0" {if !$bdroppy_auto_update_categories}checked="checked"{/if} type="radio">
+								<label for="bdroppy_auto_update_categories_off" class="radioCheck">
+								No
+								</label>
+								<a class="slide-button btn"></a>
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Root Category' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<select name="bdroppy_category_root" id="bdroppy_category_root">
