@@ -1334,11 +1334,10 @@ class BdroppyRewixApi
 
     public function getCategories()
     {
-        $acceptedlocales = '';
         $languages = Language::getLanguages();
         $lang = '';
         foreach ($languages as $lang) {
-            if (isset($langs[$lang['iso_code']])) {
+            if (isset($this->langs[$lang['iso_code']])) {
                 $lang = $this->langs[$lang['iso_code']];
             } else {
                 $lang = $this->langs['en'];
@@ -1369,7 +1368,7 @@ class BdroppyRewixApi
         if ($http_code == 200) {
             $data = json_decode($data);
             $result = [];
-            foreach ($data as $item){
+            foreach ($data as $item) {
                 $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
                 $result[$item->code] = $value;
             }
@@ -1382,7 +1381,7 @@ class BdroppyRewixApi
         $lang = '';
         $languages = Language::getLanguages();
         foreach ($languages as $lang) {
-            if (isset($langs[$lang['iso_code']])) {
+            if (isset($this->langs[$lang['iso_code']])) {
                 $lang = $this->langs[$lang['iso_code']];
             } else {
                 $lang = $this->langs['en'] ;
@@ -1414,13 +1413,11 @@ class BdroppyRewixApi
         if ($http_code == 200) {
             $data = json_decode($data);
             $result = [];
-            foreach ($data as $item){
+            foreach ($data as $item) {
                 $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
                 $result[$item->code] = $value;
             }
             return $result;
         }
     }
-
-
 }

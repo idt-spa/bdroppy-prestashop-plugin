@@ -131,8 +131,9 @@ class BdroppyRemoteCategory extends ObjectModel
     {
         $query = new DbQuery();
         $query->select('id_category');
-        $query->from('category_lang');
-        $query->where("name = '" . pSQL($value) . "'");
+        $query->from('category_lang', 'l');
+        $query->innerJoin('category', 'c', 'c.id_category = l.id_category');
+        $query->where("l.name = '" . pSQL($value) . "' AND c.id_parent=" . (int)$parent->id);
         $result = Db::getInstance()->getValue($query);
 
         $tag = $tagId.'-'.$value;
@@ -199,6 +200,7 @@ class BdroppyRemoteCategory extends ObjectModel
                 $category->name[$lang['id_lang']] = $catTxt;
                 $category->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($catTxt);
             }
+            $category->id_parent = $parent->id;
             $category->save();
 
             $remoteCategory->ps_category_id = $category->id;

@@ -23,6 +23,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
+
 include_once dirname(__FILE__) . '/../../classes/RewixApi.php';
 
 class BdroppyCategoryModuleFrontController extends ModuleFrontController
@@ -40,54 +41,51 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
     {
         $rewixApi = new BdroppyRewixApi();
         $data = Tools::getValue('data');
-        switch (Tools::getValue('type'))
-        {
-            case 'getBdSubCategory' :
+        switch (Tools::getValue('type')) {
+            case 'getBdSubCategory':
                 $subcategories = $rewixApi->getSubCategories($data['category']) ;
                 header('Content-Type: application/json');
                 echo json_encode($subcategories);
                 break;
 
-            case 'getBdCategory' :
+            case 'getBdCategory':
                 $categories = $rewixApi->getCategories() ;
                 header('Content-Type: application/json');
                 echo $categories;
                 break;
 
-            case 'getCategory' :
+            case 'getCategory':
                 $rootCategoryId =Category::getRootCategory()->id_category;
                 $categories = Category::getNestedCategories($rootCategoryId);
                 header('Content-Type: application/json');
                 echo json_encode($categories[$rootCategoryId]);
                 break;
 
-            case 'getSubCategory' :
+            case 'getSubCategory':
                 $categories = Category::getNestedCategories($data['category']);
                 header('Content-Type: application/json');
                 echo json_encode($categories[$data['category']]);
                 break;
 
-            case 'addCategory' :
-                $key = str_replace(' ','_',implode('-',$data['bdroppyIds']));
+            case 'addCategory':
+                $key = str_replace(' ', '_', implode('-', $data['bdroppyIds']));
                 $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping'));
                 $categoriesMapping[$key] = $data;
-                Configuration::updateValue('bdroppy-category-mapping', serialize($categoriesMapping),false);
+                Configuration::updateValue('bdroppy-category-mapping', serialize($categoriesMapping), false);
                 break;
 
-            case 'getCategoryList' :
+            case 'getCategoryList':
                 $categories = unserialize(Configuration::get('bdroppy-category-mapping'));
                 header('Content-Type: application/json');
                 echo json_encode($categories);
                 break;
 
-            case 'deleteItemByKey' :
+            case 'deleteItemByKey':
                 $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping'));
                 unset($categoriesMapping[$data['key']]) ;
-                Configuration::updateValue('bdroppy-category-mapping', serialize($categoriesMapping),false);
+                Configuration::updateValue('bdroppy-category-mapping', serialize($categoriesMapping), false);
                 break;
-
         }
-
         return 1;
     }
 
