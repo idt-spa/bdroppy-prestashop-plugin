@@ -410,8 +410,8 @@
 			<fieldset id="category_mapping" class="{'htmlall'}">
 				<h3 class="tab"> <i class="icon-list"></i>&nbsp;{l s='Category Mapping' mod='bdroppy'}</h3>
 				<div class='api-setting-info'>
-					<div class="bdroppy_card">
-						<table class="wp-list-table widefat fixed striped posts">
+					<div class="table-responsive-row clearfix">
+						<table class="table merged">
 							<thead>
 							<tr>
 								<th>Category in Bdroppy</th>
@@ -438,7 +438,7 @@
 								<option value="2">Category > Subcategory</option>
 							</select>
 						</td><br><br>
-						<table class="wp-list-table widefat fixed striped">
+						<table class="table merged">
 							<thead>
 							<tr>
 								<td><b>Category name</b></td>
@@ -493,7 +493,7 @@
 							</tr>
 						</table>
 						<br>
-						<input type="button" class="button" id="add_category_mapping" value="add">
+						<input type="button" class="btn btn-default pull-right" id="add_category_mapping" value="add">
 					</div>
 				</div>
 			</fieldset>
