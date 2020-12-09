@@ -351,27 +351,59 @@ class BdroppyImportTools
             $category = $rootCategory; // first level category this row
             $currentDeepness = 0;
 
-            for ($i = 0; $i < count($catConfig); ++$i) {
-                $id = $catConfig[$i];
+            foreach($catConfig as $tag_id) {
                 $currentDeepness++;
-
-                if ($id == 'brand') {
+                switch ($tag_id)
+                {
+                    case BdroppyRemoteCategory::REWIX_GENDER_ID:
+                        $tag_name = 'gender';break;
+                    case BdroppyRemoteCategory::REWIX_CATEGORY_ID:
+                        $tag_name = 'category';break;
+                    case BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID:
+                        $tag_name = 'subcategory';break;
+                }
+                if ($tag_id == 'brand') {
                     // TODO: implement brand category selection
                     break;
                 } else {
-                    if (Tools::strlen($tags[$id]['translation']) == 0) {
+                    if (Tools::strlen($tags[$tag_id]['translation']) == 0) {
                         // skip this category/subcategory tree, which is an empty value
                         break;
                     }
                 }
 
-                $category = BdroppyRemoteCategory::getCategory(
-                    $category,
-                    $id,
-                    $tags[$id]['value'],
-                    $jsonProduct
-                );
-                $categoryIds[] = $category->id;
+                $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping',[]));
+
+                $result = array_filter($categoriesMapping,function ($item) use ($tag_name,$jsonProduct, $catConfig)
+                {
+                    $return = 1;
+                    foreach ($catConfig as $tag_id)
+                    {
+                        foreach ($jsonProduct->tags as $tag)
+                        {
+                            if($tag->name === $tag_name)
+                            {
+                                if($item['bdroppyIds'][$tag_name] != $tag->value->value ) $return = 0;
+                            }
+                        }
+                    }
+                    return $return;
+                });
+
+                if(count($result)){
+
+                    $categoryIds[] = reset($result)['siteIds'][$tag_name];
+                }else{
+                    $category = BdroppyRemoteCategory::getCategory(
+                        $category,
+                        $tag_id,
+                        $tags[$tag_id]['value'],
+                        $jsonProduct
+                    );
+                    $categoryIds[] = $category->id;
+                }
+
+
                 if ($currentDeepness > $maxDeepness) {
                     $maxDeepness = $currentDeepness;
                     $deepestCategory = $category->id;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>bdroppy</name>
+    <displayName><![CDATA[Bdroppy]]></displayName>
+    <version><![CDATA[3.0.0]]></version>
+    <description><![CDATA[Bdroppy of Brandsdistribution]]></description>
+    <author><![CDATA[Bdroppy]]></author>
+    <tab><![CDATA[administration]]></tab>
+	<confirmUninstall><![CDATA[Are you sure you want to delete the Bdroppy module?]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>
