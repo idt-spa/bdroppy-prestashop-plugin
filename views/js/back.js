@@ -58,7 +58,7 @@ function getCategoryMappingList()
                 $(ListId).append("<tr>" +
                     "<td>"+$.map(item.bdroppyNames, e => e).join(' > ')+"</td>" +
                     "<td>"+$.map(item.siteNames, e => e).join(' > ')+"</td>" +
-                    "<td><a class='deleteItemByKey' data-target='"+ key +"' >Delete</a></td>" +
+                    "<td><a class='deleteItemByKey' style='cursor: pointer;' data-target='"+ key +"' >Delete</a></td>" +
                     "</tr>");
             });
         },
