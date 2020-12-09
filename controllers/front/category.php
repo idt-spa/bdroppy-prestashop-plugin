@@ -49,14 +49,23 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
                 break;
 
             case 'getBdCategory' :
-                $subcategories = $rewixApi->getCategories() ;
+                $categories = $rewixApi->getCategories() ;
                 header('Content-Type: application/json');
-                echo $subcategories;
+                echo $categories;
+                break;
+
+            case 'getCategory' :
+                $rootCategoryId =Category::getRootCategory()->id_category;
+                $categories = Category::getNestedCategories($rootCategoryId);
+                header('Content-Type: application/json');
+                echo json_encode($categories[$rootCategoryId]);
                 break;
 
             case 'getSubCategory' :
-                $subcategories = get_terms( 'product_cat', ['hide_empty' => false,'parent'     => $data['category']]);
-                return new \WP_REST_Response($subcategories, 200 );
+                $categories = Category::getNestedCategories($data['category']);
+                header('Content-Type: application/json');
+                echo json_encode($categories[$data['category']]);
+                break;
 
             case 'addCategory' :
                 $key = str_replace(' ','_',implode('-',$data['bdroppyIds']));
@@ -72,10 +81,11 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
                 break;
 
             case 'deleteItemByKey' :
-                $categoriesMapping = get_option('bdroppy-category-mapping');
+                $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping'));
                 unset($categoriesMapping[$data['key']]) ;
-                update_option('bdroppy-category-mapping',$categoriesMapping);
-                return new \WP_REST_Response($categoriesMapping, 200 );
+                Configuration::updateValue('bdroppy-category-mapping', serialize($categoriesMapping),false);
+                break;
+
         }
 
         return 1;

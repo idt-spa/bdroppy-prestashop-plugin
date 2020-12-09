@@ -111,6 +111,108 @@ function bdSubCategory(e)
 }
 
 
+function siteCategory(e)
+{
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'getCategory',data: null},
+        cache: false,
+        success: function(data) {
+
+            console.log('getCategory success');
+            console.log(data);
+            $(siteIds.gender).html("");
+            $(siteIds.gender).append("<option selected disabled>- - - Select - - -</option>");
+            if(data.length == 0){
+                $(siteIds.gender).append("<option selected disabled>- - - No Item - - -</option>");
+            }
+            $.each( data.children, function(key, item ) {
+                console.log(key,item);
+                $(siteIds.gender).append(new Option(item.name, item.id_category));
+
+            });
+        },
+    });
+
+}
+
+function siteSubCategory(e)
+{
+
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'getSubCategory',data: {
+                category : e.target.value
+            }},
+        cache: false,
+        success: function(data) {
+
+            console.log('getCategory success');
+            console.log(data);
+            $('#'+e.target.dataset.resultId).html("");
+            $('#'+e.target.dataset.resultId).append("<option selected disabled>- - - Select - - -</option>");
+            if(data.length == 0){
+                $('#'+e.target.dataset.resultId).append("<option selected disabled>- - - No Item - - -</option>");
+            }
+            if(data.children !== undefined)
+            {
+                $.each( data.children, function( key, item ) {
+                    $('#'+e.target.dataset.resultId).append(new Option(item.name, item.id_category));
+                });
+            }
+        },
+    });
+
+}
+
+function addCategory(e)
+{
+    if($(siteIds.category).val() == null || $(siteIds.subcategory).val() == null) return false;
+    if($(bdroppyIds.category).val() == null || $(bdroppyIds.subcategory).val() == null) return false;
+    if($(categoryType).val() === 1 && $(siteIds.gender).val() == null ) return  false;
+    if($(categoryType).val() === 1 && $(bdroppyIds.gender).val() == null ) return  false;
+
+
+    $.ajax({
+        type: 'POST',
+        url: category_url,
+        data : {type :'addCategory',data: {
+                type : $(categoryType).val(),
+                siteIds : {
+                    gender : $(siteIds.gender).val(),
+                    category : $(siteIds.category).val(),
+                    subcategory : $(siteIds.subcategory).val(),
+                },
+                siteNames : {
+                    gender : $(siteIds.gender).find('option[value="'+ $(siteIds.gender).val() +'"]').html(),
+                    category : $(siteIds.category).find('option[value="'+ $(siteIds.category).val() +'"]').html(),
+                    subcategory  :$(siteIds.subcategory).find('option[value="'+ $(siteIds.subcategory).val() +'"]').html(),
+                },
+                bdroppyIds : {
+                    gender : $(bdroppyIds.gender).val(),
+                    category : $(bdroppyIds.category).val(),
+                    subcategory : $(bdroppyIds.subcategory).val(),
+                },
+                bdroppyNames : {
+                    gender : $(bdroppyIds.gender).find('option[value="'+ $(bdroppyIds.gender).val() +'"]').html(),
+                    category : $(bdroppyIds.category).find('option[value="'+ $(bdroppyIds.category).val() +'"]').html(),
+                    subcategory :$(bdroppyIds.subcategory).find('option[value="'+ $(bdroppyIds.subcategory).val() +'"]').html(),
+                }
+            }},
+        cache: false,
+        success: function(data) {
+            console.log('addCategory success');
+            console.log(data);
+            getCategoryMappingList();
+        },
+    });
+}
+
+
+
+
 
 
 $( document ).ready(function() {
@@ -129,6 +231,32 @@ $( document ).ready(function() {
     });
     bdCategory();
     $(bdroppyIds.category).on('change',bdSubCategory);
+
+    siteCategory();
+    $(siteIds.gender).on('change',siteSubCategory);
+    $(siteIds.category).on('change',siteSubCategory);
+
+    $('#add_category_mapping').on('click',addCategory);
+
+    $('body').on('click','.deleteItemByKey',function () {
+        let key = this.dataset.target;
+        console.log('11');
+        $.ajax({
+            type: 'POST',
+            url: category_url,
+            data : {type :'deleteItemByKey',data: {
+                    key : key
+                }},
+            cache: false,
+            success: function(data) {
+                console.log('addCategory success');
+                console.log(data);
+                getCategoryMappingList();
+            },
+        });
+
+
+    });
 
     getCategoryMappingList();
 });

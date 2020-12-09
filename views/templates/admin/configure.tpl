@@ -462,9 +462,6 @@
 								<td>
 									<select id="category_select_Gender" data-result-id="category_select_Category" >
 										<option selected disabled>- - - Select - - -</option>
-										<?php foreach ($siteCategories as $category):?>
-										<option value="<?= $category->term_id ?>" ><?= $category->name ?></option>
-										<?php endforeach; ?>
 									</select>
 								</td>
 							</tr>
@@ -473,9 +470,6 @@
 								<td>
 									<select id="category_select_bdCategory" >
 										<option selected disabled>- - - Select - - -</option>
-										<?php foreach ($bdroppyCategories as $key =>$category):?>
-										<option value="<?= $key ?>" ><?= $category ?></option>
-										<?php endforeach; ?>
 									</select>
 								</td>
 								<td>
