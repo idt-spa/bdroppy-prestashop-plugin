@@ -50,9 +50,6 @@ function getCategoryMappingList()
         data : {type :'getCategoryList',data: null},
         cache: false,
         success: function(data) {
-
-            console.log('success');
-            console.log(data);
             $(ListId).html('');
             $.each(data,function (key,item) {
                 $(ListId).append("<tr>" +
@@ -74,9 +71,6 @@ function bdCategory(e)
         data : {type :'getBdCategory',data: null},
         cache: false,
         success: function(data) {
-
-            console.log('getBdCategory success');
-            console.log(data);
             $('#category_select_bdCategory').html("");
             $('#category_select_bdCategory').append("<option selected disabled>- - - Select - - -</option>");
             $.each( data, function( key, value ) {
@@ -97,9 +91,6 @@ function bdSubCategory(e)
             }},
         cache: false,
         success: function(data) {
-
-            console.log('getBdSubCategory success');
-            console.log(data);
             $('#category_select_bdSubCategory').html("");
             $('#category_select_bdSubCategory').append("<option selected disabled>- - - Select - - -</option>");
             $.each( data, function( key, value ) {
@@ -119,16 +110,12 @@ function siteCategory(e)
         data : {type :'getCategory',data: null},
         cache: false,
         success: function(data) {
-
-            console.log('getCategory success');
-            console.log(data);
             $(siteIds.gender).html("");
             $(siteIds.gender).append("<option selected disabled>- - - Select - - -</option>");
             if(data.length == 0){
                 $(siteIds.gender).append("<option selected disabled>- - - No Item - - -</option>");
             }
             $.each( data.children, function(key, item ) {
-                console.log(key,item);
                 $(siteIds.gender).append(new Option(item.name, item.id_category));
 
             });
@@ -148,9 +135,6 @@ function siteSubCategory(e)
             }},
         cache: false,
         success: function(data) {
-
-            console.log('getCategory success');
-            console.log(data);
             $('#'+e.target.dataset.resultId).html("");
             $('#'+e.target.dataset.resultId).append("<option selected disabled>- - - Select - - -</option>");
             if(data.length == 0){
@@ -203,8 +187,6 @@ function addCategory(e)
             }},
         cache: false,
         success: function(data) {
-            console.log('addCategory success');
-            console.log(data);
             getCategoryMappingList();
         },
     });
@@ -240,7 +222,6 @@ $( document ).ready(function() {
 
     $('body').on('click','.deleteItemByKey',function () {
         let key = this.dataset.target;
-        console.log('11');
         $.ajax({
             type: 'POST',
             url: category_url,
@@ -249,8 +230,6 @@ $( document ).ready(function() {
                 }},
             cache: false,
             success: function(data) {
-                console.log('addCategory success');
-                console.log(data);
                 getCategoryMappingList();
             },
         });
