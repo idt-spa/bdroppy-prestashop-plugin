@@ -297,11 +297,9 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                                 'id = ' . (int)$item['id']
                             );
                         }
-                        echo "<pre>";
                         foreach ($items as $item) {
                             if ($item['sync_status'] == 'queued') {
                                 $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
-                                var_dump($item['rewix_product_id'] .':'.$res);
                             }
                         }
 

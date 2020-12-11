@@ -95,7 +95,7 @@
 							<div id="div_status" style="display: inherit">
 								<p><strong>URL</strong> {$base_url|escape:'htmlall':'UTF-8'}</p>
 								<p><strong>Email</strong> {Configuration::get('BDROPPY_API_KEY')|escape:'htmlall':'UTF-8'}</p>
-								<p><strong>Status</strong> {$txtStatus}</p>
+								<p><strong>Status</strong> {if $httpCode == 200}<span style="color: green;">Ok</span>{else}<span style="color: red;">Error Code : {$httpCode}</span>{/if}</p>
 								<p><button class="btn_change_token"><i class="icon-signout"></i> {l s='Disconnect' mod='bdroppy'}</button></p>
 							</div>
 

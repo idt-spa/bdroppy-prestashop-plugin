@@ -46,7 +46,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.2.0';
+        $this->version = '2.2.1';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -602,12 +602,9 @@ class Bdroppy extends Module
             $this->current_tab = 'my_catalogs';
             $saved = true;
         }
-        $errors = "";
         $confirmations = "";
         // Control on variable putted in!
-        if (isset($this->errors) && count($this->errors)) {
-            $errors = $this->displayError(implode('<br />', $this->errors));
-        } else {
+        if (!isset($this->errors) && count($this->errors)) {
             if ($saved) {
                 $confirmations = $this->displayConfirmation($this->l('Settings updated'));
             }
@@ -677,10 +674,9 @@ class Bdroppy extends Module
             $bdroppy_auto_update_categories = false;
         }
 
-        $txtStatus = '<span style="color: red;">Error Code : ' . $catalogs['http_code'] . '</span>';
+        $httpCode = $catalogs['http_code'];
         $flgStatus = false;
         if ($catalogs['http_code'] == 200) {
-            $txtStatus = '<span style="color: green;">Ok</span>';
             $flgStatus = true;
         }
         $urls = array(
@@ -829,7 +825,7 @@ class Bdroppy extends Module
             'home_url' => $home_url,
             'urls' => $urls,
             'categories' => $this->categories,
-            'erros' => $errors,
+            'errors' => $this->errors,
             'confirmations' => $confirmations,
             'module_path' => $base_uri . '/modules/bdroppy/',
             'base_url' => $base_url,
@@ -848,7 +844,7 @@ class Bdroppy extends Module
             'stripeBOCssUrl' => $stripeBOCssUrl,
             'base_url' => $base_url,
             'api_key' => $api_key,
-            'txtStatus' => $txtStatus,
+            'httpCode' => $httpCode,
             'queue_queued' => $queue_queued,
             'queue_importing' => $queue_importing,
             'queue_imported' => $queue_imported,

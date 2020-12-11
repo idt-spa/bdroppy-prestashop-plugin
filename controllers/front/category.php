@@ -91,7 +91,6 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
 
     public function assignTpl()
     {
-        echo 12;
         return 1;
     }
 }

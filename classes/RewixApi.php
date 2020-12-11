@@ -1232,7 +1232,6 @@ class BdroppyRewixApi
     {
         $db = Db::getInstance();
         $bookedProducts = $this->getGrowingOrderProducts();
-        var_dump('syncBookedProducts', $bookedProducts, '*********************************');
 
         $logMsg = 'Syncing booked products';
         BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
@@ -1279,7 +1278,6 @@ class BdroppyRewixApi
     public function sendMissingOrders()
     {
         $orderIds = BdroppyRemoteOrder::getMissingOrdersId();
-        var_dump('sendMissingOrders', $orderIds, '*********************************');
 
         foreach ($orderIds as $orderId) {
             $order = new Order(isset($orderId['id_order']) ? $orderId['id_order'] : $orderId);
