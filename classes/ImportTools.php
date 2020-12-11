@@ -374,21 +374,24 @@ class BdroppyImportTools
                     }
                 }
 
-                $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping', []));
-
-                $result = array_filter($categoriesMapping, function ($item) use ($tag_name, $jsonProduct, $catConfig) {
-                    $return = 1;
-                    for ($i = 0; $i < count($catConfig); ++$i) {
-                        foreach ($jsonProduct->tags as $tag) {
-                            if ($tag->name === $tag_name) {
-                                if ($item['bdroppyIds'][$tag_name] != $tag->value->value) {
-                                    $return = 0;
+                $categoriesMapping = unserialize(Configuration::get('bdroppy-category-mapping'));
+                if (is_array($categoriesMapping)){
+                    $result = array_filter($categoriesMapping, function ($item) use ($tag_name, $jsonProduct, $catConfig) {
+                        $return = 1;
+                        for ($i = 0; $i < count($catConfig); ++$i) {
+                            foreach ($jsonProduct->tags as $tag) {
+                                if ($tag->name === $tag_name) {
+                                    if ($item['bdroppyIds'][$tag_name] != $tag->value->value) {
+                                        $return = 0;
+                                    }
                                 }
                             }
                         }
-                    }
-                    return $return;
-                });
+                        return $return;
+                    });
+                }else{
+                    $result = [];
+                }
 
                 if (count($result)) {
                     $categoryIds[] = reset($result)['siteIds'][$tag_name];

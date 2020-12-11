@@ -467,7 +467,7 @@ class Bdroppy extends Module
     {
         foreach ($categories as $category) {
             $this->categories[$category['id_category']] = $parentName . ' > ' . $category['name'];
-            if ($category['children']) {
+            if (isset($category['children'])) {
                 if (count($category['children']) > 0) {
                     $this->getNestedCategories($parentName . ' > ' . $category['name'], $category['children']);
                 }
