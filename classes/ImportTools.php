@@ -758,15 +758,13 @@ class BdroppyImportTools
                 $product->deleteCategories();
                 list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
                 $product->id_category_default = $categoryDefaultId;
+                // updateCategories requires the product to have an id already set
                 $product->updateCategories($categories);
             }
             if ($product->price <= 0) {
                 $product->active = false;
             }
             $product->save();
-
-            // updateCategories requires the product to have an id already set
-            $product->updateCategories($categories);
 
             $lngSize = [];
             $lngSize['it'] = 'Taglia';
