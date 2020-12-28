@@ -330,7 +330,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="control-label col-lg-3" for="simple_product">{l s='Auto Update Products Name' mod='bdroppy'}:</label>
+						<label class="control-label col-lg-3" for="simple_product">{l s='Auto Update Products Name and Descriptions' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<span class="switch prestashop-switch fixed-width-lg">
 								<input name="bdroppy_auto_update_name" id="bdroppy_auto_update_name_on" value="1" {if $bdroppy_auto_update_name}checked="checked"{/if} type="radio">
