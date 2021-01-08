@@ -373,10 +373,10 @@ class BdroppyImportTools
                         break;
                     }
                 }
+                $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
 
-                $categoriesMapping = (array)json_decode(Configuration::get('bdroppy-category-mapping'));
-                if (is_array($categoriesMapping)) {
-                    $result = array_filter($categoriesMapping, function ($item) use (
+                if (is_object($categoriesMapping)) {
+                    $result = array_filter((array)$categoriesMapping, function ($item) use (
                         $tag_name,
                         $jsonProduct,
                         $catConfig
@@ -386,7 +386,7 @@ class BdroppyImportTools
                         for ($i = 0; $i < count($catConfig); ++$i) {
                             foreach ($jsonProduct->tags as $tag) {
                                 if ($tag->name === $tag_name) {
-                                    if ($item['bdroppyIds'][$tag_name] != $tag->value->value) {
+                                    if ($item->bdroppyIds->{$tag_name} != $tag->value->value) {
                                         $return = 0;
                                     }
                                 }
@@ -399,7 +399,11 @@ class BdroppyImportTools
                 }
 
                 if (count($result)) {
-                    $categoryIds[] = reset($result)['siteIds'][$tag_name];
+                    $categoryIds[] = (integer)reset($result)->siteIds->{$tag_name};
+                    if ($currentDeepness > $maxDeepness) {
+                        $maxDeepness = $currentDeepness;
+                        $deepestCategory = reset($result)->siteIds->{$tag_name};
+                    }
                 } else {
                     $category = BdroppyRemoteCategory::getCategory(
                         $category,
@@ -408,13 +412,14 @@ class BdroppyImportTools
                         $jsonProduct
                     );
                     $categoryIds[] = $category->id;
+                    if ($currentDeepness > $maxDeepness) {
+                        $maxDeepness = $currentDeepness;
+                        $deepestCategory = $category->id;
+                    }
                 }
 
 
-                if ($currentDeepness > $maxDeepness) {
-                    $maxDeepness = $currentDeepness;
-                    $deepestCategory = $category->id;
-                }
+
             }
         }
         return array($categoryIds, $deepestCategory);
