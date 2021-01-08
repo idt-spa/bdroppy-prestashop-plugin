@@ -374,7 +374,7 @@ class BdroppyImportTools
                     }
                 }
 
-                $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
+                $categoriesMapping = (array)json_decode(Configuration::get('bdroppy-category-mapping'));
                 if (is_array($categoriesMapping)) {
                     $result = array_filter($categoriesMapping, function ($item) use (
                         $tag_name,

@@ -222,6 +222,7 @@ $( document ).ready(function() {
 
     $('body').on('click','.deleteItemByKey',function () {
         let key = this.dataset.target;
+        console.log(key)
         $.ajax({
             type: 'POST',
             url: category_url,

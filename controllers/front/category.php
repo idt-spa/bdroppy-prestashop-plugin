@@ -69,19 +69,19 @@ class BdroppyCategoryModuleFrontController extends ModuleFrontController
 
             case 'addCategory':
                 $key = str_replace(' ', '_', implode('-', $data['bdroppyIds']));
-                $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
+                $categoriesMapping =(array)json_decode(Configuration::get('bdroppy-category-mapping'));
                 $categoriesMapping[$key] = $data;
                 Configuration::updateValue('bdroppy-category-mapping', json_encode($categoriesMapping), false);
                 break;
 
             case 'getCategoryList':
-                $categories = json_decode(Configuration::get('bdroppy-category-mapping'));
+                $categories = (array)json_decode(Configuration::get('bdroppy-category-mapping'));
                 header('Content-Type: application/json');
                 echo json_encode($categories);
                 break;
 
             case 'deleteItemByKey':
-                $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
+                $categoriesMapping = (array)json_decode(Configuration::get('bdroppy-category-mapping'));
                 unset($categoriesMapping[$data['key']]) ;
                 Configuration::updateValue('bdroppy-category-mapping', json_encode($categoriesMapping), false);
                 break;
