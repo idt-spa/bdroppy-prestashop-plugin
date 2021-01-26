@@ -350,6 +350,12 @@ class BdroppyImportTools
         foreach ($categoryStructure as $catConfig) {
             $category = $rootCategory; // first level category this row
             $currentDeepness = 0;
+            $checkCategoryMapping = self::categoryMapping($catConfig,$jsonProduct);
+
+            if ($checkCategoryMapping != false)
+            {
+                return  $checkCategoryMapping;
+            }
 
             foreach ($catConfig as $tag_id) {
                 $currentDeepness++;
@@ -373,56 +379,90 @@ class BdroppyImportTools
                         break;
                     }
                 }
-                $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
 
-                if (is_object($categoriesMapping)) {
-                    $result = array_filter((array)$categoriesMapping, function ($item) use (
-                        $tag_name,
-                        $jsonProduct,
-                        $catConfig
-                    ) {
-                        $return = 1;
-                        $return = $return;
-                        for ($i = 0; $i < count($catConfig); ++$i) {
-                            foreach ($jsonProduct->tags as $tag) {
-                                if ($tag->name === $tag_name) {
-                                    if ($item->bdroppyIds->{$tag_name} != $tag->value->value) {
-                                        $return = 0;
-                                    }
-                                }
-                            }
-                        }
-                        return $return;
-                    });
-                } else {
-                    $result = [];
+                $category = BdroppyRemoteCategory::getCategory(
+                    $category,
+                    $tag_id,
+                    $tags[$tag_id]['translation'],
+                    $jsonProduct
+                );
+                $categoryIds[] = $category->id;
+                if ($currentDeepness > $maxDeepness) {
+                    $maxDeepness = $currentDeepness;
+                    $deepestCategory = $category->id;
                 }
-
-                if (count($result)) {
-                    $categoryIds[] = (integer)reset($result)->siteIds->{$tag_name};
-                    if ($currentDeepness > $maxDeepness) {
-                        $maxDeepness = $currentDeepness;
-                        $deepestCategory = reset($result)->siteIds->{$tag_name};
-                    }
-                } else {
-                    $category = BdroppyRemoteCategory::getCategory(
-                        $category,
-                        $tag_id,
-                        $tags[$tag_id]['translation'],
-                        $jsonProduct
-                    );
-                    $categoryIds[] = $category->id;
-                    if ($currentDeepness > $maxDeepness) {
-                        $maxDeepness = $currentDeepness;
-                        $deepestCategory = $category->id;
-                    }
-                }
-
-
-
             }
         }
         return array($categoryIds, $deepestCategory);
+    }
+
+    /** category mapping **/
+    public static function categoryMapping($catConfig,$jsonProduct)
+    {
+        echo 'starting Mapping<br>';
+        $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
+        $result = [];
+
+        if (is_object($categoriesMapping)) {
+            $result = array_filter((array)$categoriesMapping, function ($item) use (
+                $jsonProduct,
+                $catConfig
+            ) {
+                $return = 1;
+                $return = $return;
+
+                foreach ($catConfig as $tag_id)
+                {
+                    switch ($tag_id) {
+                        case BdroppyRemoteCategory::REWIX_GENDER_ID:
+                            $tag_name = 'gender';
+                            break;
+                        case BdroppyRemoteCategory::REWIX_CATEGORY_ID:
+                            $tag_name = 'category';
+                            break;
+                        case BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID:
+                            $tag_name = 'subcategory';
+                            break;
+                    }
+                    foreach ($jsonProduct->tags as $tag) {
+                        if ($tag->name === $tag_name) {
+                            if ($item->bdroppyIds->{$tag_name} != $tag->value->value) {
+                                $return = 0;
+                            }
+                        }
+                    }
+                }
+                return $return;
+            });
+        }
+
+        echo 'count mapping result : '. count($result) .'<br>';
+        if (count($result)) {
+            $currentDeepness = $maxDeepness = 0;
+            foreach ($catConfig as $tag_id)
+            {
+                switch ($tag_id) {
+                    case BdroppyRemoteCategory::REWIX_GENDER_ID:
+                        $tag_name = 'gender';
+                        break;
+                    case BdroppyRemoteCategory::REWIX_CATEGORY_ID:
+                        $tag_name = 'category';
+                        break;
+                    case BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID:
+                        $tag_name = 'subcategory';
+                        break;
+                }
+                $catID = (integer)reset($result)->siteIds->{$tag_name};
+                $categoryIds[] = $catID;
+                $maxDeepness = $currentDeepness;
+                $deepestCategory = $catID;
+            }
+            return array($categoryIds, $deepestCategory);
+        }else{
+            return false;
+        }
+
+
     }
 
     /** Update the products just imported **/
