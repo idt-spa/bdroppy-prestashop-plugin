@@ -350,26 +350,14 @@ class BdroppyImportTools
         foreach ($categoryStructure as $catConfig) {
             $category = $rootCategory; // first level category this row
             $currentDeepness = 0;
-            $checkCategoryMapping = self::categoryMapping($catConfig,$jsonProduct);
+            $checkCategoryMapping = self::categoryMapping($catConfig, $jsonProduct);
 
-            if ($checkCategoryMapping != false)
-            {
+            if ($checkCategoryMapping != false) {
                 return  $checkCategoryMapping;
             }
 
             foreach ($catConfig as $tag_id) {
                 $currentDeepness++;
-                switch ($tag_id) {
-                    case BdroppyRemoteCategory::REWIX_GENDER_ID:
-                        $tag_name = 'gender';
-                        break;
-                    case BdroppyRemoteCategory::REWIX_CATEGORY_ID:
-                        $tag_name = 'category';
-                        break;
-                    case BdroppyRemoteCategory::REWIX_SUBCATEGORY_ID:
-                        $tag_name = 'subcategory';
-                        break;
-                }
                 if ($tag_id == 'brand') {
                     // TODO: implement brand category selection
                     break;
@@ -397,9 +385,10 @@ class BdroppyImportTools
     }
 
     /** category mapping **/
-    public static function categoryMapping($catConfig,$jsonProduct)
+
+    public static function categoryMapping($catConfig, $jsonProduct)
     {
-        echo 'starting Mapping<br>';
+        $categoryIds = [];
         $categoriesMapping = json_decode(Configuration::get('bdroppy-category-mapping'));
         $result = [];
 
@@ -411,8 +400,7 @@ class BdroppyImportTools
                 $return = 1;
                 $return = $return;
 
-                foreach ($catConfig as $tag_id)
-                {
+                foreach ($catConfig as $tag_id) {
                     switch ($tag_id) {
                         case BdroppyRemoteCategory::REWIX_GENDER_ID:
                             $tag_name = 'gender';
@@ -436,11 +424,8 @@ class BdroppyImportTools
             });
         }
 
-        echo 'count mapping result : '. count($result) .'<br>';
         if (count($result)) {
-            $currentDeepness = $maxDeepness = 0;
-            foreach ($catConfig as $tag_id)
-            {
+            foreach ($catConfig as $tag_id) {
                 switch ($tag_id) {
                     case BdroppyRemoteCategory::REWIX_GENDER_ID:
                         $tag_name = 'gender';
@@ -454,15 +439,12 @@ class BdroppyImportTools
                 }
                 $catID = (integer)reset($result)->siteIds->{$tag_name};
                 $categoryIds[] = $catID;
-                $maxDeepness = $currentDeepness;
                 $deepestCategory = $catID;
             }
             return array($categoryIds, $deepestCategory);
-        }else{
+        } else {
             return false;
         }
-
-
     }
 
     /** Update the products just imported **/
