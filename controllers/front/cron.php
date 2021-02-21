@@ -197,6 +197,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 if ($delete_products) {
                     foreach ($delete_products as $item) {
                         if ($item['ps_product_id'] != '0') {
+                            $id = $item['ps_product_id'];
+                            $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+                            BdroppyRemoteCombination::deleteByRewixId($rewixId);
+                            BdroppyRemoteProduct::deleteByPsId($id);
+
                             $dp = new Product((int)$item['ps_product_id']);
                             $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE " .
                             "id_product='" . (int)$dp->id . "';";
@@ -214,6 +219,10 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
                 $delete_products = $db->ExecuteS($sql);
                 foreach ($delete_products as $item) {
+                    $id = $item['id_product'];
+                    $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+                    BdroppyRemoteCombination::deleteByRewixId($rewixId);
+                    BdroppyRemoteProduct::deleteByPsId($id);
                     $dp = new Product((int)$item['id_product']);
                     $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE id_product='" .
                         (int)$dp->id."';";
@@ -260,6 +269,10 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $items = $db->ExecuteS($sql);
                         foreach ($items as $item) {
                             if ($item['ps_product_id'] != '0') {
+                                $id = $item['ps_product_id'];
+                                $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+                                BdroppyRemoteCombination::deleteByRewixId($rewixId);
+                                BdroppyRemoteProduct::deleteByPsId($id);
                                 $dp = new Product((int)$item['ps_product_id']);
                                 $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE ".
                                     "id_product='" . (int)$dp->id . "';";

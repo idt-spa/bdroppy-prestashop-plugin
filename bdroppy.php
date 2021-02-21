@@ -290,8 +290,6 @@ class Bdroppy extends Module
                 !$this->registerHook('header') &&
                 !$this->registerHook('backOfficeHeader') ||
                 !$this->registerHook('displayBackOfficeHeader') ||
-                !$this->registerHook('actionProductDelete') ||
-                !$this->registerHook('actionCategoryDelete') ||
                 !$this->registerHook('actionPaymentConfirmation') ||
                 !$this->registerHook('actionAdminProductsListingFieldsModifier') ||
                 !$this->registerHook('actionObjectOrderAddBefore')
@@ -950,25 +948,6 @@ class Bdroppy extends Module
         } catch (Exception $e) {
             $this->context->controller->errors[] = $this->l($e->getMessage());
             $this->context->controller->redirectWithNotifications("index.php");
-        }
-    }
-
-    public function hookActionProductDelete($params)
-    {
-        $id = $params['id_product'];
-        $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
-        BdroppyRemoteCombination::deleteByRewixId($rewixId);
-        BdroppyRemoteProduct::deleteByPsId($id);
-    }
-
-    public function hookActionCategoryDelete($params)
-    {
-        $category = $params['category'];
-        $subcategories = $params['deleted_children'];
-
-        BdroppyRemoteCategory::deleteByPsId($category->id);
-        foreach ($subcategories as $cat) {
-            BdroppyRemoteCategory::deleteByPsId($cat->id);
         }
     }
 
