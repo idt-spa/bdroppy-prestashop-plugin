@@ -765,7 +765,15 @@ class BdroppyImportTools
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
                     "{$productData['brand']}-{$productData['code']}"
                 );
-                if ($product->description[$lang['id_lang']] == '' || $bdroppy_auto_update_name) {
+                $descFlag = true;
+                if(isset($product->description[$lang['id_lang']])) {
+                    if($product->description[$lang['id_lang']] == '') {
+                        $descFlag = true;
+                    } else {
+                        $descFlag = false;
+                    }
+                }
+                if ($descFlag || $bdroppy_auto_update_name) {
                     $product->description[$lang['id_lang']] = $finalDesc;
                     $desc_short_limit = Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
                     $product->description_short[$lang['id_lang']] = Tools::substr($finalDesc, 0, $desc_short_limit);
