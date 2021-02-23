@@ -766,8 +766,8 @@ class BdroppyImportTools
                     "{$productData['brand']}-{$productData['code']}"
                 );
                 $descFlag = true;
-                if(isset($product->description[$lang['id_lang']])) {
-                    if($product->description[$lang['id_lang']] == '') {
+                if (isset($product->description[$lang['id_lang']])) {
+                    if ($product->description[$lang['id_lang']] == '') {
                         $descFlag = true;
                     } else {
                         $descFlag = false;

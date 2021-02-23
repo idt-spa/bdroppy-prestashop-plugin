@@ -296,11 +296,12 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         );
 
                         // products to import
+                        $psProductField = 'ps_product_id';
                         $updateFlag = false;
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                            "WHERE sync_status='queued' AND ps_product_id=0 LIMIT " . $api_limit_count . ";";
+                            "WHERE sync_status='queued' AND " . $psProductField . "=0 LIMIT " . $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
-                        if(count($items) == 0) {
+                        if (count($items) == 0) {
                             $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
                                 "WHERE sync_status='queued' LIMIT " . $api_limit_count . ";";
                             $items = $db->ExecuteS($sql);
