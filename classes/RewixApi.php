@@ -410,6 +410,7 @@ class BdroppyRewixApi
         $ret = [];
         $base_url = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
+        $api_catalog = Configuration::get('BDROPPY_CATALOG');
 
         $header = "Authorization: Bearer " . $api_token;
         $url = $base_url . '/restful/user_cron';
@@ -417,6 +418,7 @@ class BdroppyRewixApi
             'name' => Configuration::get('PS_SHOP_NAME'),
             'description' => 'auto created by ps module',
             'url' => $cron_url,
+            'catalog' => $api_catalog,
             'interval' => 2,
             'status' => 1
         );
@@ -1200,7 +1202,7 @@ class BdroppyRewixApi
                             $association->save();
 
                             $logMsg = 'Order status Update: WC ID #' .
-                                $order_id . ': new status [' . $status . ']';
+                                $order->wc_order_id . ': new status [' . $status . ']';
                             BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
                             if ($status == BdroppyRemoteOrder::STATUS_DISPATCHED) {
