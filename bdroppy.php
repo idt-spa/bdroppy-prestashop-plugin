@@ -46,7 +46,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.2.8';
+        $this->version = '2.2.9';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -564,9 +564,6 @@ class Bdroppy extends Module
             $bdroppy_import_tag_to_title = (string)Tools::getValue('bdroppy_import_tag_to_title');
             Configuration::updateValue('BDROPPY_IMPORT_TAG_TO_TITLE', $bdroppy_import_tag_to_title);
 
-            $bdroppy_auto_update_categories = (int)Tools::getValue('bdroppy_auto_update_categories');
-            Configuration::updateValue('BDROPPY_AUTO_UPDATE_CATEGORIES', $bdroppy_auto_update_categories);
-
             $bdroppy_auto_update_prices = (int)Tools::getValue('bdroppy_auto_update_prices');
             Configuration::updateValue('BDROPPY_AUTO_UPDATE_PRICES', $bdroppy_auto_update_prices);
 
@@ -667,10 +664,6 @@ class Bdroppy extends Module
         }
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
-        $bdroppy_auto_update_categories = Configuration::get('BDROPPY_AUTO_UPDATE_CATEGORIES');
-        if ($bdroppy_auto_update_categories == '') {
-            $bdroppy_auto_update_categories = false;
-        }
 
         $httpCode = $catalogs['http_code'];
         $flgStatus = false;
@@ -857,7 +850,6 @@ class Bdroppy extends Module
             'bdroppy_reimport_image' => $bdroppy_reimport_image,
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
-            'bdroppy_auto_update_categories' => $bdroppy_auto_update_categories,
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,
             'warnings' => $warnings,
             'successes' => $successes,

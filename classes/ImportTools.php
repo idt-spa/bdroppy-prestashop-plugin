@@ -790,9 +790,10 @@ class BdroppyImportTools
             if (!$product->id) {
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             }
-            if (!$product->id || (bool)Configuration::get('BDROPPY_AUTO_UPDATE_CATEGORIES')) {
+            $product->save();
+            if (!$product->id || count($product->getCategories()) == 0) {
                 // updateCategories requires the product to have an id already set
-                $product->deleteCategories();
+                //$product->deleteCategories();
                 list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
                 $product->id_category_default = $categoryDefaultId;
                 // updateCategories requires the product to have an id already set
@@ -801,7 +802,6 @@ class BdroppyImportTools
             if ($product->price <= 0) {
                 $product->active = false;
             }
-            $product->save();
 
             $lngSize = [];
             $lngSize['it'] = 'Taglia';
@@ -993,7 +993,7 @@ class BdroppyImportTools
                     Product::addFeatureProductImport($product->id, $seasonFeatureId, $featureValueId);
                 }
             }
-
+            $product->save();
             return $product;
         } catch (PrestaShopException $e) {
             $logMsg = 'populateProductAttributes : ' . $e->getMessage();
