@@ -28,6 +28,10 @@ class BdroppyImportHelper extends AdminImportControllerCore
 {
     public static function copyImg($id_entity, $id_image = null, $url = '', $entity = 'products', $regenerate = true)
     {
-        return parent::copyImg($id_entity, $id_image, $url, $entity, $regenerate);
+        try {
+            return @parent::copyImg($id_entity, $id_image, $url, $entity, $regenerate);
+        } catch (PrestaShopException $e) {
+            return false;
+        }
     }
 }

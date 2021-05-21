@@ -1330,8 +1330,6 @@ class BdroppyRewixApi
         return $bookedProducts;
     }
 
-
-
     public function getCategories()
     {
         $languages = Language::getLanguages();
