@@ -245,6 +245,7 @@ class BdroppyRewixApi
                 } else {
                     $logMsg = 'getProductsFull - items is null';
                     BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
+                    return 'items is null';
                 }
             } else {
                 $logMsg = 'getProductsFull - http_code : ' . $http_code . ' - url : ' . $url . ' data : ' . $data;
