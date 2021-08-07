@@ -577,7 +577,7 @@ class BdroppyImportTools
         $sku = (string)$json->code;
         $refId = (int)$json->id;
 
-        // fixme: use another initialization method
+        // use another initialization method
         $tags = array(
             BdroppyRemoteCategory::REWIX_BRAND_ID       => array(
                 'value'       => '',
@@ -1140,7 +1140,7 @@ class BdroppyImportTools
                 $query = new DbQuery();
                 $query->select('*');
                 $query->from('product_attribute');
-                $query->where("id_product = ".$product->id." AND reference='".$reference."' AND isbn = '".$isbn_code."'");
+                $query->where("id_product=".$product->id." AND reference='".$reference."' AND isbn='".$isbn_code."'");
                 $productAttributes = $db->executeS($query);
                 if ($productAttributes) {
                     // update attribute
