@@ -359,7 +359,7 @@ class BdroppyImportTools
             foreach ($catConfig as $tag_id) {
                 $currentDeepness++;
                 if ($tag_id == 'brand') {
-                    // TODO: implement brand category selection
+                    // implement brand category selection
                     break;
                 } else {
                     if (Tools::strlen($tags[$tag_id]['translation']) == 0) {
@@ -1054,10 +1054,8 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages(false);
             $first = true;
-            $product->deleteProductAttributes();
-            $db->delete('stock_available', 'id_product = ' . $product->id);
+
             foreach ($jsonModels as $model) {
-                self::getSizeAttributeFromValue((string)$model->size);
                 $quantity = (int)$model->availability;
                 $reference = self::fitModelReference((string)$model->code, (string)$model->size);
                 $ean13 = trim((string)$model->barcode);
@@ -1137,29 +1135,44 @@ class BdroppyImportTools
                 $id_images = null;
                 $upc = $model->id;
                 $minimal_quantity = 1;
-                $idProductAttribute = $product->addProductAttribute(
-                    (float)$impact_on_price,
-                    (float)$impact_on_weight,
-                    $impact_on_price_per_unit,
-                    null,
-                    (int)$quantity,
-                    $id_images,
-                    $reference,
-                    $id_supplier,
-                    $ean13,
-                    $default,
-                    $location,
-                    $upc,
-                    null,
-                    $isbn_code,
-                    $minimal_quantity
-                );
-                $r = $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
-                $db->update(
-                    'product_attribute',
-                    array('wholesale_price'=>(int)$wholesale_price),
-                    'id_product_attribute = '.(int)$idProductAttribute
-                );
+
+                $productAttributes = null;
+                $query = new DbQuery();
+                $query->select('*');
+                $query->from('product_attribute');
+                $query->where("id_product = ".$product->id." AND reference='".$reference."' AND isbn = '".$isbn_code."'");
+                $productAttributes = $db->executeS($query);
+                if ($productAttributes) {
+                    // update attribute
+                    foreach ($productAttributes as $productAttribute) {
+                        $db->update(
+                            'product_attribute',
+                            array('wholesale_price'=>$wholesale_price),
+                            'id_product_attribute = '.$productAttribute['id_product_attribute']
+                        );
+                        StockAvailable::setQuantity($product->id, $productAttribute['id_product_attribute'], $quantity);
+                    }
+                } else {
+                    // insert attribute
+                    $idProductAttribute = $product->addProductAttribute(
+                        (float)$impact_on_price,
+                        (float)$impact_on_weight,
+                        $impact_on_price_per_unit,
+                        null,
+                        (int)$quantity,
+                        $id_images,
+                        $reference,
+                        $id_supplier,
+                        $ean13,
+                        $default,
+                        $location,
+                        $upc,
+                        null,
+                        $isbn_code,
+                        $minimal_quantity
+                    );
+                    $product->addAttributeCombinaison($idProductAttribute, $combinationAttributes);
+                }
                 $first = false;
             }
 
@@ -1170,37 +1183,9 @@ class BdroppyImportTools
         }
     }
 
-    private static function checkNosizeModel($jsonProduct, Product $product)
-    {
-        if (BdroppyRemoteCombination::countByRewixProductId($product->id) == 0) {
-            self::insertNosizeModel($product, $jsonProduct);
-        }
-    }
-
-    private static function insertNosizeModel(Product $product, $jsonProduct)
-    {
-        $db = Db::getInstance();
-        $product->deleteProductAttributes();
-        $db->delete('stock_available', 'id_product = ' . $product->id);
-
-        $jsonModel = $jsonProduct->models[0];
-
-        $remoteCombination = BdroppyRemoteCombination::fromRewixId((int)$jsonModel->id);
-        $remoteCombination->rewix_product_id = (int) $jsonProduct->id;
-
-        //$reference = self::fitModelReference((string)$jsonModel->code, (string)$jsonModel->size);
-        //$ean13 = trim((string)$jsonModel->barcode);
-
-        $remoteCombination->ps_model_id = 0;
-        $remoteCombination->save();
-    }
-
     private static function importSimpleProduct($jsonProduct, Product $product)
     {
         try {
-            $db = Db::getInstance();
-            $product->deleteProductAttributes();
-            $db->delete('stock_available', 'id_product = ' . $product->id);
             $jsonModel = $jsonProduct->models[0];
             $product->minimal_quantity = 1;
             $ean13 = trim((string)$jsonModel->barcode);
@@ -1212,8 +1197,6 @@ class BdroppyImportTools
             $product->upc = $jsonModel->id;
             $product->reference = self::fitReference((string)$jsonModel->code, $jsonProduct->id);
             StockAvailable::setQuantity($product->id, 0, (int)$jsonModel->availability);
-
-            //self::insertNosizeModel($product, $jsonProduct);
 
             return $product;
         } catch (PrestaShopException $e) {
