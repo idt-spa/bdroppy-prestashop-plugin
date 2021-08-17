@@ -156,6 +156,8 @@ class BdroppyRewixApi
             curl_close($ch);
 
             if ($http_code == 200) {
+                Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
+                Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
                 $json = json_decode($data);
                 if (count($json->items)) {
                     foreach ($json->items as $item) {
@@ -240,8 +242,6 @@ class BdroppyRewixApi
                     }
                     $logMsg = 'getProductsFull - done';
                     BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
-                    Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
-                    Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
                 } else {
                     $logMsg = 'getProductsFull - items is null';
                     BdroppyLogger::addLog(__METHOD__, $logMsg, 1);
@@ -286,6 +286,7 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code == 200) {
+            Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
             $json = json_decode($data);
             foreach ($json->items as $item) {
                 $jsonProduct = json_encode(
@@ -305,7 +306,6 @@ class BdroppyRewixApi
             }
             $logMsg = 'getProductsJsonSince - done';
             BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
-            Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
         } else {
             BdroppyLogger::addLog(__METHOD__, 'http_code : ' . $http_code . ' - url : ' . $url .
                 ' data : '.$data, 2);

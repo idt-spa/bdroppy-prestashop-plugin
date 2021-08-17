@@ -52,6 +52,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         include_once dirname(__FILE__) . '/../../classes/ImportTools.php';
         include_once dirname(__FILE__) . '/../../classes/RewixApi.php';
 
+        Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
         $importFlag = true;
         if (Tools::getIsset('no_import')) {
             if (Tools::getValue('no_import') == '1') {
@@ -63,7 +64,6 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         }
 
         $this->syncOrders();
-        Configuration::updateValue('BDROPPY_LAST_CRON_TIME', time());
 
         $this->assignTpl();
     }
@@ -411,11 +411,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
         }
 
         if ((time() - $lastSync) > 10 * 60 || $noImportFlag) {
+            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int)time());
             $rewixApi = new BdroppyRewixApi();
             $rewixApi->updateOrderStatuses();
             $rewixApi->syncBookedProducts();
             $rewixApi->sendMissingOrders();
-            Configuration::updateValue('BDROPPY_LAST_CART_SYNC', (int)time());
         }
     }
 
