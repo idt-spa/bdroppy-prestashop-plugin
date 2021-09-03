@@ -1208,7 +1208,7 @@ class BdroppyRewixApi
                             $association->save();
 
                             $logMsg = 'Order status Update: WC ID #' .
-                                $order->wc_order_id . ': new status [' . $status . ']';
+                                $order->id . ': new status [' . $status . ']';
                             BdroppyLogger::addLog(__METHOD__, $logMsg, 3);
 
                             if ($status == BdroppyRemoteOrder::STATUS_DISPATCHED) {
