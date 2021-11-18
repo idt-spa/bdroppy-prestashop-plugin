@@ -850,8 +850,9 @@ class BdroppyRewixApi
                         $attributeId = (int)$line['id_product_attribute'];
                     }
                     $product_isbn = 0;
-                    if (isset($line['isbn']))
+                    if (isset($line['isbn'])) {
                         $product_isbn = (int)$line['isbn'];
+                    }
                     if ($product_isbn == 0) {
                         $product_isbn = (int)$line['upc'];
                     }
@@ -865,8 +866,9 @@ class BdroppyRewixApi
                         }
                     }
                     if ($product_isbn <= 0) {
-                        if (isset($line['product_isbn']))
+                        if (isset($line['product_isbn'])) {
                             $product_isbn = (int)$line['product_isbn'];
+                        }
                     }
                     $rewixId = $modelId > 0 ? $modelId : $product_isbn;
                     //$rewixId = BdroppyRemoteCombination::getRewixModelIdByProductAndModelId($productId);
