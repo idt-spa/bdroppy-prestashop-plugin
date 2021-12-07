@@ -25,3 +25,24 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+
+.pdbDescSectionItem {margin-right: 5px;}
+
+.pdbDescSection {
+    display: block;
+    line-height: 19px;
+}
+.pdbDescSectionTitle {
+    font-weight: bold;
+    display: inline-block;
+    padding-right: 5px;
+    color: #707070;
+    font-size: 13px;
+}
+.pdbDescSectionText {
+    color: #8F8F8F;
+    font-size: 13px;
+}
+.pdbDescSectionItem:not(:last-child):after {
+    content: “, “;
+}

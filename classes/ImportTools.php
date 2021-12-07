@@ -748,8 +748,8 @@ class BdroppyImportTools
                 } else {
                     $product->name[$lang['id_lang']] = $name;
                 }
-                $desc  = self::getDescriptions($jsonProduct, $langCode);
-                $desc = str_replace('</div>', '<br>', $desc);
+                $finalDesc  = self::getDescriptions($jsonProduct, $langCode);
+                /*$desc = str_replace('</div>', '<br>', $desc);
                 $desc = strip_tags($desc, '<br>');
                 $strLines = explode('<br>', $desc);
                 $finalDesc = '';
@@ -761,7 +761,7 @@ class BdroppyImportTools
                     if (count($line) > 1) {
                         $finalDesc .= trim($line[0]) . ' : ' . trim($line[1]) . '<br>';
                     }
-                }
+                }*/
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
                     "{$productData['brand']}-{$productData['code']}"
                 );
