@@ -143,8 +143,52 @@ class BdroppyRemoteCategory extends ObjectModel
             $tag = $parentTag->rewix_category_id.'-'.$tag;
         }
 
+        $langs = [];
+        $langs['en'] = 'en_US';
+        $langs['gb'] = 'en_US';
+        $langs['it'] = 'it_IT';
+        $langs['fr'] = 'fr_FR';
+        $langs['pl'] = 'pl_PL';
+        $langs['es'] = 'es_ES';
+        $langs['de'] = 'de_DE';
+        $langs['ru'] = 'ru_RU';
+        $langs['nl'] = 'nl_NL';
+        $langs['ro'] = 'ro_RO';
+        $langs['et'] = 'et_EE';
+        $langs['hu'] = 'hu_HU';
+        $langs['sv'] = 'sv_SE';
+        $langs['sk'] = 'sk_SK';
+        $langs['cs'] = 'cs_CZ';
+        $langs['pt'] = 'pt_PT';
+        $langs['fi'] = 'fi_FI';
+        $langs['bg'] = 'bg_BG';
+        $langs['da'] = 'da_DK';
+        $langs['lt'] = 'lt_LT';
+        $langs['el'] = 'el_GR';
         if ($result > 0) {
             $category = new Category($result);
+            $languages = Language::getLanguages();
+            foreach ($languages as $lang) {
+                if (isset($langs[$lang['iso_code']])) {
+                    $langCode = $langs[$lang['iso_code']];
+                } else {
+                    $langCode = $langs['en'];
+                }
+                $catTxt = '';
+                if ($tagId == self::REWIX_GENDER_ID) {
+                    $catTxt = self::getTagValue($xmlProduct, 'gender', $langCode);
+                }
+                if ($tagId == self::REWIX_CATEGORY_ID) {
+                    $catTxt = self::getTagValue($xmlProduct, 'category', $langCode);
+                }
+                if ($tagId == self::REWIX_SUBCATEGORY_ID) {
+                    $catTxt = self::getTagValue($xmlProduct, 'subcategory', $langCode);
+                }
+                $category->name[$lang['id_lang']] = $catTxt;
+                $category->link_rewrite[$lang['id_lang']] = Tools::link_rewrite($catTxt);
+            }
+            $category->id_parent = $parent->id;
+            $category->save();
             $remoteCategory = self::fromRewixTag($tag);
             $remoteCategory->ps_category_id = $category->id;
             $remoteCategory->rewix_category_id = $tag;
@@ -157,28 +201,6 @@ class BdroppyRemoteCategory extends ObjectModel
 
         if ($category->id < 1) {
             $category->id_parent = $parent->id;
-            $langs = [];
-            $langs['en'] = 'en_US';
-            $langs['gb'] = 'en_US';
-            $langs['it'] = 'it_IT';
-            $langs['fr'] = 'fr_FR';
-            $langs['pl'] = 'pl_PL';
-            $langs['es'] = 'es_ES';
-            $langs['de'] = 'de_DE';
-            $langs['ru'] = 'ru_RU';
-            $langs['nl'] = 'nl_NL';
-            $langs['ro'] = 'ro_RO';
-            $langs['et'] = 'et_EE';
-            $langs['hu'] = 'hu_HU';
-            $langs['sv'] = 'sv_SE';
-            $langs['sk'] = 'sk_SK';
-            $langs['cs'] = 'cs_CZ';
-            $langs['pt'] = 'pt_PT';
-            $langs['fi'] = 'fi_FI';
-            $langs['bg'] = 'bg_BG';
-            $langs['da'] = 'da_DK';
-            $langs['lt'] = 'lt_LT';
-            $langs['el'] = 'el_GR';
 
             $languages = Language::getLanguages();
             foreach ($languages as $lang) {
