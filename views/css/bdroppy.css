@@ -5,3 +5,13 @@
 .stripe-module-wrapper { width: 99%;
     display: block;
     position: relative; }
+
+.pdbDescSectionItem {margin-right: 5px;}
+
+.pdbDescSectionTitle {
+    text-transform: uppercase;
+}
+
+.pdbDescSectionTitle:after {
+    content: "\00a0";
+}
