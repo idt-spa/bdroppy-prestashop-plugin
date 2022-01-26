@@ -441,6 +441,8 @@
 										<option value="men">Men</option>
 										<option value="kids">Kids</option>
 										<option value="unisex">Unisex</option>
+										<option value="boy">Boy</option>
+										<option value="girl">Girl</option>
 									</select>
 								</td>
 								<td>
