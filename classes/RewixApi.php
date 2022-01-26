@@ -1378,8 +1378,7 @@ class BdroppyRewixApi
             $data = json_decode($data);
             $result = [];
             foreach ($data as $item) {
-                $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
-                $result[$item->code] = $value;
+                $result[$item->value] = $item->name;
             }
             return json_encode($result);
         }
@@ -1423,8 +1422,7 @@ class BdroppyRewixApi
             $data = json_decode($data);
             $result = [];
             foreach ($data as $item) {
-                $value = isset($item->translations->{$lang})? $item->translations->{$lang} : $item->code;
-                $result[$item->code] = $value;
+                $result[$item->value] = $item->name;
             }
             return $result;
         }
