@@ -834,6 +834,7 @@ class BdroppyRewixApi
             $item_list = $xmlOrder->addChild('item_list');
             $xmlOrder->addChild('key', $rewix_order_key);
             $xmlOrder->addChild('date', str_replace('-', '/', $order->date_add) . ' +0000');
+            $xmlOrder->addChild('ref_id', $order->id);
             $xmlOrder->addChild('user_catalog_id', $catalog_id);
             $xmlOrder->addChild('shipping_taxable', $order->total_shipping);
             $xmlOrder->addChild('shipping_currency', $currency->iso_code);
