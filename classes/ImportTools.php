@@ -140,16 +140,17 @@ class BdroppyImportTools
         $json->close();
     }
 
-    public static function importProduct($item, $default_lang, $updateFlag)
+    public static function importProduct($item, $default_lang, $updateFlag, $acceptedlocales = null)
     {
         try {
             $db = Db::getInstance();
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
             if ($updateFlag) {
                 $rewixApi = new BdroppyRewixApi();
-                $res = $rewixApi->getProductJson($item['rewix_product_id'], $api_catalog);
+                $res = $rewixApi->getProductJson($item['reference'], $api_catalog, $acceptedlocales);
                 if ($res['http_code'] == 200) {
                     $jsonProduct = json_decode($res['data']);
+                    $jsonProduct = $jsonProduct->items[0];
                 } else {
                     return '0';
                 }
@@ -615,12 +616,12 @@ class BdroppyImportTools
 
         $markupField = Configuration::get('BDROPPY_MARKUP_FIELD');
         $name = (string)$json->name;
-        if ($markupField) {
-            $price = (float)$json->{$markupField};
-            $priceTax = (float)$json->{$markupField};
-        } else {
+        if ($json->sellPrice) {
             $price = (float)$json->sellPrice;
             $priceTax = (float)$json->sellPrice;
+        } else {
+            $price = (float)$json->{$markupField};
+            $priceTax = (float)$json->{$markupField};
         }
         if ($price < 0) {
             $price = 0;

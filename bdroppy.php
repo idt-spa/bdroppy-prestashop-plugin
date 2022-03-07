@@ -46,7 +46,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.2.18';
+        $this->version = '2.2.19';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -580,7 +580,7 @@ class Bdroppy extends Module
             $res = $rewixApi->connectUserCatalog();
             if ($res['http_code'] == 200) {
                 Configuration::updateValue('BDROPPY_CONNECT', true);
-                Configuration::updateValue('BDROPPY_MARKUP_FIELD', $res['data']['markupField']);
+                Configuration::updateValue('BDROPPY_MARKUP_FIELD', $res['data']->markupField);
                 $connectCatalog = true;
             } else {
                 Configuration::updateValue('BDROPPY_CONNECT', false);

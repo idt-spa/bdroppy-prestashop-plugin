@@ -185,7 +185,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                     $items = $db->executeS($query);
                 }
                 foreach ($items as $item) {
-                    $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
+                    $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
                     echo($res);
                 }
                 die;
