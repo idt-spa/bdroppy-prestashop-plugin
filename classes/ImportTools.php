@@ -613,12 +613,18 @@ class BdroppyImportTools
             }
         }
 
+        $markupField = Configuration::get('BDROPPY_MARKUP_FIELD');
         $name = (string)$json->name;
-        $price = (float)$json->sellPrice;
+        if ($markupField) {
+            $price = (float)$json->{$markupField};
+            $priceTax = (float)$json->{$markupField};
+        } else {
+            $price = (float)$json->sellPrice;
+            $priceTax = (float)$json->sellPrice;
+        }
         if ($price < 0) {
             $price = 0;
         }
-        $priceTax = (float)$json->sellPrice;
         $bestTaxable = (float)$json->bestTaxable;
         $taxable = (float)$json->taxable;
         $suggested = (float)$json->suggestedPrice;
