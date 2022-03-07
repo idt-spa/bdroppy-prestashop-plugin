@@ -78,13 +78,14 @@ class BdroppyRewixApi
         return $ean;
     }
 
-    public function getProductJson($product_reference, $catalog_id, $acceptedlocales)
+    public function getProductJson($pReference, $catalog_id, $acceptedlocales)
     {
         $ret = [];
+        $bUrl = Configuration::get('BDROPPY_API_URL');
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $header = "Authorization: Bearer " . $api_token;
 
-        $url = Configuration::get('BDROPPY_API_URL') . "/api/product/export?acceptedlocales=$acceptedlocales&user_catalog=".$catalog_id."&page=1&pageSize=16&q=$product_reference";//"/restful/product/$product_id/usercatalog/$catalog_id";
+        $url = "$bUrl/api/product/export?acceptedlocales=$acceptedlocales&user_catalog=$catalog_id&q=$pReference";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
