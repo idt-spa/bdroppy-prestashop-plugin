@@ -46,7 +46,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.2.19';
+        $this->version = '2.2.20';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -463,11 +463,13 @@ class Bdroppy extends Module
 
     public function getNestedCategories($parentName, $categories)
     {
-        foreach ($categories as $category) {
-            $this->categories[$category['id_category']] = $parentName . ' > ' . $category['name'];
-            if (isset($category['children'])) {
-                if (count($category['children']) > 0) {
-                    $this->getNestedCategories($parentName . ' > ' . $category['name'], $category['children']);
+        if ($categories) {
+            foreach ($categories as $category) {
+                $this->categories[$category['id_category']] = $parentName . ' > ' . $category['name'];
+                if (isset($category['children'])) {
+                    if (count($category['children']) > 0) {
+                        $this->getNestedCategories($parentName . ' > ' . $category['name'], $category['children']);
+                    }
                 }
             }
         }
@@ -618,19 +620,25 @@ class Bdroppy extends Module
         $attributes = array(
             '0' => $this->l('Select', 'main'),
         );
-        foreach ($res as $attribute) {
-            $attributes[$attribute['id_attribute_group']] = $attribute['name'];
+        if ($res) {
+            foreach ($res as $attribute) {
+                $attributes[$attribute['id_attribute_group']] = $attribute['name'];
+            }
         }
 
         $tax_rules = [];
         $taxes = TaxRulesGroup::getTaxRulesGroups();
-        foreach ($taxes as $tax) {
-            $tax_rules[$tax['id_tax_rules_group']] = $tax['name'];
+        if ($taxes) {
+            foreach ($taxes as $tax) {
+                $tax_rules[$tax['id_tax_rules_group']] = $tax['name'];
+            }
         }
         $tax_rates = [];
         $rates = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
-        foreach ($rates as $rate) {
-            $tax_rates[$rate['id_tax']] = $rate['name'];
+        if ($rates) {
+            foreach ($rates as $rate) {
+                $tax_rates[$rate['id_tax']] = $rate['name'];
+            }
         }
         //return $output . $this->displayForm() . $this->displayPriceForm();
         $catalogs = $this->getCatalogs();

@@ -150,8 +150,10 @@ class BdroppyRemoteProduct extends ObjectModel
         $results = Db::getInstance()->executeS($query);
         $ids = array();
 
-        foreach ($results as $product) {
-            $ids[] = $product['rewix_product_id'];
+        if ($results) {
+            foreach ($results as $product) {
+                $ids[] = $product['rewix_product_id'];
+            }
         }
 
         return $ids;

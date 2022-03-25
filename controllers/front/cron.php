@@ -184,9 +184,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         ->where("reference = '" . Tools::getValue('reference') . "'");
                     $items = $db->executeS($query);
                 }
-                foreach ($items as $item) {
-                    $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
-                    echo($res);
+                if ($items) {
+                    foreach ($items as $item) {
+                        $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag, $acceptedlocales);
+                        echo($res);
+                    }
                 }
                 die;
             }
@@ -218,20 +220,22 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 }
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
                 $delete_products = $db->ExecuteS($sql);
-                foreach ($delete_products as $item) {
-                    $id = $item['id_product'];
-                    $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
-                    BdroppyRemoteCombination::deleteByRewixId($rewixId);
-                    BdroppyRemoteProduct::deleteByPsId($id);
-                    $dp = new Product((int)$item['id_product']);
-                    $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE id_product='" .
-                        (int)$dp->id."';";
-                    $total = $db->ExecuteS($sql);
-                    if ($total[0]['total'] == 0) {
-                        $dp->delete();
-                    } else {
-                        $dp->active = false;
-                        $dp->save();
+                if ($delete_products) {
+                    foreach ($delete_products as $item) {
+                        $id = $item['id_product'];
+                        $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+                        BdroppyRemoteCombination::deleteByRewixId($rewixId);
+                        BdroppyRemoteProduct::deleteByPsId($id);
+                        $dp = new Product((int)$item['id_product']);
+                        $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE id_product='" .
+                            (int)$dp->id . "';";
+                        $total = $db->ExecuteS($sql);
+                        if ($total[0]['total'] == 0) {
+                            $dp->delete();
+                        } else {
+                            $dp->active = false;
+                            $dp->save();
+                        }
                     }
                 }
             } else {
@@ -267,24 +271,26 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` 
                             WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT ".$api_limit_count.";";
                         $items = $db->ExecuteS($sql);
-                        foreach ($items as $item) {
-                            if ($item['ps_product_id'] != '0') {
-                                $id = $item['ps_product_id'];
-                                $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
-                                BdroppyRemoteCombination::deleteByRewixId($rewixId);
-                                BdroppyRemoteProduct::deleteByPsId($id);
-                                $dp = new Product((int)$item['ps_product_id']);
-                                $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE ".
-                                    "id_product='" . (int)$dp->id . "';";
-                                $total = $db->ExecuteS($sql);
-                                if ($total[0]['total'] == 0) {
-                                    $dp->delete();
-                                } else {
-                                    $dp->active = false;
-                                    $dp->save();
+                        if ($items) {
+                            foreach ($items as $item) {
+                                if ($item['ps_product_id'] != '0') {
+                                    $id = $item['ps_product_id'];
+                                    $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
+                                    BdroppyRemoteCombination::deleteByRewixId($rewixId);
+                                    BdroppyRemoteProduct::deleteByPsId($id);
+                                    $dp = new Product((int)$item['ps_product_id']);
+                                    $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE " .
+                                        "id_product='" . (int)$dp->id . "';";
+                                    $total = $db->ExecuteS($sql);
+                                    if ($total[0]['total'] == 0) {
+                                        $dp->delete();
+                                    } else {
+                                        $dp->active = false;
+                                        $dp->save();
+                                    }
                                 }
+                                BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                             }
-                            BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
                         }
 
                         // change status of products
@@ -306,19 +312,19 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                                 "WHERE sync_status='queued' LIMIT " . $api_limit_count . ";";
                             $items = $db->ExecuteS($sql);
                         }
-                        foreach ($items as $item) {
-                            $res = $db->update(
-                                'bdroppy_remoteproduct',
-                                array(
-                                    'sync_status' => 'importing',
-                                    'last_sync_date' => date('Y-m-d H:i:s')
-                                ),
-                                'id = ' . (int)$item['id']
-                            );
-                        }
-                        foreach ($items as $item) {
-                            if ($item['sync_status'] == 'queued') {
-                                $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
+                        if ($items) {
+                            foreach ($items as $item) {
+                                $res = $db->update(
+                                    'bdroppy_remoteproduct',
+                                    array(
+                                        'sync_status' => 'importing',
+                                        'last_sync_date' => date('Y-m-d H:i:s')
+                                    ),
+                                    'id = ' . (int)$item['id']
+                                );
+                                if ($item['sync_status'] == 'queued') {
+                                    $res = BdroppyImportTools::importProduct($item, $default_lang, $updateFlag);
+                                }
                             }
                         }
 
