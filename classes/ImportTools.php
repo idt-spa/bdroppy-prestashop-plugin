@@ -287,11 +287,11 @@ class BdroppyImportTools
         try {
             $db = Db::getInstance();
             $imageCount = 1;
-            $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
+            $websiteUrl = 'https://www.mediabd.it/storage-foto/prod/';
             if (strpos(Configuration::get('BDROPPY_API_URL'), 'dev') !== false) {
-                $websiteUrl = 'https://media.bdroppy.com/storage-foto-dev/prod/';
+                $websiteUrl = 'https://www.mediabd.it/storage-foto-dev/prod/';
             } else {
-                $websiteUrl = 'https://media.bdroppy.com/storage-foto/prod/';
+                $websiteUrl = 'https://www.mediabd.it/storage-foto/prod/';
             }
             $product->deleteImages();
             $db->delete('image', 'id_product = ' . $product->id);
