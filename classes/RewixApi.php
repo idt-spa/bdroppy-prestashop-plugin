@@ -274,9 +274,9 @@ class BdroppyRewixApi
                     Configuration::updateValue('BDROPPY_TOKEN', $r['data']->token);
                 }
             }
-        Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
-        Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
-        return $http_code;
+            Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
+            Configuration::updateValue('BDROPPY_LAST_IMPORT_SYNC', (int)time());
+            return $http_code;
         } catch (PrestaShopException $e) {
             return $e->getMessage();
         }
