@@ -114,7 +114,7 @@ class BdroppyRewixApi
             $ids = [];
             $db = Db::getInstance();
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
-            $pageSize = 50;
+            $pageSize = 100;
             $base_url = Configuration::get('BDROPPY_API_URL');
             $api_token = Configuration::get('BDROPPY_TOKEN');
             $url = $base_url . "/restful/export/api/products.json?pageSize=".
