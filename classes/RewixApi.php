@@ -114,26 +114,11 @@ class BdroppyRewixApi
             $ids = [];
             $db = Db::getInstance();
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
-            $sql = "SELECT p.id_product, p.unity FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
-            `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product) 
+            $updateSql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` br RIGHT JOIN 
+            `" . _DB_PREFIX_ . "product` p ON (br.ps_product_id = p.id_product)
+            SET br.sync_status = 'delete' 
             WHERE br.rewix_product_id IS NULL AND p.unity <> '';";
-            $items = $db->ExecuteS($sql);
-            if ($items) {
-                foreach ($items as $item) {
-                    if (strpos($item['unity'], $api_catalog) !== false) {
-                        $dp = new Product($item['id_product']);
-                        $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE " .
-                            "id_product='" . (int)$dp->id . "';";
-                        $total = $db->ExecuteS($sql);
-                        if ($total[0]['total'] == 0) {
-                            $dp->delete();
-                        } else {
-                            $dp->active = false;
-                            $dp->save();
-                        }
-                    }
-                }
-            }
+            $updateRes = $db->Execute($updateSql);
             $pageSize = 100;
             $base_url = Configuration::get('BDROPPY_API_URL');
             $api_token = Configuration::get('BDROPPY_TOKEN');
@@ -165,17 +150,29 @@ class BdroppyRewixApi
                 if (count($json->items)) {
                     foreach ($json->items as $item) {
                         $ids[] = $item->id;
-                        $jsonProduct = json_encode($item, JSON_PRETTY_PRINT);
-                        $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
-                        $remoteProduct->reference = self::fitReference($item->code, $item->id);
-                        $remoteProduct->rewix_catalog_id = $api_catalog;
-                        $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                        if ($remoteProduct->sync_status == '' || $remoteProduct->reason != $item->lastUpdate) {
-                            $remoteProduct->sync_status = 'queued';
-                        }
-                        $remoteProduct->reason = $item->lastUpdate;
-                        $remoteProduct->data = $jsonProduct;
-                        $remoteProduct->save();
+                        $jsonProduct = json_encode(
+                            $item,
+                            JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+                        );
+                        $ref = self::fitReference($item->code, $item->id);
+                        $currentTime = date('Y-m-d H:i:s');
+                        $insertVals1 = "(".$item->id.",'$api_catalog',0,'queued','".$item->lastUpdate."','$jsonProduct','$currentTime','$ref')";
+                        $upsertSql = "INSERT INTO `" . _DB_PREFIX_ . "bdroppy_remoteproduct` (
+                            rewix_product_id,
+                            rewix_catalog_id,
+                            ps_product_id,
+                            sync_status,
+                            reason,
+                            data,
+                            last_sync_date,
+                            reference) VALUES $insertVals1 ON DUPLICATE KEY UPDATE 
+                            reference='$ref',
+                            rewix_catalog_id='$api_catalog',
+                            last_sync_date='$currentTime',
+                            sync_status='queued',
+                            reason='".$item->lastUpdate."',
+                            data='.$jsonProduct.';";
+                        $upsertRes = $db->Execute($upsertSql);
                     }
                     if ($json->totalPages >= 2) {
                         for ($i = 2; $i <= $json->totalPages; $i++) {
@@ -204,18 +201,29 @@ class BdroppyRewixApi
                                 if ($json->items) {
                                     foreach ($json->items as $item) {
                                         $ids[] = $item->id;
-                                        $jsonProduct = json_encode($item, JSON_PRETTY_PRINT);
-                                        $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
-                                        $remoteProduct->reference = self::fitReference($item->code, $item->id);
-                                        $remoteProduct->rewix_catalog_id = $api_catalog;
-                                        $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                                        if ($remoteProduct->sync_status == '' ||
-                                            $remoteProduct->reason != $item->lastUpdate) {
-                                            $remoteProduct->sync_status = 'queued';
-                                        }
-                                        $remoteProduct->reason = $item->lastUpdate;
-                                        $remoteProduct->data = $jsonProduct;
-                                        $remoteProduct->save();
+                                        $jsonProduct = json_encode(
+                                            $item,
+                                            JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+                                        );
+                                        $ref = self::fitReference($item->code, $item->id);
+                                        $currentTime = date('Y-m-d H:i:s');
+                                        $insertVals2 = "(".$item->id.",'$api_catalog',0,'queued','".$item->lastUpdate."','$jsonProduct','$currentTime','$ref')";
+                                        $upsertSql = "INSERT INTO `" . _DB_PREFIX_ . "bdroppy_remoteproduct` (
+                                            rewix_product_id,
+                                            rewix_catalog_id,
+                                            ps_product_id,
+                                            sync_status,
+                                            reason,
+                                            data,
+                                            last_sync_date,
+                                            reference) VALUES $insertVals2 ON DUPLICATE KEY UPDATE 
+                                            reference='$ref',
+                                            rewix_catalog_id='$api_catalog',
+                                            last_sync_date='$currentTime',
+                                            sync_status='queued',
+                                            reason='".$item->lastUpdate."',
+                                            data='.$jsonProduct.';";
+                                        $upsertRes = $db->Execute($upsertSql);
                                     }
                                 }
                             } else {

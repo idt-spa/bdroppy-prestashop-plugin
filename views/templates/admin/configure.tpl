@@ -257,7 +257,7 @@
 							</select>
 						</div>
 					</div>
-					{*<div class="form-group">
+					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Reimport Images On Updating' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
 							<span class="switch prestashop-switch fixed-width-lg">
@@ -272,7 +272,7 @@
 								<a class="slide-button btn"></a>
 							</span>
 						</div>
-					</div>*}
+					</div>
 					<div class="form-group">
 						<label class="control-label col-lg-3" for="simple_product">{l s='Import Brand To Title' mod='bdroppy'}:</label>
 						<div class="col-lg-7">
