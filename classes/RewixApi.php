@@ -173,7 +173,7 @@ class BdroppyRewixApi
                             last_sync_date='$currentTime',
                             sync_status='queued',
                             reason='".$item->lastUpdate."',
-                            data='.$jsonProduct.';";
+                            data='$jsonProduct';";
                         $db->Execute($upsertSql);
                     }
                     if ($json->totalPages >= 2) {
@@ -233,7 +233,7 @@ class BdroppyRewixApi
                                             last_sync_date='$currentTime',
                                             sync_status='queued',
                                             reason='".$item->lastUpdate."',
-                                            data='.$jsonProduct.';";
+                                            data='$jsonProduct';";
                                         $db->Execute($upsertSql);
                                     }
                                 }
