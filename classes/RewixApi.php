@@ -143,8 +143,8 @@ class BdroppyRewixApi
                 if (count($json->items)) {
                     foreach ($json->items as $item) {
                         $ids[] = $item->id;
-                        $jsonData =  str_replace("\\", "\\\\",json_encode($item));
-                        $jsonProduct =  str_replace("'", "\'",$jsonData);
+                        $jsonData = str_replace("\\", "\\\\", json_encode($item));
+                        $jsonProduct = str_replace("'", "\'", $jsonData);
                         $ref = self::fitReference($item->code, $item->id);
                         $currentTime = date('Y-m-d H:i:s');
                         $insertVals1 = "(
@@ -201,8 +201,8 @@ class BdroppyRewixApi
                                 if ($json->items) {
                                     foreach ($json->items as $item) {
                                         $ids[] = $item->id;
-                                        $jsonData =  str_replace("\\", "\\\\",json_encode($item));
-                                        $jsonProduct =  str_replace("'", "\'",$jsonData);
+                                        $jsonData = str_replace("\\", "\\\\", json_encode($item));
+                                        $jsonProduct = str_replace("'", "\'", $jsonData);
                                         $ref = self::fitReference($item->code, $item->id);
                                         $currentTime = date('Y-m-d H:i:s');
                                         $insertVals2 = "(
