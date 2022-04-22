@@ -114,7 +114,7 @@ class BdroppyRewixApi
             $ids = [];
             $db = Db::getInstance();
             $api_catalog = Configuration::get('BDROPPY_CATALOG');
-            $pageSize = 100;
+            $pageSize = 200;
             $base_url = Configuration::get('BDROPPY_API_URL');
             $api_token = Configuration::get('BDROPPY_TOKEN');
             $url = $base_url . "/restful/export/api/products.json?pageSize=".
@@ -143,10 +143,8 @@ class BdroppyRewixApi
                 if (count($json->items)) {
                     foreach ($json->items as $item) {
                         $ids[] = $item->id;
-                        $jsonProduct = json_encode(
-                            $item,
-                            JSON_PRETTY_PRINT|JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP
-                        );
+                        $jsonData =  str_replace("\\", "\\\\",json_encode($item));
+                        $jsonProduct =  str_replace("'", "\'",$jsonData);
                         $ref = self::fitReference($item->code, $item->id);
                         $currentTime = date('Y-m-d H:i:s');
                         $insertVals1 = "(
@@ -203,10 +201,8 @@ class BdroppyRewixApi
                                 if ($json->items) {
                                     foreach ($json->items as $item) {
                                         $ids[] = $item->id;
-                                        $jsonProduct = json_encode(
-                                            $item,
-                                            JSON_PRETTY_PRINT|JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP
-                                        );
+                                        $jsonData =  str_replace("\\", "\\\\",json_encode($item));
+                                        $jsonProduct =  str_replace("'", "\'",$jsonData);
                                         $ref = self::fitReference($item->code, $item->id);
                                         $currentTime = date('Y-m-d H:i:s');
                                         $insertVals2 = "(
