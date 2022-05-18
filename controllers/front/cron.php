@@ -194,31 +194,10 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
             }
 
             if ($api_catalog == "-1") {
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct`;";
+                $sql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` SET sync_status = '".BdroppyRemoteProduct::SYNC_STATUS_DELETE."';";
                 $delete_products = $db->ExecuteS($sql);
-                if ($delete_products) {
-                    foreach ($delete_products as $item) {
-                        if ($item['ps_product_id'] != '0') {
-                            $id = $item['ps_product_id'];
-                            $rewixId = BdroppyRemoteProduct::getRewixIdByPsId($id);
-                            BdroppyRemoteCombination::deleteByRewixId($rewixId);
-                            BdroppyRemoteProduct::deleteByPsId($id);
 
-                            $dp = new Product((int)$item['ps_product_id']);
-                            $sql = "SELECT COUNT(id_cart) as total FROM  `" . _DB_PREFIX_ . "cart_product` WHERE " .
-                            "id_product='" . (int)$dp->id . "';";
-                            $total = $db->ExecuteS($sql);
-                            if ($total[0]['total'] == 0) {
-                                $dp->delete();
-                            } else {
-                                $dp->active = false;
-                                $dp->save();
-                            }
-                        }
-                        BdroppyRemoteProduct::deleteByRewixId($item['rewix_product_id']);
-                    }
-                }
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%');";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%') LIMIT ".$api_limit_count.";";
                 $delete_products = $db->ExecuteS($sql);
                 if ($delete_products) {
                     foreach ($delete_products as $item) {

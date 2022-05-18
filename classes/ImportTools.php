@@ -780,19 +780,14 @@ class BdroppyImportTools
                     $product->name[$lang['id_lang']] = $name;
                 }
                 $finalDesc  = self::getDescriptions($jsonProduct, $langCode);
-                /*$desc = str_replace('</div>', '<br>', $desc);
-                $desc = strip_tags($desc, '<br>');
-                $strLines = explode('<br>', $desc);
-                $finalDesc = '';
+                $desc_short_limit = Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
+                $strLines = explode('</div>', $finalDesc);
+                $shortDesc = '';
                 foreach ($strLines as $strLine) {
-                    $line = explode(':', $strLine);
-                    if (count($line) <= 1) {
-                        $finalDesc .= $strLine . '<br>';
+                    if (Tools::strlen($shortDesc . $strLine) <= $desc_short_limit) {
+                        $shortDesc .= $strLine;
                     }
-                    if (count($line) > 1) {
-                        $finalDesc .= trim($line[0]) . ' : ' . trim($line[1]) . '<br>';
-                    }
-                }*/
+                }
                 $product->link_rewrite[$lang['id_lang']] = Tools::link_rewrite(
                     "{$productData['brand']}-{$productData['code']}"
                 );
@@ -806,8 +801,7 @@ class BdroppyImportTools
                 }
                 if ($descFlag || $bdroppy_auto_update_name) {
                     $product->description[$lang['id_lang']] = $finalDesc;
-                    $desc_short_limit = Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
-                    $product->description_short[$lang['id_lang']] = Tools::substr($finalDesc, 0, $desc_short_limit);
+                    $product->description_short[$lang['id_lang']] = $shortDesc;
                 }
             }
 
