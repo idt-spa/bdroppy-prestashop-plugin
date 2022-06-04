@@ -1079,6 +1079,8 @@ class BdroppyImportTools
 
             $languages = Language::getLanguages(false);
             $first = true;
+            //$product->deleteProductAttributes();
+            //$db->delete('stock_available', 'id_product = ' . $product->id);
 
             if ($jsonModels) {
                 foreach ($jsonModels as $model) {
@@ -1091,38 +1093,37 @@ class BdroppyImportTools
 
                     $combinationAttributes = array();
 
-                    if ($model->color) {
+                    $defaultColor = self::getColor($jsonProduct, $default_lang);
+                    $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
+                        "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
+                        Configuration::get('BDROPPY_COLOR') . " AND al.name = '$defaultColor';";
+                    $r = $db->executeS($sql);
+                    if ($r) {
+                        $attribute = (object)$r[0];
+                    } else {
+                        $langColor = "";
+                        $attribute = new Attribute();
+                        foreach ($languages as $lang) {
+                            if (isset($langs[$lang['iso_code']])) {
+                                $langCode = $langs[$lang['iso_code']];
+                            } else {
+                                $langCode = $langs['en'];
+                            }
+                            $langColor = self::getColor($jsonProduct, $langCode);
+                            $attribute->name[$lang['id_lang']] = $langColor;
+                        }
+                        $attribute->color = $langColor;
+                        $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
+                        $attribute->save();
                         $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
-                            "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
-                            Configuration::get('BDROPPY_COLOR') . " AND al.name = '" .
-                            self::getColor($jsonProduct, $default_lang) . "';";
+                            "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group=" .
+                            Configuration::get('BDROPPY_COLOR') . " AND al.name = '$defaultColor';";
                         $r = $db->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];
-                        } else {
-                            $attribute = new Attribute();
-                            foreach ($languages as $lang) {
-                                if (isset($langs[$lang['iso_code']])) {
-                                    $langCode = $langs[$lang['iso_code']];
-                                } else {
-                                    $langCode = $langs['en'];
-                                }
-                                $attribute->name[$lang['id_lang']] = self::getColor($jsonProduct, $langCode);
-                            }
-                            $attribute->color = self::getColor($jsonProduct, 'en_US');
-                            $attribute->id_attribute_group = Configuration::get('BDROPPY_COLOR');
-                            $attribute->save();
-                            $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
-                                "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group=" .
-                                Configuration::get('BDROPPY_COLOR') . " AND al.name = '" .
-                                self::getColor($jsonProduct, $default_lang) . "';";
-                            $r = $db->executeS($sql);
-                            if ($r) {
-                                $attribute = (object)$r[0];
-                            }
                         }
-                        $combinationAttributes[] = $attribute->id_attribute;
                     }
+                    $combinationAttributes[] = $attribute->id_attribute;
                     if ($model->size) {
                         $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
                             "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
