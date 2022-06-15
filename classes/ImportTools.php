@@ -1035,8 +1035,14 @@ class BdroppyImportTools
      */
     private static function getManufacturer($brand)
     {
-        $brandId = Manufacturer::getIdByName($brand);
-
+        $brandId = false;
+        $id_shop = (int)Context::getContext()->shop->id;
+        $query = new DbQuery();
+        $query->select('m.id_manufacturer');
+        $query->from('manufacturer', 'm');
+        $query->leftJoin('manufacturer_shop', 'ms', 'm.id_manufacturer = ms.id_manufacturer');
+        $query->where("m.name = '" . pSQL($brand) . "' AND ms.id_shop=" . (int)$id_shop);
+        $brandId = Db::getInstance()->getValue($query);
         if ($brandId == false) {
             $manufacturer = new Manufacturer();
             $manufacturer->name = $brand;
