@@ -285,7 +285,7 @@ class BdroppyRewixApi
         $api_token = Configuration::get('BDROPPY_TOKEN');
         $api_catalog = Configuration::get('BDROPPY_CATALOG');
         $header = "Authorization: Bearer " . $api_token;
-
+        $db = Db::getInstance();
 
         $url = Configuration::get('BDROPPY_API_URL') . "/restful/export/api/products.json?acceptedlocales=".
             "$acceptedlocales&user_catalog=$catalog_id&since=$lastQuantitiesSync";
@@ -303,25 +303,43 @@ class BdroppyRewixApi
         //$curl_error = curl_error($ch);
         curl_close($ch);
         if ($http_code == 200) {
-            Configuration::updateValue('BDROPPY_LAST_QUANTITIES_SYNC', (int)time());
             $json = json_decode($data);
-            if ($json->items) {
+            if (count($json->items)) {
                 foreach ($json->items as $item) {
-                    $jsonProduct = json_encode($item, JSON_PRETTY_PRINT);
-                    $remoteProduct = BdroppyRemoteProduct::fromRewixId($item->id);
-                    $remoteProduct->reference = self::fitReference($item->code, $item->id);
-                    $remoteProduct->rewix_catalog_id = $api_catalog;
-                    $remoteProduct->last_sync_date = date('Y-m-d H:i:s');
-                    if ($remoteProduct->sync_status == '' || $remoteProduct->reason != $item->lastUpdate) {
-                        $remoteProduct->sync_status = 'queued';
-                    }
-                    $remoteProduct->reason = $item->lastUpdate;
-                    $remoteProduct->data = $jsonProduct;
-                    $remoteProduct->save();
+                    $jsonData = str_replace("\\", "\\\\", json_encode($item));
+                    $jsonProduct = str_replace("'", "\'", $jsonData);
+                    $ref = self::fitReference($item->code, $item->id);
+                    $currentTime = date('Y-m-d H:i:s');
+                    $insertVals1 = "(
+                        ".$item->id.",
+                        '$api_catalog',
+                        0,
+                        'queued',
+                        '".$item->lastUpdate."',
+                        '$jsonProduct',
+                        '$currentTime',
+                        '$ref'
+                    )";
+                    $upsertSql = "INSERT INTO `" . _DB_PREFIX_ . "bdroppy_remoteproduct` (
+                        rewix_product_id,
+                        rewix_catalog_id,
+                        ps_product_id,
+                        sync_status,
+                        reason,
+                        data,
+                        last_sync_date,
+                        reference) VALUES $insertVals1 ON DUPLICATE KEY UPDATE 
+                        reference='$ref',
+                        rewix_catalog_id='$api_catalog',
+                        last_sync_date='$currentTime',
+                        sync_status='queued',
+                        reason='".$item->lastUpdate."',
+                        data='$jsonProduct';";
+                    $db->Execute($upsertSql);
                 }
+                $logMsg = 'getProductsJsonSince - done';
+                BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
             }
-            $logMsg = 'getProductsJsonSince - done';
-            BdroppyLogger::addLog(__METHOD__, $logMsg, 2);
         } else {
             BdroppyLogger::addLog(__METHOD__, 'http_code : ' . $http_code . ' - url : ' . $url .
                 ' data : '.$data, 2);
