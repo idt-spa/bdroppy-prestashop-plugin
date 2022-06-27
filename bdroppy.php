@@ -46,7 +46,7 @@ class Bdroppy extends Module
         $this->module_key = 'cf377ace94aa4ea3049a648914110eb6';
         $this->name = 'bdroppy';
         $this->tab = 'administration';
-        $this->version = '2.2.26';
+        $this->version = '2.2.27';
         $this->author = 'Bdroppy';
         $this->need_instance = 1;
 
@@ -551,6 +551,9 @@ class Bdroppy extends Module
             $bdroppy_reimport_image = (int)Tools::getValue('bdroppy_reimport_image');
             Configuration::updateValue('BDROPPY_REIMPORT_IMAGE', $bdroppy_reimport_image);
 
+            $bdroppy_update_categories = (int)Tools::getValue('bdroppy_update_categories');
+            Configuration::updateValue('BDROPPY_UPDATE_CATEGORIES', $bdroppy_update_categories);
+
             $bdroppy_tax_rate = (string)Tools::getValue('bdroppy_tax_rate');
             Configuration::updateValue('BDROPPY_TAX_RATE', $bdroppy_tax_rate);
 
@@ -670,6 +673,10 @@ class Bdroppy extends Module
         $bdroppy_reimport_image = Configuration::get('BDROPPY_REIMPORT_IMAGE');
         if ($bdroppy_reimport_image == '') {
             $bdroppy_reimport_image = '0';
+        }
+        $bdroppy_update_categories = Configuration::get('BDROPPY_UPDATE_CATEGORIES');
+        if ($bdroppy_update_categories == '') {
+            $bdroppy_update_categories = '0';
         }
         $bdroppy_import_brand_to_title = Configuration::get('BDROPPY_IMPORT_BRAND_TO_TITLE');
         $bdroppy_auto_update_prices = Configuration::get('BDROPPY_AUTO_UPDATE_PRICES');
@@ -857,6 +864,7 @@ class Bdroppy extends Module
             'bdroppy_online_only' => $bdroppy_online_only,
             'bdroppy_import_brand_to_title' => $bdroppy_import_brand_to_title,
             'bdroppy_reimport_image' => $bdroppy_reimport_image,
+            'bdroppy_update_categories' => $bdroppy_update_categories,
             'bdroppy_import_tag_to_title' => $bdroppy_import_tag_to_title,
             'bdroppy_auto_update_prices' => $bdroppy_auto_update_prices,
             'bdroppy_auto_update_name' => $bdroppy_auto_update_name,

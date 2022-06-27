@@ -816,7 +816,9 @@ class BdroppyImportTools
                 $product->active = (bool)Configuration::get('BDROPPY_ACTIVE_PRODUCT');
             }
             $product->save();
-            if (!$product->id || count($product->getCategories()) == 0) {
+            if (!$product->id ||
+            count($product->getCategories()) == 0 ||
+            Configuration::get('BDROPPY_UPDATE_CATEGORIES') == 1) {
                 // updateCategories requires the product to have an id already set
                 //$product->deleteCategories();
                 list($categories, $categoryDefaultId) = self::getCategoryIds($productData['tags'], $jsonProduct);
