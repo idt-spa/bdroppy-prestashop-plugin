@@ -153,7 +153,7 @@ class BdroppyRemoteCombination extends ObjectModel
         $query = new DbQuery();
         $query->select('count(*)');
         $query->from('bdroppy_remotecombination');
-        $query->where('`rewix_product_id` = '.pSQL($rewix_product_id));
+        $query->where('`rewix_product_id` = '. (int) $rewix_product_id);
 
         return Db::getInstance()->getValue($query);
     }
