@@ -198,7 +198,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                 $sql = "UPDATE `" . _DB_PREFIX_ . "bdroppy_remoteproduct` SET sync_status = '".BdroppyRemoteProduct::SYNC_STATUS_DELETE."';";
                 $delete_products = $db->ExecuteS($sql);
 
-                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%') LIMIT ".$api_limit_count.";";
+                $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE unity LIKE ('bdroppy-%') LIMIT ". (int) $api_limit_count.";";
                 $delete_products = $db->ExecuteS($sql);
                 if ($delete_products) {
                     foreach ($delete_products as $item) {
@@ -249,7 +249,7 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         //delete products
                         $hourAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` 
-                            WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT ".$api_limit_count.";";
+                            WHERE sync_status = 'delete' AND last_sync_date <= '$hourAgo' LIMIT ". (int) $api_limit_count.";";
                         $items = $db->ExecuteS($sql);
                         if ($items) {
                             foreach ($items as $item) {
@@ -285,11 +285,11 @@ class BdroppyCronModuleFrontController extends ModuleFrontController
                         $psProductField = 'ps_product_id';
                         $updateFlag = false;
                         $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                            "WHERE sync_status='queued' AND " . $psProductField . "=0 LIMIT " . $api_limit_count . ";";
+                            "WHERE sync_status='queued' AND " . $psProductField . "=0 LIMIT " . (int) $api_limit_count . ";";
                         $items = $db->ExecuteS($sql);
                         if (count($items) == 0) {
                             $sql = "SELECT * FROM `" . _DB_PREFIX_ . "bdroppy_remoteproduct` " .
-                                "WHERE sync_status='queued' LIMIT " . $api_limit_count . ";";
+                                "WHERE sync_status='queued' LIMIT " . (int) $api_limit_count . ";";
                             $items = $db->ExecuteS($sql);
                         }
                         if ($items) {
