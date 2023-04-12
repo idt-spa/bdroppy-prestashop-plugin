@@ -95,7 +95,7 @@ class BdroppyRemoteCategory extends ObjectModel
         $query = new DbQuery();
         $query->select('id');
         $query->from('bdroppy_remotecategory');
-        $query->where("rewix_category_id = '$id'");
+        $query->where('rewix_category_id = ' . (int) $id);
 
         $result = Db::getInstance()->getValue($query);
 
