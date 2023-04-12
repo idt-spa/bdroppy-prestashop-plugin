@@ -182,7 +182,7 @@ class BdroppyImportTools
 
                 $product = new Product($ps_product_id);
                 $sql = "SELECT * FROM `" . _DB_PREFIX_ . "product` WHERE id_product<>'" . (int)$ps_product_id .
-                    "' AND reference='$reference' AND unity='". pSQL('bdroppy-'.$api_catalog)."';";
+                    "' AND reference='" . pSQL($reference) . "' AND unity='". pSQL('bdroppy-'.$api_catalog)."';";
                 $dps = $db->ExecuteS($sql);
                 if ($dps) {
                     foreach ($dps as $d) {
@@ -294,8 +294,8 @@ class BdroppyImportTools
                 $websiteUrl = 'https://www.mediabd.it/storage-foto/prod/';
             }
             $product->deleteImages();
-            $db->delete('image', 'id_product = ' . $product->id);
-            $db->delete('image_shop', 'id_product = ' . $product->id);
+            $db->delete('image', 'id_product = ' . (int) $product->id);
+            $db->delete('image_shop', 'id_product = ' . (int) $product->id);
 
             $i = 0;
             if ($jsonProduct->pictures) {
@@ -1088,7 +1088,7 @@ class BdroppyImportTools
             $languages = Language::getLanguages(false);
             $first = true;
             //$product->deleteProductAttributes();
-            //$db->delete('stock_available', 'id_product = ' . $product->id);
+            //$db->delete('stock_available', 'id_product = ' . (int) $product->id);
 
             if ($jsonModels) {
                 foreach ($jsonModels as $model) {
@@ -1104,7 +1104,7 @@ class BdroppyImportTools
                     $defaultColor = self::getColor($jsonProduct, $default_lang);
                     $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
                         "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
-                        Configuration::get('BDROPPY_COLOR') . " AND al.name = '$defaultColor';";
+                        (int) Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . pSQL($defaultColor) ."';";
                     $r = $db->executeS($sql);
                     if ($r) {
                         $attribute = (object)$r[0];
@@ -1125,7 +1125,7 @@ class BdroppyImportTools
                         $attribute->save();
                         $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
                             "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group=" .
-                            Configuration::get('BDROPPY_COLOR') . " AND al.name = '$defaultColor';";
+                            (int) Configuration::get('BDROPPY_COLOR') . " AND al.name = '" . pSQL($defaultColor) ."';";
                         $r = $db->executeS($sql);
                         if ($r) {
                             $attribute = (object)$r[0];
@@ -1135,7 +1135,7 @@ class BdroppyImportTools
                     if ($model->size) {
                         $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
                             "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group = " .
-                            Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                            (int) Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . pSQL($model->size) . "';";
                         $r = $db->executeS($sql);
 
                         if ($r) {
@@ -1149,7 +1149,7 @@ class BdroppyImportTools
                             $attribute->save();
                             $sql = "SELECT * FROM " . _DB_PREFIX_ . "attribute a LEFT JOIN " . _DB_PREFIX_ .
                                 "attribute_lang al ON (a.id_attribute = al.id_attribute) WHERE a.id_attribute_group=" .
-                                Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . $model->size . "';";
+                                (int) Configuration::get('BDROPPY_SIZE') . " AND al.name = '" . pSQL($model->size) . "';";
                             $r = $db->executeS($sql);
 
                             if ($r) {
@@ -1175,16 +1175,16 @@ class BdroppyImportTools
                     $query = new DbQuery();
                     $query->select('*');
                     $query->from('product_attribute');
-                    $query->where("id_product=" . $product->id . " AND reference='" . $reference . "' AND isbn='" .
-                        $isbn_code . "'");
+                    $query->where("id_product=" . (int) $product->id . " AND reference='" . pSQL($reference) . "' AND isbn='" .
+                        pSQL($isbn_code) . "'");
                     $productAttributes = $db->executeS($query);
                     if ($productAttributes) {
                         // update attribute
                         foreach ($productAttributes as $productAttribute) {
                             $db->update(
                                 'product_attribute',
-                                array('wholesale_price' => $wholesale_price),
-                                'id_product_attribute = ' . $productAttribute['id_product_attribute']
+                                array('wholesale_price' => pSQL($wholesale_price)),
+                                'id_product_attribute = ' . (int) $productAttribute['id_product_attribute']
                             );
                             StockAvailable::setQuantity(
                                 $product->id,
