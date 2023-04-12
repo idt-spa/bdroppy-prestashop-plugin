@@ -79,7 +79,7 @@ class BdroppyRemoteOrder extends ObjectModel
         $query = new DbQuery();
         $query->select('id');
         $query->from('bdroppy_remoteorder');
-        $query->where('`rewix_order_id` = ' . pSQL($rewixOrderId));
+        $query->where('`rewix_order_id` = ' . (int) $rewixOrderId);
 
         return Db::getInstance()->getValue($query);
     }
@@ -94,7 +94,7 @@ class BdroppyRemoteOrder extends ObjectModel
         $query = new DbQuery();
         $query->select('rewix_order_id');
         $query->from('bdroppy_remoteorder');
-        $query->where('`id` = ' . pSQL($psOrderId));
+        $query->where('`id` = ' . (int) $psOrderId);
 
         return Db::getInstance()->getValue($query);
     }
@@ -124,7 +124,7 @@ class BdroppyRemoteOrder extends ObjectModel
         $query = new DbQuery();
         $query->select('*');
         $query->from('bdroppy_remoteorder');
-        $query->where('`status` != ' . pSQL($staus));
+        $query->where('`status` != ' . (int) $staus);
 
         return Db::getInstance()->ExecuteS($query);
     }
